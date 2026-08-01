@@ -2896,28 +2896,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
-```eof
-
----
-
-### **Letak Variabel Konfigurasi di dalam File `index.html`:**
-
-Buka file **`index.html`**, variabel konfigurasi Firebase berada di **bagian awal skrip JavaScript (sekitar baris 710 - 725)**:
-
-```javascript
-// =========================================================================
-// KONFIGURASI UTAMA FIREBASE REALTIME DATABASE & BACKEND
-// =========================================================================
-const IS_PREVIEW = false; // Set 'false' JIKA INGIN FULL SINKRONISASI ONLINE FIREBASE
-
-const FIREBASE_DB_URL = "https://guruku2-de371-default-rtdb.asia-southeast1.firebasedatabase.app/";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyDCF1N280Oo77uJM-fk2ElDKa1Rf-nNNRk",
-      authDomain: "guruku2-de371.firebaseapp.com",
-      databaseURL: "https://guruku2-de371-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "guruku2-de371",
-      storageBucket: "guruku2-de371.firebasestorage.app",
-      messagingSenderId: "508044856753",
-      appId: "1:508044856753:web:c8441ad06d2502d2ed0190"
-};
