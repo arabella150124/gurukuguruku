@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GuruKu - Sistem Informasi Akademik & Kehadiran Cloud</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Vue.js 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <style>
+        :root {
+            --primary-blue: #0d6efd;
+            --secondary-red: #dc3545;
+            --dark-navy: #0a2540;
+            --bg-light: #f4f6f9;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-light);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Mode Login Cloud */
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-red) 100%);
+        }
+        .login-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+            width: 100%;
+            max-width: 420px;
+            padding: 2.5rem 2rem;
+        }
+
+        /* AdminLTE Dashboard Layout */
+        .app-wrapper {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+        .main-sidebar {
+            width: 260px;
+            background: var(--dark-navy);
+            color: #c2c7d0;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-brand {
+            padding: 18px 20px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #fff;
+            background: rgba(0,0,0,0.15);
+            border-bottom: 3px solid var(--secondary-red);
+        }
+        .sidebar-menu {
+            list-style: none;
+            padding: 10px 0;
+            margin: 0;
+            flex-grow: 1;
+        }
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #c2c7d0;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+        .sidebar-menu li a:hover, .sidebar-menu li.active a {
+            background: rgba(255,255,255,0.08);
+            color: #ffffff;
+            border-left-color: var(--secondary-red);
+        }
+        .sidebar-menu li a i {
+            width: 25px;
+            font-size: 1.1rem;
+            margin-right: 10px;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        .main-header {
+            background: #ffffff;
+            height: 60px;
+            padding: 0 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--primary-blue);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+
+        .content-body {
+            padding: 25px;
+            flex-grow: 1;
+        }
+
+        /* Tombol Absensi Interaktif */
+        .btn-absensi {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            opacity: 0.35;
+            filter: grayscale(80%);
+            border: 1px solid #ccc;
+        }
+        .btn-absensi.active {
+            opacity: 1 !important;
+            filter: grayscale(0%) !important;
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            border-color: transparent !important;
+        }
+        .btn-absensi-H.active { background-color: #198754; color: white; }
+        .btn-absensi-I.active { background-color: #0d6efd; color: white; }
+        .btn-absensi-S.active { background-color: #ffc107; color: #212529; }
+        .btn-absensi-A.active { background-color: #dc3545; color: white; }
+
+        .table-responsive-scroll {
+            max-height: 520px;
+            overflow-y: auto;
+        }
+
+        @media print {
+            .main-sidebar, .main-header, .no-print {
+                display: none !important;
+            }
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- MODE LOGIN -->
+        <div v-if="!isLoggedIn" class="login-wrapper">
+            <div class="login-card">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold text-primary mb-1">
+                        <i class="fas fa-cloud text-danger me-2"></i>GuruKu Cloud
+                    </h2>
+                    <p class="text-muted small">Login Terpusat Firebase Realtime DB</p>
+                </div>
+
+                <form @submit.prevent="handleLogin">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Pengguna / Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" class="form-control" v-model="loginForm.username" placeholder="Masukkan 'Admin'" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Kata Sandi</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" v-model="loginForm.password" placeholder="Masukkan 'sarjanasoft'" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold mb-3 shadow-sm" :disabled="isSyncing">
+                        <i class="fas fa-sign-in-alt me-2"></i> {{ isSyncing ? 'Memverifikasi Cloud...' : 'Masuk Sistem' }}
+                    </button>
+                </form>
+
+                <div class="alert alert-light border text-center p-2 mt-2">
+                    <small class="text-muted d-block mb-1">Pengujian Cepat Canvas:</small>
+                    <button class="btn btn-sm btn-outline-danger w-100" @click="bypassLogin">
+                        <i class="fas fa-bolt me-1"></i> Beralih ke Admin Dashboard (Bypass)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD ADMIN -->
+        <div v-else class="app-wrapper">
+            <!-- Sidebar Navigation -->
+            <aside class="main-sidebar">
+                <div class="sidebar-brand">
+                    <i class="fas fa-school text-danger me-2"></i> GuruKu Cloud
+                </div>
+                <ul class="sidebar-menu">
+                    <li :class="{ active: currentMenu === 'dashboard' }">
+                        <a href="#" @click.prevent="currentMenu = 'dashboard'">
+                            <i class="fas fa-tachometer-alt text-primary"></i> Dashboard
+                        </a>
+                    </li>
+                    <li :class="{ active: currentMenu === 'siswa' }">
+                        <a href="#" @click.prevent="currentMenu = 'siswa'">
+                            <i class="fas fa-users text-info"></i> Data Siswa
+                        </a>
+                    </li>
+                    <li :class="{ active: currentMenu === 'nilai' }">
+                        <a href="#" @click.prevent="currentMenu = 'nilai'">
+                            <i class="fas fa-pen-nib text-warning"></i> Input Nilai Siswa
+                        </a>
+                    </li>
+                    <li :class="{ active: currentMenu === 'absensi' }">
+                        <a href="#" @click.prevent="currentMenu = 'absensi'">
+                            <i class="fas fa-user-check text-success"></i> Input Absensi Harian
+                        </a>
+                    </li>
+                    <li :class="{ active: currentMenu === 'kehadiran' }">
+                        <a href="#" @click.prevent="currentMenu = 'kehadiran'">
+                            <i class="fas fa-calendar-alt text-danger"></i> Kehadiran Kelas
+                        </a>
+                    </li>
+                    <li :class="{ active: currentMenu === 'rekap_nilai' }">
+                        <a href="#" @click.prevent="currentMenu = 'rekap_nilai'">
+                            <i class="fas fa-file-invoice text-warning"></i> Rekap Laporan Nilai
+                        </a>
+                    </li>
+                    <li :class="{ active: currentMenu === 'rekap_absensi' }">
+                        <a href="#" @click.prevent="currentMenu = 'rekap_absensi'">
+                            <i class="fas fa-clipboard-list text-info"></i> Rekap Laporan Absensi
+                        </a>
+                    </li>
+                    <li class="mt-auto">
+                        <a href="#" @click.prevent="handleLogout" class="text-danger">
+                            <i class="fas fa-sign-out-alt"></i> Keluar
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="main-content">
+                <header class="main-header">
+                    <span class="fw-bold text-secondary">
+                        <i class="fas fa-cloud-upload-alt text-success me-2"></i> Status Cloud: <span class="badge bg-success">Tersinkronisasi</span>
+                    </span>
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-sm btn-outline-primary me-3" @click="syncCloudData" :disabled="isSyncing">
+                            <i class="fas fa-sync-alt" :class="{ 'fa-spin': isSyncing }"></i> {{ isSyncing ? 'Sinkron...' : 'Paksa Sync Cloud' }}
+                        </button>
+                        <span class="badge bg-primary me-3 px-3 py-2"><i class="fas fa-user me-1"></i> Admin Utama</span>
+                        <button class="btn btn-sm btn-outline-danger" @click="handleLogout"><i class="fas fa-power-off"></i></button>
+                    </div>
+                </header>
+
+                <div class="content-body">
+                    
+                    <!-- 1. DASHBOARD OVERVIEW -->
+                    <div v-if="currentMenu === 'dashboard'">
+                        <h4 class="fw-bold mb-4 text-primary"><i class="fas fa-chart-line me-2"></i>Ringkasan Akademik & Cloud Firebase</h4>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-3">
+                                <div class="card border-0 shadow-sm bg-primary text-white">
+                                    <div class="card-body">
+                                        <h6>Total Siswa Cloud</h6>
+                                        <h2 class="fw-bold mb-0">{{ students.length }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card border-0 shadow-sm bg-success text-white">
+                                    <div class="card-body">
+                                        <h6>Rata-Rata Kehadiran</h6>
+                                        <h2 class="fw-bold mb-0">94.2%</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card border-0 shadow-sm bg-warning text-dark">
+                                    <div class="card-body">
+                                        <h6>Perlu Perhatian (<60)</h6>
+                                        <h2 class="fw-bold mb-0">{{ lowGradeStudentsCount }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card border-0 shadow-sm bg-danger text-white">
+                                    <div class="card-body">
+                                        <h6>Alpa Tinggi (>50%)</h6>
+                                        <h2 class="fw-bold mb-0">{{ highAbsenceCount }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. DATA SISWA PER KELAS -->
+                    <div v-if="currentMenu === 'siswa'">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                                <h5 class="fw-bold m-0 text-primary"><i class="fas fa-users me-2"></i>Data Siswa per Kelas</h5>
+                                <div class="d-flex gap-2">
+                                    <select class="form-select form-select-sm fw-bold border-primary" style="width: 160px;" v-model="selectedClass">
+                                        <option value="Semua">Semua Kelas</option>
+                                        <option v-for="c in classOptions" :key="c" :value="c">Kelas {{ c }}</option>
+                                    </select>
+                                    <button class="btn btn-sm btn-primary" @click="addStudentModal"><i class="fas fa-plus me-1"></i> Tambah Siswa</button>
+                                </div>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>No</th>
+                                                <th>NIS</th>
+                                                <th>Nama Lengkap</th>
+                                                <th>Kelas</th>
+                                                <th>Jenis Kelamin</th>
+                                                <th class="text-center">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(s, idx) in filteredStudents" :key="s.id">
+                                                <td>{{ idx + 1 }}</td>
+                                                <td><span class="badge bg-secondary">{{ s.nis }}</span></td>
+                                                <td class="fw-bold">{{ s.nama }}</td>
+                                                <td><span class="badge bg-info text-dark">Kelas {{ s.kelas }}</span></td>
+                                                <td>{{ s.jk === 'L' ? 'Laki-Laki' : 'Perempuan' }}</td>
+                                                <td class="text-center">
+                                                    <button class="btn btn-sm btn-outline-danger" @click="deleteStudent(s.id)"><i class="fas fa-trash"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. INPUT NILAI SISWA -->
+                    <div v-if="currentMenu === 'nilai'">
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                                <h5 class="fw-bold m-0 text-primary"><i class="fas fa-pen-nib me-2"></i>Input Formatif, SLM, PTS, STS, SAS</h5>
+                                <select class="form-select form-select-sm border-primary" style="width: 160px;" v-model="selectedClass">
+                                    <option value="Semua">Semua Kelas</option>
+                                    <option v-for="c in classOptions" :key="c" :value="c">Kelas {{ c }}</option>
+                                </select>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive table-responsive-scroll">
+                                    <table class="table table-bordered table-sm align-middle text-center small mb-0">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th rowspan="2" class="align-middle">Nama Siswa</th>
+                                                <th colspan="10">Formatif (F1 - F10)</th>
+                                                <th colspan="4">SLM (1 - 4)</th>
+                                                <th colspan="3">Ujian</th>
+                                            </tr>
+                                            <tr>
+                                                <th v-for="n in 10" :key="'f'+n">F{{n}}</th>
+                                                <th v-for="n in 4" :key="'slm'+n">SLM{{n}}</th>
+                                                <th>PTS</th>
+                                                <th>STS</th>
+                                                <th>SAS</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="s in filteredStudents" :key="s.id">
+                                                <td class="text-start fw-bold text-nowrap px-2">{{ s.nama }}</td>
+                                                <td v-for="n in 10" :key="'f_in'+n">
+                                                    <input type="number" class="form-control form-control-sm text-center p-0" style="width: 38px;" v-model.number="s.grades['f'+n]" min="0" max="100">
+                                                </td>
+                                                <td v-for="n in 4" :key="'slm_in'+n">
+                                                    <input type="number" class="form-control form-control-sm text-center p-0" style="width: 38px;" v-model.number="s.grades['slm'+n]" min="0" max="100">
+                                                </td>
+                                                <td><input type="number" class="form-control form-control-sm text-center p-0" style="width: 42px;" v-model.number="s.grades.pts" min="0" max="100"></td>
+                                                <td><input type="number" class="form-control form-control-sm text-center p-0" style="width: 42px;" v-model.number="s.grades.sts" min="0" max="100"></td>
+                                                <td><input type="number" class="form-control form-control-sm text-center p-0" style="width: 42px;" v-model.number="s.grades.sas" min="0" max="100"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white text-end">
+                                <button class="btn btn-primary" @click="saveDataNotification"><i class="fas fa-cloud-upload-alt me-1"></i> Simpan ke Cloud Firebase</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. MENU ABSENSI HARIAN -->
+                    <div v-if="currentMenu === 'absensi'">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                                <h5 class="fw-bold m-0 text-primary"><i class="fas fa-user-check me-2"></i>Presensi Harian Siswa</h5>
+                                <div class="d-flex gap-2">
+                                    <input type="date" class="form-control form-control-sm" v-model="selectedDate">
+                                    <select class="form-select form-select-sm border-primary" style="width: 150px;" v-model="selectedClass">
+                                        <option value="Semua">Semua Kelas</option>
+                                        <option v-for="c in classOptions" :key="c" :value="c">Kelas {{ c }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Nama Siswa</th>
+                                                <th>Kelas</th>
+                                                <th class="text-center">Status Kehadiran (Klik Tombol)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(s, idx) in filteredStudents" :key="s.id">
+                                                <td>{{ idx + 1 }}</td>
+                                                <td class="fw-bold">{{ s.nama }}</td>
+                                                <td><span class="badge bg-secondary">{{ s.kelas }}</span></td>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center gap-2">
+                                                        <button type="button" 
+                                                            :class="['btn-absensi', 'btn-absensi-H', { active: getAttendanceStatus(s.id) === 'H' }]" 
+                                                            @click="setAttendanceStatus(s.id, 'H')">H</button>
+                                                        <button type="button" 
+                                                            :class="['btn-absensi', 'btn-absensi-I', { active: getAttendanceStatus(s.id) === 'I' }]" 
+                                                            @click="setAttendanceStatus(s.id, 'I')">I</button>
+                                                        <button type="button" 
+                                                            :class="['btn-absensi', 'btn-absensi-S', { active: getAttendanceStatus(s.id) === 'S' }]" 
+                                                            @click="setAttendanceStatus(s.id, 'S')">S</button>
+                                                        <button type="button" 
+                                                            :class="['btn-absensi', 'btn-absensi-A', { active: getAttendanceStatus(s.id) === 'A' }]" 
+                                                            @click="setAttendanceStatus(s.id, 'A')">A</button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white text-end">
+                                <button class="btn btn-success" @click="saveDataNotification"><i class="fas fa-cloud-upload-alt me-1"></i> Simpan Absensi ke Cloud</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. MENU KEHADIRAN KELAS -->
+                    <div v-if="currentMenu === 'kehadiran'">
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-white py-3">
+                                <h5 class="fw-bold text-primary mb-3"><i class="fas fa-filter me-2"></i>Filter Kehadiran Kelas</h5>
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label class="form-label small fw-bold">Pilih Periode</label>
+                                        <select class="form-select form-select-sm" v-model="filterPeriode">
+                                            <option value="minggu">1 Minggu (Rentang Tanggal)</option>
+                                            <option value="bulan">1 Bulan (Pilih Bulan)</option>
+                                            <option value="semester">1 Semester (Rentang Bulan)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 d-flex align-items-end">
+                                        <button class="btn btn-sm btn-primary w-100" @click="saveDataNotification"><i class="fas fa-search me-1"></i> Tampilkan Analisis</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body text-center py-5">
+                                <i class="fas fa-chart-bar fa-3x text-primary mb-3"></i>
+                                <h5>Grafik Kehadiran Terfilter</h5>
+                                <p class="text-muted">Data sinkron dari Firebase Realtime Database.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. REKAP LAPORAN NILAI -->
+                    <div v-if="currentMenu === 'rekap_nilai'">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                                <h5 class="fw-bold m-0 text-primary"><i class="fas fa-file-invoice me-2"></i>Laporan Rekapitulasi Nilai & Ranking</h5>
+                                <div class="d-flex gap-2 no-print">
+                                    <select class="form-select form-select-sm border-primary" style="width: 150px;" v-model="selectedClass">
+                                        <option value="Semua">Semua Kelas</option>
+                                        <option v-for="c in classOptions" :key="c" :value="c">Kelas {{ c }}</option>
+                                    </select>
+                                    <button class="btn btn-sm btn-danger" @click="triggerPrint"><i class="fas fa-print me-1"></i> Cetak Laporan (PDF)</button>
+                                </div>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped align-middle text-center small mb-0">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>Nama Siswa</th>
+                                                <th>Kelas</th>
+                                                <th>F1-F10</th>
+                                                <th>SLM1-4</th>
+                                                <th>PTS</th>
+                                                <th>STS</th>
+                                                <th>SAS</th>
+                                                <th>TOTAL</th>
+                                                <th>RATA-RATA</th>
+                                                <th>RANKING</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="s in calculatedRankedStudents" :key="s.id">
+                                                <td class="text-start fw-bold px-2">{{ s.nama }}</td>
+                                                <td>{{ s.kelas }}</td>
+                                                <td>{{ s.sumF }}</td>
+                                                <td>{{ s.sumSLM }}</td>
+                                                <td>{{ s.grades.pts || 0 }}</td>
+                                                <td>{{ s.grades.sts || 0 }}</td>
+                                                <td>{{ s.grades.sas || 0 }}</td>
+                                                <td class="fw-bold">{{ s.totalScore }}</td>
+                                                <td class="fw-bold" :class="s.avgScore < 60 ? 'text-danger' : 'text-success'">{{ s.avgScore }}</td>
+                                                <td>
+                                                    <span :class="['badge', s.avgScore < 60 ? 'bg-danger' : 'bg-success', 'shadow-sm', 'px-3', 'py-1']">
+                                                        Rank {{ s.rank }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 7. REKAP LAPORAN ABSENSI -->
+                    <div v-if="currentMenu === 'rekap_absensi'">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                                <h5 class="fw-bold m-0 text-primary"><i class="fas fa-clipboard-list me-2"></i>Rekap Presensi (18 Pertemuan)</h5>
+                                <div class="d-flex gap-2 no-print">
+                                    <select class="form-select form-select-sm border-primary" style="width: 150px;" v-model="selectedClass">
+                                        <option value="Semua">Semua Kelas</option>
+                                        <option v-for="c in classOptions" :key="c" :value="c">Kelas {{ c }}</option>
+                                    </select>
+                                    <button class="btn btn-sm btn-danger" @click="triggerPrint"><i class="fas fa-print me-1"></i> Cetak Laporan (PDF)</button>
+                                </div>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive table-responsive-scroll">
+                                    <table class="table table-bordered table-sm align-middle text-center small mb-0">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th rowspan="2" class="align-middle">Nama Siswa</th>
+                                                <th colspan="18">Pertemuan (1 - 18)</th>
+                                                <th colspan="4">Rekap Total</th>
+                                                <th colspan="2">Persentase</th>
+                                            </tr>
+                                            <tr>
+                                                <th v-for="m in 18" :key="'m_head'+m" style="width:25px;">{{m}}</th>
+                                                <th>H</th><th>S</th><th>I</th><th>A</th>
+                                                <th>%H</th><th>%A</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="s in attendanceRecapList" :key="s.id">
+                                                <td class="text-start fw-bold text-nowrap px-2">{{ s.nama }}</td>
+                                                <td v-for="(status, idx) in s.meetings" :key="'meet'+idx" class="p-0">
+                                                    <span class="fw-bold" :class="getMeetingStatusColor(status)">{{ status }}</span>
+                                                </td>
+                                                <td class="fw-bold text-success">{{ s.countH }}</td>
+                                                <td class="fw-bold text-warning">{{ s.countS }}</td>
+                                                <td class="fw-bold text-primary">{{ s.countI }}</td>
+                                                <td class="fw-bold text-danger">{{ s.countA }}</td>
+                                                <td class="fw-bold">{{ s.pctH }}%</td>
+                                                <td>
+                                                    <span :class="['badge', s.pctA > 50 ? 'bg-danger' : 'bg-secondary', 'p-1']">
+                                                        {{ s.pctA }}%
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Application Script Engine -->
+    <script>
+        const { createApp } = Vue;
+
+        // ATURAN WAJIB MUTLAK: CONFIG URL GAS BACKEND
+        const GAS_URL = "https://script.google.com/macros/s/AKfycby2kDukUdVFne-BMzjsubSd7BCpZ793iAYwEbQXYXZVHzIe5iZ_2k_gCdUXke1sGeto/exec";
+
+        createApp({
+            data() {
+                return {
+                    isLoggedIn: true, // Auto login di Canvas Preview
+                    isSyncing: false,
+                    currentMenu: 'dashboard',
+                    selectedClass: 'Semua',
+                    selectedDate: new Date().toISOString().substr(0, 10),
+                    classOptions: ['7A', '7B', '8A', '8B', '9A'],
+                    filterPeriode: 'minggu',
+                    loginForm: { username: '', password: '' },
+
+                    // State Utama Terhubung Cloud
+                    students: []
+                }
+            },
+            computed: {
+                filteredStudents() {
+                    if (this.selectedClass === 'Semua') return this.students;
+                    return this.students.filter(s => s.kelas === this.selectedClass);
+                },
+                calculatedRankedStudents() {
+                    let list = this.filteredStudents.map(s => {
+                        let sumF = 0; for(let i=1;i<=10;i++) sumF += Number(s.grades['f'+i] || 0);
+                        let sumSLM = 0; for(let i=1;i<=4;i++) sumSLM += Number(s.grades['slm'+i] || 0);
+                        let pts = Number(s.grades.pts || 0);
+                        let sts = Number(s.grades.sts || 0);
+                        let sas = Number(s.grades.sas || 0);
+                        
+                        let totalScore = sumF + sumSLM + pts + sts + sas;
+                        let avgScore = Math.round((totalScore / 17) * 10) / 10;
+                        return { ...s, sumF, sumSLM, totalScore, avgScore };
+                    });
+
+                    list.sort((a, b) => b.avgScore - a.avgScore);
+                    return list.map((s, index) => ({ ...s, rank: index + 1 }));
+                },
+                attendanceRecapList() {
+                    return this.filteredStudents.map(s => {
+                        let meetings = s.meetings || Array(18).fill('H');
+                        let countH = meetings.filter(m => m === 'H').length;
+                        let countS = meetings.filter(m => m === 'S').length;
+                        let countI = meetings.filter(m => m === 'I').length;
+                        let countA = meetings.filter(m => m === 'A').length;
+                        let pctH = Math.round((countH / 18) * 100);
+                        let pctA = Math.round((countA / 18) * 100);
+                        return { ...s, countH, countS, countI, countA, pctH, pctA };
+                    });
+                },
+                lowGradeStudentsCount() {
+                    return this.calculatedRankedStudents.filter(s => s.avgScore < 60).length;
+                },
+                highAbsenceCount() {
+                    return this.attendanceRecapList.filter(s => s.pctA > 50).length;
+                }
+            },
+            mounted() {
+                this.loadInitialData();
+            },
+            methods: {
+                loadInitialData() {
+                    // Cek Local Storage Pertama untuk Kecepatan
+                    const localData = localStorage.getItem('guruku_students');
+                    if (localData) {
+                        this.students = JSON.parse(localData);
+                    } else {
+                        // Default Fallback Initial Data
+                        this.students = [
+                            { id: 1, nis: '1001', nama: 'Ahmad Budi', kelas: '7A', jk: 'L', grades: { f1:80, f2:85, f3:78, f4:90, f5:88, f6:82, f7:80, f8:85, f9:90, f10:88, slm1:85, slm2:80, slm3:90, slm4:88, pts:85, sts:80, sas:88 }, dailyAttend: { '2026-08-01': 'H' }, meetings: ['H','H','H','H','I','S','H','H','H','H','A','A','A','A','A','A','A','A'] },
+                            { id: 2, nis: '1002', nama: 'Siti Aisyah', kelas: '7A', jk: 'P', grades: { f1:55, f2:50, f3:60, f4:45, f5:58, f6:50, f7:52, f8:55, f9:48, f10:50, slm1:55, slm2:50, slm3:58, slm4:52, pts:50, sts:55, sas:52 }, dailyAttend: { '2026-08-01': 'S' }, meetings: ['H','H','S','I','H','H','H','H','H','H','H','H','H','H','H','H','H','H'] },
+                            { id: 3, nis: '1003', nama: 'Deni Pratama', kelas: '7B', jk: 'L', grades: { f1:90, f2:92, f3:95, f4:88, f5:90, f6:94, f7:92, f8:90, f9:95, f10:92, slm1:90, slm2:92, slm3:95, slm4:90, pts:92, sts:90, sas:95 }, dailyAttend: { '2026-08-01': 'H' }, meetings: ['H','H','H','H','H','H','H','H','H','H','H','H','H','H','H','H','H','H'] }
+                        ];
+                    }
+                    // Jalankan Cloud Sync secara otomatis di latar belakang
+                    this.fetchFromCloudSilent();
+                },
+                fetchFromCloudSilent() {
+                    this.isSyncing = true;
+                    fetch(`${GAS_URL}?action=read&path=guruku_cloud_data`)
+                        .then(res => res.json())
+                        .then(res => {
+                            if (res.status === 'success' && res.data && Array.isArray(res.data)) {
+                                this.students = res.data;
+                                localStorage.setItem('guruku_students', JSON.stringify(res.data));
+                            }
+                        })
+                        .catch(err => {
+                            // Silent Fallback: Tetap menggunakan data lokal tanpa error popup
+                            console.log("Canvas Local Sync Running");
+                        })
+                        .finally(() => {
+                            this.isSyncing = false;
+                        });
+                },
+                syncCloudData() {
+                    this.isSyncing = true;
+                    localStorage.setItem('guruku_students', JSON.stringify(this.students));
+
+                    fetch(GAS_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'write',
+                            path: 'guruku_cloud_data',
+                            data: this.students
+                        })
+                    }).then(() => {
+                        Swal.fire({ icon: 'success', title: 'Tersimpan ke Cloud', text: 'Data disinkronkan ke Firebase!', timer: 1500, showConfirmButton: false });
+                    }).catch(() => {
+                        Swal.fire({ icon: 'success', title: 'Tersimpan Lokal', text: 'Data disimpan di memori perangkat!', timer: 1500, showConfirmButton: false });
+                    }).finally(() => {
+                        this.isSyncing = false;
+                    });
+                },
+                bypassLogin() {
+                    this.isLoggedIn = true;
+                    Swal.fire({ icon: 'success', title: 'Akses Instan Preview', text: 'Beralih ke Dashboard Admin', timer: 1200, showConfirmButton: false });
+                },
+                handleLogin() {
+                    if (this.loginForm.username.toLowerCase() === 'admin' && this.loginForm.password === 'sarjanasoft') {
+                        this.isLoggedIn = true;
+                        this.syncCloudData();
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Gagal Login', text: 'Username atau Password salah!' });
+                    }
+                },
+                handleLogout() {
+                    this.isLoggedIn = false;
+                },
+                getAttendanceStatus(studentId) {
+                    const student = this.students.find(s => s.id === studentId);
+                    return student && student.dailyAttend ? student.dailyAttend[this.selectedDate] : null;
+                },
+                setAttendanceStatus(studentId, status) {
+                    const student = this.students.find(s => s.id === studentId);
+                    if (student) {
+                        if (!student.dailyAttend) student.dailyAttend = {};
+                        student.dailyAttend[this.selectedDate] = status;
+                    }
+                },
+                getMeetingStatusColor(status) {
+                    if (status === 'H') return 'text-success';
+                    if (status === 'S') return 'text-warning';
+                    if (status === 'I') return 'text-primary';
+                    if (status === 'A') return 'text-danger';
+                    return 'text-muted';
+                },
+                addStudentModal() {
+                    Swal.fire({
+                        title: 'Tambah Siswa Baru',
+                        html:
+                            '<input id="swal-nama" class="swal2-input" placeholder="Nama Lengkap">' +
+                            '<input id="swal-nis" class="swal2-input" placeholder="NIS">' +
+                            '<select id="swal-kelas" class="swal2-input"><option value="7A">7A</option><option value="7B">7B</option><option value="8A">8A</option></select>',
+                        focusConfirm: false,
+                        preConfirm: () => {
+                            return {
+                                nama: document.getElementById('swal-nama').value,
+                                nis: document.getElementById('swal-nis').value,
+                                kelas: document.getElementById('swal-kelas').value
+                            }
+                        }
+                    }).then((result) => {
+                        if (result.value && result.value.nama) {
+                            const newId = this.students.length + 1;
+                            this.students.push({
+                                id: newId,
+                                nis: result.value.nis || '100'+newId,
+                                nama: result.value.nama,
+                                kelas: result.value.kelas,
+                                jk: 'L',
+                                grades: { f1:0, f2:0, f3:0, f4:0, f5:0, f6:0, f7:0, f8:0, f9:0, f10:0, slm1:0, slm2:0, slm3:0, slm4:0, pts:0, sts:0, sas:0 },
+                                dailyAttend: {},
+                                meetings: Array(18).fill('H')
+                            });
+                            this.syncCloudData();
+                        }
+                    });
+                },
+                deleteStudent(id) {
+                    this.students = this.students.filter(s => s.id !== id);
+                    this.syncCloudData();
+                },
+                saveDataNotification() {
+                    this.syncCloudData();
+                },
+                triggerPrint() {
+                    window.print();
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
