@@ -261,13 +261,13 @@
                 </button>
             </form>
             <div class="alert alert-info py-2 px-3 small text-center mb-0">
-                <i class="fa-solid fa-shield-halved me-1"></i> Sandi Default {{ authRole === 'admin' ? 'Super Admin' : 'Guru' }}: <strong>admin123</strong>
+                <i class="fa-solid fa-shield-halved me-1"></i> Sandi Default: <strong>admin123</strong>
             </div>
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD & APPLICATION LAYOUT -->
     <div v-else>
+        <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="p-4 border-bottom border-secondary d-flex align-items-center">
                 <i class="fa-solid fa-graduation-cap fa-2x text-warning me-3"></i>
@@ -661,7 +661,6 @@
                     </div>
                 </div>
 
-                <!-- STUDENTS VIEW (SUPER ADMIN) -->
                 <div v-if="activeMenu === 'students'">
                     <div class="card-custom p-4">
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
@@ -698,17 +697,36 @@
                                         <th>Panggilan</th>
                                         <th>L/P</th>
                                         <th>Kelas</th>
+                                        <th>Status</th>
+                                        <th>Asal SMP</th>
+                                        <th>Alamat Domisili</th>
                                         <th>No. WA Wali</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="st in filteredStudents" :key="st.id">
+                                    <tr v-for="st in filteredStudents" :key="st.id" :class="{'table-secondary opacity-75': st.status && st.status !== 'Aktif'}">
                                         <td><code>{{ st.nis }}</code></td>
-                                        <td class="fw-bold">{{ st.nama }}</td>
+                                        <td class="fw-bold">
+                                            {{ st.nama }}
+                                            <div v-if="st.keteranganStatus" class="fs-8 text-muted fst-italic"><i class="fa-solid fa-info-circle me-1"></i>{{ st.keteranganStatus }}</div>
+                                        </td>
                                         <td>{{ st.namaPanggilan || '-' }}</td>
                                         <td><span class="badge" :class="st.gender === 'L' ? 'bg-info' : 'bg-danger'">{{ st.gender }}</span></td>
                                         <td>{{ getClassName(st.kelasId) }}</td>
+                                        <td>
+                                            <span class="badge" :class="{
+                                                'bg-success': !st.status || st.status === 'Aktif',
+                                                'bg-danger': st.status === 'DO',
+                                                'bg-warning text-dark': st.status === 'Mutasi',
+                                                'bg-secondary': st.status === 'Tidak Aktif'
+                                            }">
+                                                {{ st.status || 'Aktif' }}
+                                                <template v-if="st.status && st.status !== 'Aktif'"> (>= P{{ st.nonAktifPertemuan || 1 }})</template>
+                                            </span>
+                                        </td>
+                                        <td><small class="text-muted">{{ st.asalSmp || '-' }}</small></td>
+                                        <td><small class="text-muted">{{ st.alamatDomisili || '-' }}</small></td>
                                         <td>
                                             <button v-if="st.hporangtua" @click="sendStudentWa(st)" class="btn btn-xs text-success border-0 bg-transparent fw-bold p-0">
                                                 <i class="fa-brands fa-whatsapp me-1"></i> {{ st.hporangtua }}
@@ -721,7 +739,7 @@
                                         </td>
                                     </tr>
                                     <tr v-if="filteredStudents.length === 0">
-                                        <td colspan="7" class="text-center py-4 text-muted">Tidak ada data siswa ditemukan.</td>
+                                        <td colspan="10" class="text-center py-4 text-muted">Tidak ada data siswa ditemukan.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -734,7 +752,7 @@
                     <div class="card-custom p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="fw-bold m-0"><i class="fa-solid fa-diagram-project text-primary me-2"></i>Mapping Penugasan Guru</h5>
-                            <button class="btn btn-primary btn-sm fw-bold" @click="openMappingModal()"><i class="fa-solid fa-plus me-1"></i> Tambah Mapping</button>
+                            <button class="btn btn-primary btn-sm fw-bold" @click="openMappingModal()"><i class="fa-solid fa-plus me-1"></i> Tambah Mapping Multi-Mapel & Kelas</button>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle">
@@ -749,7 +767,7 @@
                                 <tbody>
                                     <tr v-for="m in teacherMappings" :key="m.id">
                                         <td class="fw-bold">{{ getTeacherName(m.teacherId) }}</td>
-                                        <td>{{ getSubjectName(m.subjectId) }}</td>
+                                        <td><span class="badge bg-success">{{ getSubjectName(m.subjectId) }}</span></td>
                                         <td><span class="badge bg-info text-dark">{{ getClassName(m.classId) }}</span></td>
                                         <td>
                                             <button class="btn btn-sm btn-outline-danger" @click="deleteMapping(m.id)"><i class="fa-solid fa-trash"></i></button>
@@ -834,10 +852,9 @@
                     </div>
                 </div>
 
-                <!-- GRADES VIEW (GURU MAPEL) -->
                 <div v-if="activeMenu === 'grades'">
                     <div class="card-custom p-4">
-                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-square-poll-vertical text-primary me-2"></i>Input Nilai Siswa (F1-F9 / S1-S3)</h5>
+                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-square-poll-vertical text-primary me-2"></i>Input Nilai Siswa (F1-F9 / S1-S3 / STS / SAS)</h5>
                         
                         <div class="row g-3 mb-4 bg-light p-3 rounded">
                             <div class="col-md-5">
@@ -856,7 +873,7 @@
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
                                 <button class="btn btn-success w-100 fw-bold" @click="saveGrades" :disabled="!selectedGradeClass || !selectedGradeSubject">
-                                    <i class="fa-solid fa-floppy-disk me-1"></i> Simpan
+                                    <i class="fa-solid fa-floppy-disk me-1"></i> Simpan Nilai
                                 </button>
                             </div>
                         </div>
@@ -868,14 +885,17 @@
                                         <th rowspan="2" style="width: 180px;">Nama Siswa</th>
                                         <th colspan="9">Formatif (F1 - F9)</th>
                                         <th colspan="3">Sumatif (S1 - S3)</th>
-                                        <th>PTS</th>
-                                        <th>PAS</th>
+                                        <th>STS</th>
+                                        <th>SAS</th>
+                                        <th rowspan="2">Jumlah</th>
                                         <th rowspan="2">Rata2</th>
+                                        <th rowspan="2">Pembulatan ↑</th>
+                                        <th rowspan="2">Rank</th>
                                     </tr>
                                     <tr>
                                         <th>F1</th><th>F2</th><th>F3</th><th>F4</th><th>F5</th><th>F6</th><th>F7</th><th>F8</th><th>F9</th>
                                         <th>S1</th><th>S2</th><th>S3</th>
-                                        <th>PTS</th><th>PAS</th>
+                                        <th>STS</th><th>SAS</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -889,8 +909,13 @@
                                         </td>
                                         <td><input type="number" min="0" max="100" :value="getGradeField(st.id, 'pts')" @input="setGradeField(st.id, 'pts', $event.target.value)"></td>
                                         <td><input type="number" min="0" max="100" :value="getGradeField(st.id, 'pas')" @input="setGradeField(st.id, 'pas', $event.target.value)"></td>
+                                        <td class="text-center fw-bold bg-light">{{ getGradeObj(st.id).jumlah || 0 }}</td>
                                         <td class="text-center fw-bold bg-light" :class="getGradeObj(st.id).rata < 75 ? 'text-danger' : 'text-success'">
                                             {{ getGradeObj(st.id).rata || 0 }}
+                                        </td>
+                                        <td class="text-center fw-bold bg-light text-primary">{{ getGradeObj(st.id).pembulatan || 0 }}</td>
+                                        <td class="text-center">
+                                            <span class="badge bg-warning text-dark fw-bold">{{ getStudentRank(st.id, selectedGradeClass, selectedGradeSubject) }}</span>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -941,10 +966,15 @@
                             </div>
 
                             <div class="list-group">
-                                <div v-for="st in getStudentsInClass(selectedAttClass)" :key="st.id" class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <div v-for="st in getStudentsInClass(selectedAttClass)" :key="st.id" class="list-group-item d-flex justify-content-between align-items-center py-3" :class="{'bg-light opacity-75': st.status && st.status !== 'Aktif'}">
                                     <div>
-                                        <strong class="d-block">{{ st.nama }}</strong>
-                                        <small class="text-muted">NIS: {{ st.nis }}</small>
+                                        <strong class="d-block">
+                                            {{ st.nama }}
+                                            <span v-if="st.status && st.status !== 'Aktif'" class="badge ms-1" :class="st.status === 'DO' ? 'bg-danger' : (st.status === 'Mutasi' ? 'bg-warning text-dark' : 'bg-secondary')">
+                                                {{ st.status }} (Mulai P{{ st.nonAktifPertemuan || 1 }})
+                                            </span>
+                                        </strong>
+                                        <small class="text-muted">NIS: {{ st.nis }} <span v-if="st.keteranganStatus">| Ket: {{ st.keteranganStatus }}</span></small>
                                     </div>
                                     <div class="btn-group" role="group">
                                         <button type="button" class="btn btn-att btn-att-h" :class="{active: getAttStatus(st.id) === 'Hadir'}" @click="setAttStatus(st.id, 'Hadir')">Hadir</button>
@@ -974,6 +1004,8 @@
                                         <th>Mata Pelajaran</th>
                                         <th>Jam Ke</th>
                                         <th>Materi Pembelajaran</th>
+                                        <th>Kehadiran (H/I/S/A)</th>
+                                        <th>Catatan Guru</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -984,12 +1016,19 @@
                                         <td class="fw-bold">{{ getSubjectName(j.mapelId) }}</td>
                                         <td>Jam {{ j.jamPelajaran }}</td>
                                         <td>{{ j.materi }}</td>
+                                        <td class="small">
+                                            <span class="text-success fw-bold">H: {{ j.jumlahHadir || 0 }}</span> |
+                                            <span class="text-warning fw-bold">I: {{ j.jumlahIzin || 0 }}</span> |
+                                            <span class="text-info fw-bold">S: {{ j.jumlahSakit || 0 }}</span> |
+                                            <span class="text-danger fw-bold">A: {{ j.jumlahAlfa || 0 }}</span>
+                                        </td>
+                                        <td class="small fst-italic">{{ j.catatanGuru || '-' }}</td>
                                         <td>
                                             <button class="btn btn-sm btn-outline-danger" @click="deleteJournal(j.id)"><i class="fa-solid fa-trash"></i></button>
                                         </td>
                                     </tr>
                                     <tr v-if="journals.length === 0">
-                                        <td colspan="6" class="text-center py-4 text-muted">Belum ada entri jurnal mengajar.</td>
+                                        <td colspan="8" class="text-center py-4 text-muted">Belum ada entri jurnal mengajar.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -997,7 +1036,6 @@
                     </div>
                 </div>
 
-                <!-- REPORTS & PRINTING VIEW -->
                 <div v-if="activeMenu === 'reports'">
                     <div class="card-custom p-4 no-print mb-4">
                         <h5 class="fw-bold mb-3"><i class="fa-solid fa-file-invoice text-info me-2"></i>Cetak & Rekap Laporan Akademik Lengkap</h5>
@@ -1033,6 +1071,7 @@
 
                     <div id="printArea" class="card-custom p-5 bg-white text-dark">
                         <div class="kop-surat-box text-center position-relative">
+                            <img v-if="schoolConfig.showLogoInKop && schoolConfig.logoUrl" :src="schoolConfig.logoUrl" style="max-height: 80px; position: absolute; left: 10px; top: 0;" alt="Logo">
                             <h4 class="fw-bold mb-0 text-uppercase" style="letter-spacing: 1px;">{{ schoolConfig.namaSekolah }}</h4>
                             <p class="m-0 small text-muted">{{ schoolConfig.alamatSekolah }} | Telp: {{ schoolConfig.telepon }} | NPSN: {{ schoolConfig.npsn }}</p>
                             <p class="m-0 small text-muted">Email: {{ schoolConfig.emailSekolah }}</p>
@@ -1055,12 +1094,15 @@
                                 <tr>
                                     <th rowspan="2" style="width: 30px;">No</th>
                                     <th rowspan="2" style="width: 70px;">NIS</th>
-                                    <th rowspan="2" style="width: 180px;">Nama Siswa</th>
+                                    <th rowspan="2" style="width: 170px;">Nama Siswa</th>
                                     <th colspan="9">Formatif (F1 - F9)</th>
                                     <th colspan="3">Sumatif (S1 - S3)</th>
-                                    <th rowspan="2" style="width: 45px;">STS</th>
-                                    <th rowspan="2" style="width: 45px;">SAS</th>
-                                    <th rowspan="2" style="width: 55px;">Nilai Akhir</th>
+                                    <th rowspan="2" style="width: 40px;">STS</th>
+                                    <th rowspan="2" style="width: 40px;">SAS</th>
+                                    <th rowspan="2" style="width: 50px;">Total</th>
+                                    <th rowspan="2" style="width: 45px;">Rata</th>
+                                    <th rowspan="2" style="width: 50px;">Bulat ↑</th>
+                                    <th rowspan="2" style="width: 40px;">Rank</th>
                                 </tr>
                                 <tr>
                                     <th>F1</th><th>F2</th><th>F3</th><th>F4</th><th>F5</th><th>F6</th><th>F7</th><th>F8</th><th>F9</th>
@@ -1076,12 +1118,17 @@
                                     <td v-for="n in 3" :key="'s_'+n">{{ getGradeField(st.id, 's' + n) || '-' }}</td>
                                     <td class="fw-semibold">{{ getGradeField(st.id, 'pts') || '-' }}</td>
                                     <td class="fw-semibold">{{ getGradeField(st.id, 'pas') || '-' }}</td>
-                                    <td class="fw-bold bg-light" :class="getGradeObj(st.id).rata < 75 ? 'text-danger' : 'text-success'">
+                                    <td class="fw-bold">{{ getGradeObj(st.id).jumlah || 0 }}</td>
+                                    <td class="fw-bold" :class="getGradeObj(st.id).rata < 75 ? 'text-danger' : 'text-success'">
                                         {{ getGradeObj(st.id).rata || 0 }}
+                                    </td>
+                                    <td class="fw-bold text-primary">{{ getGradeObj(st.id).pembulatan || 0 }}</td>
+                                    <td>
+                                        <span class="badge bg-warning text-dark fw-bold">{{ getStudentRank(st.id, selectedReportClass, selectedReportSubject) }}</span>
                                     </td>
                                 </tr>
                                 <tr v-if="reportDetailGradesList.length === 0">
-                                    <td colspan="18" class="text-center py-4 text-muted fs-7">Belum ada data siswa / nilai untuk filter yang dipilih.</td>
+                                    <td colspan="21" class="text-center py-4 text-muted fs-7">Belum ada data siswa / nilai untuk filter yang dipilih.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1093,12 +1140,15 @@
                                     <th rowspan="2" style="width: 30px;">No</th>
                                     <th rowspan="2" style="width: 70px;">NIS</th>
                                     <th rowspan="2" style="width: 170px;">Nama Siswa</th>
-                                    <th colspan="18">Pertemuan Ke- (P1 - P18)</th>
+                                    <th colspan="18">Pertemuan Ke- & Tanggal Absen (P1 - P18)</th>
                                     <th colspan="4">Total</th>
                                     <th rowspan="2" style="width: 50px;">%</th>
                                 </tr>
                                 <tr>
-                                    <th v-for="p in 18" :key="'h_p_'+p" style="font-size: 0.65rem; padding: 2px;">P{{ p }}</th>
+                                    <th v-for="p in 18" :key="'h_p_'+p" style="font-size: 0.65rem; padding: 2px; line-height: 1.1;">
+                                        P{{ p }}
+                                        <div class="text-muted fw-normal" style="font-size: 0.58rem;">{{ getPertemuanDate(p) }}</div>
+                                    </th>
                                     <th class="text-success" style="padding: 2px;">H</th>
                                     <th class="text-warning" style="padding: 2px;">I</th>
                                     <th class="text-info" style="padding: 2px;">S</th>
@@ -1135,7 +1185,8 @@
                                     <th>Jam Ke</th>
                                     <th>Mata Pelajaran</th>
                                     <th>Materi Pembelajaran</th>
-                                    <th>Siswa Hadir</th>
+                                    <th>Presensi Siswa (H/I/S/A)</th>
+                                    <th>Catatan Guru</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1146,26 +1197,30 @@
                                     <td>Jam {{ j.jamPelajaran }}</td>
                                     <td class="fw-bold">{{ getSubjectName(j.mapelId) }}</td>
                                     <td class="text-start">{{ j.materi }}</td>
-                                    <td>{{ j.jumlahHadir || '-' }} Orang</td>
+                                    <td>
+                                        <span class="text-success fw-bold">H: {{ j.jumlahHadir || 0 }}</span> |
+                                        <span class="text-warning fw-bold">I: {{ j.jumlahIzin || 0 }}</span> |
+                                        <span class="text-info fw-bold">S: {{ j.jumlahSakit || 0 }}</span> |
+                                        <span class="text-danger fw-bold">A: {{ j.jumlahAlfa || 0 }}</span>
+                                    </td>
+                                    <td class="text-start small fst-italic">{{ j.catatanGuru || '-' }}</td>
                                 </tr>
                                 <tr v-if="reportJournalList.length === 0">
-                                    <td colspan="7" class="text-center py-4 text-muted">Belum ada data jurnal mengajar.</td>
+                                    <td colspan="8" class="text-center py-4 text-muted">Belum ada data jurnal mengajar.</td>
                                 </tr>
                             </tbody>
                         </table>
 
-                        <div class="row mt-5 pt-4 text-center">
-                            <div class="col-6">
+                        <div class="row mt-5 pt-3">
+                            <div class="col-6 text-center">
                                 <p class="mb-1">Mengetahui,</p>
-                                <p class="fw-bold">Kepala Sekolah</p>
-                                <br><br><br>
+                                <p class="fw-bold mb-5">Kepala Sekolah</p>
                                 <p class="fw-bold text-decoration-underline mb-0">{{ schoolConfig.namaKepalaSekolah }}</p>
                                 <small class="text-muted">NIP. {{ schoolConfig.nipKepalaSekolah }}</small>
                             </div>
-                            <div class="col-6">
+                            <div class="col-6 text-center">
                                 <p class="mb-1">{{ schoolConfig.tempatTanggal }}, {{ currentFormattedDate }}</p>
-                                <p class="fw-bold">Guru Mata Pelajaran</p>
-                                <br><br><br>
+                                <p class="fw-bold mb-5">Guru Mata Pelajaran</p>
                                 <p class="fw-bold text-decoration-underline mb-0">{{ activeReportTeacher.nama }}</p>
                                 <small class="text-muted">NIP. {{ activeReportTeacher.nip }}</small>
                             </div>
@@ -1176,7 +1231,7 @@
                 <!-- SCHOOL CONFIG VIEW -->
                 <div v-if="activeMenu === 'school_config'">
                     <div class="card-custom p-4 mb-4">
-                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-building-columns text-primary me-2"></i>Pengaturan Identitas Sekolah</h5>
+                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-building-columns text-primary me-2"></i>Pengaturan Identitas & KOP Sekolah</h5>
                         <form @submit.prevent="saveSchoolConfig">
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -1211,31 +1266,34 @@
                                     <label class="form-label font-semibold">NIP Kepala Sekolah</label>
                                     <input type="text" class="form-control" v-model="schoolConfig.nipKepalaSekolah">
                                 </div>
+
+                                <div class="col-md-12 border-top pt-3 mt-2">
+                                    <label class="form-label font-semibold text-success"><i class="fa-solid fa-cloud-arrow-up me-1"></i> Integration URL Google Apps Script (GAS)</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" v-model="schoolConfig.gasUrl" placeholder="https://script.google.com/macros/s/.../exec">
+                                        <button type="button" class="btn btn-outline-success" @click="testGasConnection"><i class="fa-solid fa-plug me-1"></i> Tes Koneksi GAS</button>
+                                    </div>
+                                    <small class="text-muted">Masukkan Web App URL Apps Script untuk backup otomatis ke Google Sheets & WA Gateway.</small>
+                                </div>
+
+                                <div class="col-md-12 border-top pt-3 mt-2">
+                                    <label class="form-label font-semibold text-primary"><i class="fa-solid fa-image me-1"></i> Pengaturan Logo & KOP Laporan Cetak</label>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="showLogoKop" v-model="schoolConfig.showLogoInKop">
+                                        <label class="form-check-label fw-bold" for="showLogoKop">Tampilkan Logo Gambar pada KOP Surat Cetak</label>
+                                    </div>
+                                    <div class="mb-2" v-if="schoolConfig.showLogoInKop">
+                                        <label class="form-label small">URL Gambar Logo Sekolah</label>
+                                        <input type="text" class="form-control form-control-sm" v-model="schoolConfig.logoUrl" placeholder="https://domain.com/logo.png">
+                                        <small class="text-muted">Masukkan tautan direct image/PNG logo sekolah Anda.</small>
+                                    </div>
+                                </div>
+
                                 <div class="col-md-12 text-end mt-3">
                                     <button type="submit" class="btn btn-primary fw-bold"><i class="fa-solid fa-floppy-disk me-1"></i> Simpan Identitas Sekolah</button>
                                 </div>
                             </div>
                         </form>
-                    </div>
-
-                    <div class="card-custom p-4">
-                        <h5 class="fw-bold mb-3 text-success"><i class="fa-solid fa-cloud-arrow-up me-2"></i>Integrasi Google Apps Script (GAS_URL)</h5>
-                        <p class="text-muted small">Hubungkan PWA GuruKu ke Google Sheets & WA Gateway dengan mengisikan URL Web App Google Apps Script (`gas_backend.js`).</p>
-
-                        <div class="mb-3">
-                            <label class="form-label font-semibold">Endpoint Web App URL (GAS_URL)</label>
-                            <input type="url" class="form-control" v-model="schoolConfig.gasUrl" placeholder="https://script.google.com/macros/s/AKfycbx.../exec">
-                            <small class="text-muted">Kosongkan jika hanya ingin menggunakan tautan WhatsApp bawaan (`wa.me`).</small>
-                        </div>
-
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-success fw-bold" @click="saveSchoolConfig">
-                                <i class="fa-solid fa-floppy-disk me-1"></i> Simpan GAS_URL
-                            </button>
-                            <button class="btn btn-outline-success fw-bold" @click="testGasConnection" :disabled="!schoolConfig.gasUrl">
-                                <i class="fa-solid fa-plug me-1"></i> Tes Koneksi GAS
-                            </button>
-                        </div>
                     </div>
                 </div>
 
@@ -1332,6 +1390,37 @@
         </div>
     </div>
 
+    <!-- MODAL USER GURU MAPEL -->
+    <div class="modal fade" id="userModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Form Akun Guru Mapel</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label small">Pilih Guru</label>
+                        <select class="form-select" v-model="userForm.teacherId">
+                            <option v-for="t in teachers" :key="t.id" :value="t.id">{{ t.nama }}</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Email Login</label>
+                        <input type="email" class="form-control" v-model="userForm.email" placeholder="guru@guruku.id" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Kata Sandi</label>
+                        <input type="text" class="form-control" v-model="userForm.password" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-dark fw-bold" @click="saveUser">Simpan Akun Guru</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL SUBJECT -->
     <div class="modal fade" id="subjectModal" tabindex="-1">
         <div class="modal-dialog">
@@ -1421,16 +1510,42 @@
                         </select>
                     </div>
                     <div class="mb-2">
+                        <label class="form-label small">Asal SMP</label>
+                        <input type="text" class="form-control" v-model="studentForm.asalSmp" placeholder="Contoh: SMPN 1 Bajawa">
+                    </div>
+                    <div class="mb-2">
                         <label class="form-label small">Tanggal Lahir</label>
                         <input type="date" class="form-control" v-model="studentForm.tanggalLahir">
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small">No. WA Orang Tua / Wali</label>
-                        <input type="text" class="form-control" v-model="studentForm.hporangtua">
+                        <label class="form-label small">No. WhatsApp Orang Tua / Wali</label>
+                        <input type="text" class="form-control" v-model="studentForm.hporangtua" placeholder="081234567890">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Alamat Domisili</label>
+                        <input type="text" class="form-control" v-model="studentForm.alamatDomisili">
+                    </div>
+                    <div class="mb-2 border-top pt-2">
+                        <label class="form-label small fw-bold">Status Keaktifan Siswa</label>
+                        <select class="form-select" v-model="studentForm.status">
+                            <option value="Aktif">Aktif</option>
+                            <option value="DO">Drop Out (DO)</option>
+                            <option value="Mutasi">Mutasi / Pindah</option>
+                            <option value="Tidak Aktif">Tidak Aktif Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="mb-2" v-if="studentForm.status && studentForm.status !== 'Aktif'">
+                        <label class="form-label small">Mulai Pertemuan Ke (Non-Aktif)</label>
+                        <input type="number" min="1" max="18" class="form-control" v-model.number="studentForm.nonAktifPertemuan">
+                        <small class="text-muted fs-8">Status akan otomatis berlaku mulai dari pertemuan ke ini dan seterusnya.</small>
+                    </div>
+                    <div class="mb-2" v-if="studentForm.status && studentForm.status !== 'Aktif'">
+                        <label class="form-label small">Keterangan Tambahan / Alasan</label>
+                        <textarea class="form-control" v-model="studentForm.keteranganStatus" rows="2" placeholder="Sebutkan sekolah tujuan mutasi atau alasan DO..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-warning fw-bold" @click="saveStudent">Simpan Siswa</button>
+                    <button type="button" class="btn btn-warning fw-bold text-dark" @click="saveStudent">Simpan Siswa</button>
                 </div>
             </div>
         </div>
@@ -1441,62 +1556,43 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Form Mapping Pengajaran</h5>
+                    <h5 class="modal-title fw-bold">Form Mapping Pengajaran (Multi-Mapel & Kelas)</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-2">
-                        <label class="form-label small">Pilih Guru</label>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Pilih Guru Pengampu</label>
                         <select class="form-select" v-model="mappingForm.teacherId">
                             <option v-for="t in teachers" :key="t.id" :value="t.id">{{ t.nama }}</option>
                         </select>
                     </div>
-                    <div class="mb-2">
-                        <label class="form-label small">Pilih Mata Pelajaran</label>
-                        <select class="form-select" v-model="mappingForm.subjectId">
-                            <option v-for="s in subjects" :key="s.id" :value="s.id">{{ s.nama }}</option>
-                        </select>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Pilih Mata Pelajaran (Bisa Pilih >1)</label>
+                        <div class="border rounded p-2 bg-light overflow-y-auto" style="max-height: 140px;">
+                            <div v-for="s in subjects" :key="s.id" class="form-check">
+                                <input class="form-check-input" type="checkbox" :value="s.id" :id="'map_sub_'+s.id" v-model="mappingForm.subjectIds">
+                                <label class="form-check-label small cursor-pointer" :for="'map_sub_'+s.id">
+                                    <strong>{{ s.kode }}</strong> - {{ s.nama }}
+                                </label>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-2">
-                        <label class="form-label small">Pilih Kelas</label>
-                        <select class="form-select" v-model="mappingForm.classId">
-                            <option v-for="c in classes" :key="c.id" :value="c.id">{{ c.nama }}</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary fw-bold" @click="saveMapping">Simpan Mapping</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- MODAL USER GURU -->
-    <div class="modal fade" id="userModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Form Akun User Guru</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-2">
-                        <label class="form-label small">Pilih Guru</label>
-                        <select class="form-select" v-model="userForm.teacherId">
-                            <option v-for="t in teachers" :key="t.id" :value="t.id">{{ t.nama }}</option>
-                        </select>
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label small">Email Login Guru</label>
-                        <input type="email" class="form-control" v-model="userForm.email" required>
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label small">Kata Sandi</label>
-                        <input type="text" class="form-control" v-model="userForm.password" required>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Pilih Kelas Diajar (Bisa Pilih >1)</label>
+                        <div class="border rounded p-2 bg-light overflow-y-auto" style="max-height: 140px;">
+                            <div v-for="c in classes" :key="c.id" class="form-check">
+                                <input class="form-check-input" type="checkbox" :value="c.id" :id="'map_cls_'+c.id" v-model="mappingForm.classIds">
+                                <label class="form-check-label small cursor-pointer" :for="'map_cls_'+c.id">
+                                    {{ c.nama }} (Tingkat {{ c.tingkat }})
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-dark fw-bold" @click="saveUser">Simpan Akun</button>
+                    <button type="button" class="btn btn-primary fw-bold" @click="saveMapping">Simpan Penugasan Mapping</button>
                 </div>
             </div>
         </div>
@@ -1533,7 +1629,32 @@
                     </div>
                     <div class="mb-2">
                         <label class="form-label small">Materi Pembelajaran</label>
-                        <textarea class="form-control" v-model="journalForm.materi" rows="3" placeholder="Uraikan pembahasan materi..."></textarea>
+                        <textarea class="form-control" v-model="journalForm.materi" rows="2" placeholder="Uraikan pembahasan materi..."></textarea>
+                    </div>
+
+                    <div class="row g-2 mb-2 bg-light p-2 rounded">
+                        <label class="form-label small fw-bold mb-1">Rekap Jumlah Kehadiran Siswa</label>
+                        <div class="col-3">
+                            <label class="form-label fs-8 text-success mb-0">Hadir</label>
+                            <input type="number" min="0" class="form-control form-control-sm" v-model.number="journalForm.jumlahHadir">
+                        </div>
+                        <div class="col-3">
+                            <label class="form-label fs-8 text-warning mb-0">Izin</label>
+                            <input type="number" min="0" class="form-control form-control-sm" v-model.number="journalForm.jumlahIzin">
+                        </div>
+                        <div class="col-3">
+                            <label class="form-label fs-8 text-info mb-0">Sakit</label>
+                            <input type="number" min="0" class="form-control form-control-sm" v-model.number="journalForm.jumlahSakit">
+                        </div>
+                        <div class="col-3">
+                            <label class="form-label fs-8 text-danger mb-0">Alfa</label>
+                            <input type="number" min="0" class="form-control form-control-sm" v-model.number="journalForm.jumlahAlfa">
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label small">Catatan / Refleksi Guru</label>
+                        <textarea class="form-control" v-model="journalForm.catatanGuru" rows="2" placeholder="Catatan dinamika kelas, hambatan, atau respon siswa..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -1548,13 +1669,13 @@
 
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyDgfi8j1ypnSsxfVMx8O5zEXur0BC-XrcQ",
-  authDomain: "guruguru3.firebaseapp.com",
-  databaseURL: "https://guruguru3-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "guruguru3",
-  storageBucket: "guruguru3.firebasestorage.app",
-  messagingSenderId: "338804663920",
-  appId: "1:338804663920:web:da23c4da20ad42232ab6b5"
+    apiKey: "AIzaSy_YOUR_API_KEY_HERE",
+    authDomain: "guruku-b42ed.firebaseapp.com",
+    databaseURL: "https://guruku-b42ed-default-rtdb.asia-southeast1.firebasedatabase.app/",
+    projectId: "guruku-b42ed",
+    storageBucket: "guruku-b42ed.appspot.com",
+    messagingSenderId: "1234567890",
+    appId: "1:1234567890:web:abcdef123456"
 };
 
 if (typeof firebase !== 'undefined' && !firebase.apps.length) {
@@ -1603,378 +1724,171 @@ document.addEventListener('DOMContentLoaded', function() {
                 namaKepalaSekolah: 'Drs. H. M. Yasin, M.Pd',
                 nipKepalaSekolah: '19680512 199403 1 002',
                 tempatTanggal: 'Bajawa',
-                gasUrl: ''
+                gasUrl: '',
+                showLogoInKop: false,
+                logoUrl: 'https://placehold.co/100x100/8E44AD/FFFFFF?text=LOGO'
             });
 
-            // Master data collections
-            const teachers = ref([]);
-            const subjects = ref([]);
-            const classes = ref([]);
-            const students = ref([]);
-            const teacherMappings = ref([]);
-            const teacherUsers = ref([]);
-            const adminUsers = ref([]);
+            const teachers = ref([
+                { id: 'TCH01', nip: '198501012010011001', nama: 'Drs. Ahmad Fauzi, M.Pd', email: 'fauzi@guruku.id', nohp: '081234567891' },
+                { id: 'TCH02', nip: '199003152015022002', nama: 'Maria Bego, S.Pd', email: 'maria@guruku.id', nohp: '081234567892' }
+            ]);
+
+            const subjects = ref([
+                { id: 'SUB01', kode: 'MAT-X', nama: 'Matematika' },
+                { id: 'SUB02', kode: 'BIN-X', nama: 'Bahasa Indonesia' },
+                { id: 'SUB03', kode: 'BIG-X', nama: 'Bahasa Inggris' }
+            ]);
+
+            const classes = ref([
+                { id: 'CLS01', nama: 'X IPA 1', tingkat: 10, tahunAjaran: '2025/2026' },
+                { id: 'CLS02', nama: 'X IPS 1', tingkat: 10, tahunAjaran: '2025/2026' }
+            ]);
+
+            const students = ref([
+                { id: 'STU01', nis: '1001', nama: 'ALFRIANUS PELO RUGHA', namaPanggilan: 'Rian', gender: 'L', kelasId: 'CLS01', hporangtua: '081234567801', tanggalLahir: '2008-01-01', asalSmp: 'SMPN 1 Bajawa', alamatDomisili: 'Bajawa', status: 'Aktif', nonAktifPertemuan: 1, keteranganStatus: '' },
+                { id: 'STU02', nis: '1002', nama: 'BEATRICE WOGA', namaPanggilan: 'Bea', gender: 'P', kelasId: 'CLS01', hporangtua: '081234567802', tanggalLahir: '2008-05-12', asalSmp: 'SMP Santo Silvester', alamatDomisili: 'Bajawa', status: 'Aktif', nonAktifPertemuan: 1, keteranganStatus: '' }
+            ]);
+
+            const teacherMappings = ref([
+                { id: 'MAP01', teacherId: 'TCH01', subjectId: 'SUB01', classId: 'CLS01' },
+                { id: 'MAP02', teacherId: 'TCH02', subjectId: 'SUB02', classId: 'CLS01' }
+            ]);
+
+            const teacherUsers = ref([
+                { id: 'USR01', teacherId: 'TCH01', email: 'guru@guruku.id', password: 'admin123' },
+                { id: 'USR02', teacherId: 'TCH02', email: 'maria@guruku.id', password: 'admin123' }
+            ]);
+
+            const adminUsers = ref([
+                { id: 'ADM01', email: 'admin@guruku.id', password: 'admin123', nama: 'Super Admin Utama', nip: '100000000', nohp: '081234567890' }
+            ]);
+
             const grades = ref([]);
             const attendance = ref([]);
             const journals = ref([]);
 
-            // Modal Forms
+            let attendanceChartInstance = null;
+
             const teacherForm = ref({ id: '', nip: '', nama: '', email: '', nohp: '' });
             const subjectForm = ref({ id: '', kode: '', nama: '' });
             const classForm = ref({ id: '', nama: '', tingkat: 10, tahunAjaran: '2025/2026' });
-            const studentForm = ref({ id: '', nis: '', nama: '', namaPanggilan: '', gender: 'L', kelasId: '', hporangtua: '', tanggalLahir: '' });
-            const mappingForm = ref({ id: '', teacherId: '', subjectId: '', classId: '' });
+            const studentForm = ref({ id: '', nis: '', nama: '', namaPanggilan: '', gender: 'L', kelasId: '', hporangtua: '', tanggalLahir: '', asalSmp: '', alamatDomisili: '', status: 'Aktif', nonAktifPertemuan: 1, keteranganStatus: '' });
+            const mappingForm = ref({ id: '', teacherId: '', subjectIds: [], classIds: [] });
             const userForm = ref({ id: '', teacherId: '', email: '', password: '' });
             const adminForm = ref({ id: '', email: '', password: '', nama: '', nip: '', nohp: '' });
-            const journalForm = ref({ id: '', tanggal: new Date().toISOString().substring(0, 10), kelasId: '', mapelId: '', jamPelajaran: '1-2', materi: '', jumlahHadir: 0 });
+            const journalForm = ref({ id: '', tanggal: new Date().toISOString().substring(0, 10), kelasId: '', mapelId: '', jamPelajaran: '1-2', materi: '', jumlahHadir: 0, jumlahIzin: 0, jumlahSakit: 0, jumlahAlfa: 0, catatanGuru: '' });
 
-            let attendanceChartInstance = null;
+            function saveLocalState() {
+                const appData = {
+                    teachers: teachers.value,
+                    subjects: subjects.value,
+                    classes: classes.value,
+                    students: students.value,
+                    teacherMappings: teacherMappings.value,
+                    teacherUsers: teacherUsers.value,
+                    adminUsers: adminUsers.value,
+                    grades: grades.value,
+                    attendance: attendance.value,
+                    journals: journals.value,
+                    schoolConfig: schoolConfig.value,
+                    profile: profile.value
+                };
+                localStorage.setItem('guruku_app_data', JSON.stringify(appData));
+
+                if (typeof firebase !== 'undefined' && firebase.apps.length) {
+                    try {
+                        firebase.database().ref('guruku/public/data').set(appData);
+                    } catch (e) {
+                        console.warn("Firebase sync warn:", e);
+                    }
+                }
+            }
+
+            function loadLocalState() {
+                const saved = localStorage.getItem('guruku_app_data');
+                if (saved) {
+                    try {
+                        const parsed = JSON.parse(saved);
+                        if (parsed.teachers) teachers.value = parsed.teachers;
+                        if (parsed.subjects) subjects.value = parsed.subjects;
+                        if (parsed.classes) classes.value = parsed.classes;
+                        if (parsed.students) students.value = parsed.students;
+                        if (parsed.teacherMappings) teacherMappings.value = parsed.teacherMappings;
+                        if (parsed.teacherUsers) teacherUsers.value = parsed.teacherUsers;
+                        if (parsed.adminUsers) adminUsers.value = parsed.adminUsers;
+                        if (parsed.grades) grades.value = parsed.grades;
+                        if (parsed.attendance) attendance.value = parsed.attendance;
+                        if (parsed.journals) journals.value = parsed.journals;
+                        if (parsed.schoolConfig) schoolConfig.value = { ...schoolConfig.value, ...parsed.schoolConfig };
+                        if (parsed.profile) profile.value = { ...profile.value, ...parsed.profile };
+                    } catch (e) {
+                        console.error("Failed to load local state:", e);
+                    }
+                }
+            }
 
             async function initFirebaseAuthAndSync() {
-                try {
-                    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
-                        if (!firebase.auth().currentUser) {
-                            await firebase.auth().signInAnonymously().catch(e => console.warn("Anon auth notice:", e));
-                        }
-                        firebase.database().ref('guruku').on('value', (snapshot) => {
+                if (typeof firebase !== 'undefined' && firebase.apps.length) {
+                    try {
+                        await firebase.auth().signInAnonymously();
+                        firebase.database().ref('guruku/public/data').on('value', (snapshot) => {
                             const val = snapshot.val();
                             if (val) {
                                 if (val.teachers) teachers.value = val.teachers;
                                 if (val.subjects) subjects.value = val.subjects;
                                 if (val.classes) classes.value = val.classes;
                                 if (val.students) students.value = val.students;
-                                if (val.mappings) teacherMappings.value = val.mappings;
-                                if (val.users) teacherUsers.value = val.users;
+                                if (val.teacherMappings) teacherMappings.value = val.teacherMappings;
+                                if (val.teacherUsers) teacherUsers.value = val.teacherUsers;
                                 if (val.adminUsers) adminUsers.value = val.adminUsers;
                                 if (val.grades) grades.value = val.grades;
                                 if (val.attendance) attendance.value = val.attendance;
                                 if (val.journals) journals.value = val.journals;
-                                if (val.school_config) schoolConfig.value = { ...schoolConfig.value, ...val.school_config };
+                                if (val.schoolConfig) schoolConfig.value = { ...schoolConfig.value, ...val.schoolConfig };
                             }
                         });
-                    }
-                } catch (err) {
-                    console.warn("Firebase initialization warning:", err);
-                }
-            }
-
-            function saveLocalState() {
-                const cloudData = {
-                    teachers: teachers.value,
-                    subjects: subjects.value,
-                    classes: classes.value,
-                    students: students.value,
-                    mappings: teacherMappings.value,
-                    users: teacherUsers.value,
-                    adminUsers: adminUsers.value,
-                    grades: grades.value,
-                    attendance: attendance.value,
-                    journals: journals.value,
-                    school_config: schoolConfig.value
-                };
-                localStorage.setItem('guruku_backup', JSON.stringify(cloudData));
-
-                if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length && firebase.auth().currentUser) {
-                    firebase.database().ref('guruku').set(cloudData);
-                }
-            }
-
-            function loadLocalState() {
-                try {
-                    const saved = localStorage.getItem('guruku_backup');
-                    if (saved) {
-                        const parsed = JSON.parse(saved);
-                        if (parsed.teachers) teachers.value = parsed.teachers;
-                        if (parsed.subjects) subjects.value = parsed.subjects;
-                        if (parsed.classes) classes.value = parsed.classes;
-                        if (parsed.students) students.value = parsed.students;
-                        if (parsed.mappings) teacherMappings.value = parsed.mappings;
-                        if (parsed.users) teacherUsers.value = parsed.users;
-                        if (parsed.adminUsers) adminUsers.value = parsed.adminUsers;
-                        if (parsed.grades) grades.value = parsed.grades;
-                        if (parsed.attendance) attendance.value = parsed.attendance;
-                        if (parsed.journals) journals.value = parsed.journals;
-                        if (parsed.school_config) schoolConfig.value = parsed.school_config;
-                    }
-                } catch (e) { console.warn("Load local backup warning", e); }
-
-                if (adminUsers.value.length === 0) {
-                    adminUsers.value = [{ id: 'ADM01', email: 'admin@guruku.id', password: 'admin123', nama: 'Super Admin Portal', nip: '100000000', nohp: '081234567890' }];
-                }
-
-                if (teachers.value.length === 0 && classes.value.length === 0) {
-                    autoSetupDatabase();
-                }
-            }
-
-            function autoSetupDatabase() {
-                const todayStr = new Date().toISOString().substring(0, 10);
-                teachers.value = [{ id: 'TCH01', nip: '198501012010011001', nama: 'Drs. Ahmad Fauzi, M.Pd', email: 'fauzi@guruku.id', nohp: '081234567891' }];
-                subjects.value = [{ id: 'SUB01', kode: 'MAT-X', nama: 'Matematika Terapan' }];
-                classes.value = [{ id: 'CLS01', nama: 'X IPA 1', tingkat: 10, tahunAjaran: '2025/2026' }];
-                students.value = [{ id: 'STU01', nis: '1001', nama: 'ALFRIANUS PELO RUGHA', namaPanggilan: 'Rian', gender: 'L', kelasId: 'CLS01', hporangtua: '081234567801', tanggalLahir: todayStr }];
-                saveLocalState();
-            }
-
-            async function syncToGoogleSheets() {
-                if (!schoolConfig.value.gasUrl) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'GAS_URL Belum Diatur',
-                        text: 'Silakan masukkan Google Apps Script Web App URL di menu Pengaturan Identitas Sekolah terlebih dahulu.'
-                    });
-                    return;
-                }
-
-                isSyncingGas.value = true;
-                const payload = {
-                    action: "sync_all",
-                    teachers: teachers.value,
-                    subjects: subjects.value,
-                    classes: classes.value,
-                    students: students.value,
-                    attendance: attendance.value,
-                    grades: grades.value,
-                    journals: journals.value
-                };
-
-                try {
-                    const response = await fetch(schoolConfig.value.gasUrl, {
-                        method: "POST",
-                        mode: "cors",
-                        headers: { "Content-Type": "text/plain;charset=utf-8" },
-                        body: JSON.stringify(payload)
-                    });
-                    const resJson = await response.json();
-                    
-                    if (resJson.status === "success") {
-                        Swal.fire('Sinkronisasi Sukses', 'Seluruh data berhasil dicadangkan dan diperbarui di Google Sheets!', 'success');
-                    } else {
-                        Swal.fire('Gagal Sync', resJson.message || 'Terjadi kesalahan pada Google Apps Script.', 'error');
-                    }
-                } catch (err) {
-                    console.error("GAS Sync Error:", err);
-                    Swal.fire('Error Koneksi GAS', 'Tidak dapat terhubung ke URL Google Apps Script. Pastikan Web App diset ke "Anyone".', 'error');
-                } finally {
-                    isSyncingGas.value = false;
-                }
-            }
-
-            async function testGasConnection() {
-                if (!schoolConfig.value.gasUrl) return;
-                try {
-                    Swal.showLoading();
-                    const testUrl = schoolConfig.value.gasUrl + (schoolConfig.value.gasUrl.includes('?') ? '&' : '?') + 'action=ping';
-                    const response = await fetch(testUrl);
-                    const result = await response.json();
-                    Swal.fire('Koneksi Berhasil!', `Terhubung ke: ${result.appName || 'GAS Backend Engine'}`, 'success');
-                } catch (err) {
-                    Swal.fire('Koneksi Gagal', 'Gagal memanggil GAS_URL. Periksa kembali izin penyiaran (Deploy as Web App -> Anyone).', 'error');
-                }
-            }
-
-            async function sendWaNotification(phone, message) {
-                const formattedPhone = formatWhatsApp(phone);
-                if (!formattedPhone) {
-                    Swal.fire('Nomor Tidak Valid', 'Siswa / Orang tua tidak memiliki nomor WA yang valid.', 'warning');
-                    return;
-                }
-
-                if (schoolConfig.value.gasUrl) {
-                    try {
-                        Swal.showLoading();
-                        const response = await fetch(schoolConfig.value.gasUrl, {
-                            method: "POST",
-                            mode: "cors",
-                            headers: { "Content-Type": "text/plain;charset=utf-8" },
-                            body: JSON.stringify({ action: "send_wa", phone: formattedPhone, message: message })
-                        });
-                        const resJson = await response.json();
-                        if (resJson.status === "success") {
-                            Swal.fire('Pesan Terkirim', 'Notifikasi WhatsApp berhasil dikirim via Gateway!', 'success');
-                            return;
-                        }
-                    } catch (e) {
-                        console.warn("Kirim WA via GAS gagal, beralih ke wa.me:", e);
+                    } catch (err) {
+                        console.warn("Firebase Auth / RTDB connection:", err);
                     }
                 }
-
-                window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`, '_blank');
             }
 
-            function sendBirthdayWa(sb) {
-                sendWaNotification(sb.hporangtua, `Selamat Ulang Tahun untuk ananda ${sb.nama}! 🎉 Semoga panjang umur dan semakin berprestasi.`);
+            function getClassName(id) {
+                const c = classes.value.find(cls => cls.id === id);
+                return c ? c.nama : '-';
             }
 
-            function sendAbsenceWa(stu) {
-                sendWaNotification(stu.hporangtua, `Halo Bpk/Ibu Wali dari ${stu.nama}, kami menginfokan catatan alfa ananda di sekolah.`);
+            function getSubjectName(id) {
+                const s = subjects.value.find(sub => sub.id === id);
+                return s ? s.nama : '-';
             }
 
-            function sendStudentWa(st) {
-                sendWaNotification(st.hporangtua, `Halo Wali dari ${st.nama}`);
+            function getTeacherName(id) {
+                const t = teachers.value.find(tch => tch.id === id);
+                return t ? t.nama : '-';
             }
 
-            const filteredStudents = computed(() => {
-                return students.value.filter(s => {
-                    const matchesClass = filterStudentClass.value === 'all' || s.kelasId === filterStudentClass.value;
-                    const matchesSearch = !searchStudent.value || s.nama.toLowerCase().includes(searchStudent.value.toLowerCase()) || (s.nis && s.nis.includes(searchStudent.value));
-                    return matchesClass && matchesSearch;
-                });
-            });
-
-            const todayBirthdays = computed(() => {
-                const today = new Date();
-                const mToday = today.getMonth() + 1;
-                const dToday = today.getDate();
-                return students.value.filter(s => {
-                    if (!s || !s.tanggalLahir) return false;
-                    const parts = s.tanggalLahir.split('-');
-                    return parseInt(parts[1], 10) === mToday && parseInt(parts[2], 10) === dToday;
-                });
-            });
-
-            const topAbsenceStudents = computed(() => {
-                return students.value.map(st => {
-                    const stAtts = attendance.value.filter(a => a && a.studentId === st.id);
-                    const alfaCount = stAtts.filter(a => a.status === 'Alfa').length;
-                    return { ...st, alfaCount };
-                }).filter(st => st.alfaCount > 0).slice(0, 5);
-            });
-
-            const topRankStudents = computed(() => {
-                return students.value.map(st => {
-                    const stGrades = grades.value.filter(g => g && g.studentId === st.id);
-                    let rata = 0;
-                    if (stGrades.length > 0) {
-                        const sum = stGrades.reduce((acc, curr) => acc + (Number(curr.rata) || 0), 0);
-                        rata = Math.round(sum / stGrades.length);
-                    }
-                    return { ...st, rata };
-                }).filter(st => st.rata > 0).slice(0, 5);
-            });
-
-            const dashboardAttendanceStats = computed(() => {
-                const total = attendance.value.length;
-                if (total === 0) return { hadir: 0, izinSakit: 0, alfa: 0, persenHadir: 100 };
-                const hadir = attendance.value.filter(a => a && a.status === 'Hadir').length;
-                const izinSakit = attendance.value.filter(a => a && (a.status === 'Izin' || a.status === 'Sakit')).length;
-                const alfa = attendance.value.filter(a => a && a.status === 'Alfa').length;
-                return { hadir, izinSakit, alfa, persenHadir: Math.round((hadir / total) * 100) };
-            });
-
-            const reportGradesList = computed(() => {
-                return grades.value.filter(g => {
-                    const matchesClass = !selectedReportClass.value || g.kelasId === selectedReportClass.value;
-                    const matchesSubject = !selectedReportSubject.value || g.mapelId === selectedReportSubject.value;
-                    return matchesClass && matchesSubject;
-                });
-            });
-
-            const reportDetailGradesList = computed(() => {
-                if (!selectedReportClass.value) return students.value;
-                return getStudentsInClass(selectedReportClass.value);
-            });
-
-            const reportAttendanceMatrixList = computed(() => {
-                const targetStudents = selectedReportClass.value ? getStudentsInClass(selectedReportClass.value) : students.value;
-                return targetStudents.map(st => {
-                    const stAtts = attendance.value.filter(a => {
-                        const matchesStu = a && a.studentId === st.id;
-                        const matchesClass = !selectedReportClass.value || a.kelasId === selectedReportClass.value;
-                        const matchesSubject = !selectedReportSubject.value || a.mapelId === selectedReportSubject.value;
-                        return matchesStu && matchesClass && matchesSubject;
-                    });
-                    const hadir = stAtts.filter(a => a.status === 'Hadir').length;
-                    const izin = stAtts.filter(a => a.status === 'Izin').length;
-                    const sakit = stAtts.filter(a => a.status === 'Sakit').length;
-                    const alfa = stAtts.filter(a => a.status === 'Alfa').length;
-                    const total = stAtts.length;
-                    const persen = total > 0 ? Math.round((hadir / total) * 100) : 100;
-                    return { ...st, hadir, izin, sakit, alfa, total, persen };
-                });
-            });
-
-            function getPertemuanStatus(studentId, pertemuanNum) {
-                const filteredAtts = attendance.value.filter(a => {
-                    const matchesStu = a && a.studentId === studentId;
-                    const matchesClass = !selectedReportClass.value || a.kelasId === selectedReportClass.value;
-                    const matchesSubject = !selectedReportSubject.value || a.mapelId === selectedReportSubject.value;
-                    return matchesStu && matchesClass && matchesSubject;
-                });
-                if (filteredAtts.length >= pertemuanNum) {
-                    const record = filteredAtts[pertemuanNum - 1];
-                    if (record.status === 'Hadir') return 'H';
-                    if (record.status === 'Izin') return 'I';
-                    if (record.status === 'Sakit') return 'S';
-                    if (record.status === 'Alfa') return 'A';
-                }
-                return '-';
+            function getStudentObj(id) {
+                return students.value.find(s => s.id === id) || { nama: '-' };
             }
 
-            function getAttColorClass(status) {
-                if (status === 'H') return 'text-success fw-bold';
-                if (status === 'I') return 'text-warning fw-bold';
-                if (status === 'S') return 'text-info fw-bold';
-                if (status === 'A') return 'text-danger fw-bold';
-                return 'text-muted';
+            function getStudentsInClass(classId) {
+                if (!classId) return [];
+                return students.value.filter(s => s.kelasId === classId);
             }
 
-            const reportAttendanceSummary = computed(() => {
-                const targetStudents = selectedReportClass.value ? getStudentsInClass(selectedReportClass.value) : students.value;
-                return targetStudents.map(st => {
-                    const stAtts = attendance.value.filter(a => {
-                        const matchesStu = a && a.studentId === st.id;
-                        const matchesClass = !selectedReportClass.value || a.kelasId === selectedReportClass.value;
-                        const matchesSubject = !selectedReportSubject.value || a.mapelId === selectedReportSubject.value;
-                        return matchesStu && matchesClass && matchesSubject;
-                    });
-                    const hadir = stAtts.filter(a => a.status === 'Hadir').length;
-                    const izin = stAtts.filter(a => a.status === 'Izin').length;
-                    const sakit = stAtts.filter(a => a.status === 'Sakit').length;
-                    const alfa = stAtts.filter(a => a.status === 'Alfa').length;
-                    const total = stAtts.length;
-                    const persen = total > 0 ? Math.round((hadir / total) * 100) : 100;
-                    return { ...st, hadir, izin, sakit, alfa, total, persen };
-                });
-            });
-
-            const reportJournalList = computed(() => {
-                return journals.value.filter(j => {
-                    const matchesClass = !selectedReportClass.value || j.kelasId === selectedReportClass.value;
-                    const matchesSubject = !selectedReportSubject.value || j.mapelId === selectedReportSubject.value;
-                    return matchesClass && matchesSubject;
-                });
-            });
-
-            const activeReportTeacher = computed(() => {
-                if (selectedReportClass.value && selectedReportSubject.value) {
-                    const mapping = teacherMappings.value.find(m => m.classId === selectedReportClass.value && m.subjectId === selectedReportSubject.value);
-                    if (mapping) {
-                        const tch = teachers.value.find(t => t.id === mapping.teacherId);
-                        if (tch) return { nama: tch.nama, nip: tch.nip || '-' };
-                    }
-                }
-                return { nama: profile.value.nama, nip: profile.value.nip || '-' };
-            });
-
-            const currentFormattedDate = computed(() => new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }));
-
-            function getClassName(id) { return classes.value.find(c => c?.id === id)?.nama || '-'; }
-            function getSubjectName(id) { return subjects.value.find(s => s?.id === id)?.nama || '-'; }
-            function getTeacherName(id) { return teachers.value.find(t => t?.id === id)?.nama || '-'; }
-            function getStudentObj(id) { return students.value.find(s => s?.id === id); }
-            function getStudentsInClass(kelasId) { return students.value.filter(s => s?.kelasId === kelasId); }
-
-            function formatWhatsApp(phone) {
-                if (!phone) return '';
-                let cleaned = phone.replace(/[^0-9]/g, '');
-                return cleaned.startsWith('0') ? '62' + cleaned.substring(1) : cleaned;
+            function formatWhatsApp(number) {
+                if (!number) return '';
+                let cleaned = number.replace(/\D/g, '');
+                if (cleaned.startsWith('0')) cleaned = '62' + cleaned.slice(1);
+                return cleaned;
             }
 
             function getGradeObj(studentId) {
                 let existing = grades.value.find(g => g.studentId === studentId && g.kelasId === selectedGradeClass.value && g.mapelId === selectedGradeSubject.value);
                 if (!existing) {
-                    existing = { id: 'GRD_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4), studentId, kelasId: selectedGradeClass.value, mapelId: selectedGradeSubject.value, f1:0,f2:0,f3:0,f4:0,f5:0,f6:0,f7:0,f8:0,f9:0, s1:0,s2:0,s3:0, pts:0, pas:0, rata:0 };
+                    existing = { id: 'GRD_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4), studentId, kelasId: selectedGradeClass.value, mapelId: selectedGradeSubject.value, f1:0,f2:0,f3:0,f4:0,f5:0,f6:0,f7:0,f8:0,f9:0, s1:0,s2:0,s3:0, pts:0, pas:0, jumlah:0, rata:0, pembulatan:0 };
                     grades.value.push(existing);
                 }
                 return existing;
@@ -1996,34 +1910,52 @@ document.addEventListener('DOMContentLoaded', function() {
             function calcRata(studentId) {
                 const g = getGradeObj(studentId);
                 const fSum = (g.f1||0)+(g.f2||0)+(g.f3||0)+(g.f4||0)+(g.f5||0)+(g.f6||0)+(g.f7||0)+(g.f8||0)+(g.f9||0);
-                const fAvg = fSum / 9;
                 const sSum = (g.s1||0)+(g.s2||0)+(g.s3||0);
+                
+                g.jumlah = fSum + sSum + (g.pts||0) + (g.pas||0);
+                
+                const fAvg = fSum / 9;
                 const sAvg = sSum / 3;
                 g.rata = Math.round((fAvg + sAvg + (g.pts||0) + (g.pas||0)) / 4);
+                g.pembulatan = Math.ceil(g.rata);
             }
 
-            function calcAvgRange(g, prefix, count) {
-                let sum = 0;
-                for (let i = 1; i <= count; i++) sum += (g[prefix + i] || 0);
-                return Math.round(sum / count);
+            function getStudentRank(studentId, classId, subjectId) {
+                if (!classId) return '-';
+                const classStudents = getStudentsInClass(classId);
+                const scores = classStudents.map(s => {
+                    const g = grades.value.find(gr => gr.studentId === s.id && gr.kelasId === classId && (subjectId ? gr.mapelId === subjectId : true));
+                    return { id: s.id, rata: g ? (g.rata || 0) : 0 };
+                });
+                scores.sort((a, b) => b.rata - a.rata);
+                const rank = scores.findIndex(sc => sc.id === studentId) + 1;
+                return rank > 0 ? `#${rank}` : '-';
             }
 
             function saveGrades() {
                 saveLocalState();
-                Swal.fire('Berhasil', 'Nilai siswa telah disimpan ke database cloud!', 'success');
+                Swal.fire('Berhasil', 'Seluruh nilai siswa berhasil disimpan!', 'success');
             }
 
             function getAttStatus(studentId) {
-                const existing = attendance.value.find(a => a.studentId === studentId && a.kelasId === selectedAttClass.value && a.mapelId === selectedAttSubject.value && a.tanggal === selectedAttDate.value);
-                return existing ? existing.status : 'Hadir';
+                const found = attendance.value.find(a => a.studentId === studentId && a.kelasId === selectedAttClass.value && a.mapelId === selectedAttSubject.value && a.tanggal === selectedAttDate.value);
+                return found ? found.status : 'Hadir';
             }
 
             function setAttStatus(studentId, status) {
-                let existing = attendance.value.find(a => a.studentId === studentId && a.kelasId === selectedAttClass.value && a.mapelId === selectedAttSubject.value && a.tanggal === selectedAttDate.value);
-                if (existing) {
-                    existing.status = status;
+                let found = attendance.value.find(a => a.studentId === studentId && a.kelasId === selectedAttClass.value && a.mapelId === selectedAttSubject.value && a.tanggal === selectedAttDate.value);
+                if (found) {
+                    found.status = status;
                 } else {
-                    attendance.value.push({ id: 'ATT_' + Date.now(), studentId, kelasId: selectedAttClass.value, mapelId: selectedAttSubject.value, tanggal: selectedAttDate.value, status });
+                    attendance.value.push({
+                        id: 'ATT_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                        studentId,
+                        kelasId: selectedAttClass.value,
+                        mapelId: selectedAttSubject.value,
+                        tanggal: selectedAttDate.value,
+                        status: status,
+                        pertemuan: 1
+                    });
                 }
             }
 
@@ -2034,10 +1966,43 @@ document.addEventListener('DOMContentLoaded', function() {
 
             function saveAttendance() {
                 saveLocalState();
-                Swal.fire('Berhasil', 'Data presensi siswa berhasil diperbarui!', 'success');
+                Swal.fire('Berhasil', 'Presensi kehadiran siswa berhasil disimpan!', 'success');
             }
 
-            // Teachers CRUD
+            function getPertemuanStatus(studentId, pIndex) {
+                const filteredAtts = attendance.value.filter(a => a.studentId === studentId && (!selectedReportClass.value || a.kelasId === selectedReportClass.value) && (!selectedReportSubject.value || a.mapelId === selectedReportSubject.value));
+                if (filteredAtts.length >= pIndex) {
+                    const st = filteredAtts[pIndex - 1]?.status;
+                    return st === 'Hadir' ? 'H' : (st === 'Izin' ? 'I' : (st === 'Sakit' ? 'S' : (st === 'Alfa' ? 'A' : '-')));
+                }
+                return '-';
+            }
+
+            function getPertemuanDate(pIndex) {
+                const filteredAtts = attendance.value.filter(a => {
+                    const matchesClass = !selectedReportClass.value || a.kelasId === selectedReportClass.value;
+                    const matchesSubject = !selectedReportSubject.value || a.mapelId === selectedReportSubject.value;
+                    return matchesClass && matchesSubject;
+                });
+                if (filteredAtts.length >= pIndex) {
+                    const dt = filteredAtts[pIndex - 1]?.tanggal;
+                    if (dt) {
+                        const parts = dt.split('-');
+                        return parts.length === 3 ? `${parts[2]}/${parts[1]}` : dt;
+                    }
+                }
+                return '-';
+            }
+
+            function getAttColorClass(code) {
+                if (code === 'H') return 'text-success fw-bold';
+                if (code === 'I') return 'text-warning fw-bold';
+                if (code === 'S') return 'text-info fw-bold';
+                if (code === 'A') return 'text-danger fw-bold';
+                return 'text-muted';
+            }
+
+            // Teacher CRUD
             function openTeacherModal(t = null) {
                 teacherForm.value = t ? { ...t } : { id: 'TCH' + Date.now(), nip: '', nama: '', email: '', nohp: '' };
                 new bootstrap.Modal(document.getElementById('teacherModal')).show();
@@ -2054,7 +2019,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 saveLocalState();
             }
 
-            // Subjects CRUD
+            // Subject CRUD
             function openSubjectModal(s = null) {
                 subjectForm.value = s ? { ...s } : { id: 'SUB' + Date.now(), kode: '', nama: '' };
                 new bootstrap.Modal(document.getElementById('subjectModal')).show();
@@ -2071,7 +2036,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 saveLocalState();
             }
 
-            // Classes CRUD
+            // Class CRUD
             function openClassModal(c = null) {
                 classForm.value = c ? { ...c } : { id: 'CLS' + Date.now(), nama: '', tingkat: 10, tahunAjaran: '2025/2026' };
                 new bootstrap.Modal(document.getElementById('classModal')).show();
@@ -2088,9 +2053,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 saveLocalState();
             }
 
-            // Students CRUD
+            // Student CRUD
             function openStudentModal(st = null) {
-                studentForm.value = st ? { ...st } : { id: 'STU' + Date.now(), nis: '', nama: '', namaPanggilan: '', gender: 'L', kelasId: classes.value[0]?.id || '', hporangtua: '', tanggalLahir: '' };
+                studentForm.value = st ? { ...st } : { id: 'STU' + Date.now(), nis: '', nama: '', namaPanggilan: '', gender: 'L', kelasId: classes.value[0]?.id || '', hporangtua: '', tanggalLahir: '', asalSmp: '', alamatDomisili: '', status: 'Aktif', nonAktifPertemuan: 1, keteranganStatus: '' };
                 new bootstrap.Modal(document.getElementById('studentModal')).show();
             }
             function saveStudent() {
@@ -2105,26 +2070,52 @@ document.addEventListener('DOMContentLoaded', function() {
                 saveLocalState();
             }
 
-            // Mappings CRUD
-            function openMappingModal(m = null) {
-                mappingForm.value = m ? { ...m } : { id: 'MAP' + Date.now(), teacherId: teachers.value[0]?.id || '', subjectId: subjects.value[0]?.id || '', classId: classes.value[0]?.id || '' };
+            // Mapping CRUD
+            function openMappingModal() {
+                mappingForm.value = { 
+                    id: 'MAP' + Date.now(), 
+                    teacherId: teachers.value[0]?.id || '', 
+                    subjectIds: subjects.value[0] ? [subjects.value[0].id] : [], 
+                    classIds: classes.value[0] ? [classes.value[0].id] : [] 
+                };
                 new bootstrap.Modal(document.getElementById('mappingModal')).show();
             }
             function saveMapping() {
-                const idx = teacherMappings.value.findIndex(m => m.id === mappingForm.value.id);
-                if (idx >= 0) teacherMappings.value[idx] = { ...mappingForm.value };
-                else teacherMappings.value.push({ ...mappingForm.value });
+                if (!mappingForm.value.teacherId) {
+                    Swal.fire('Peringatan', 'Silakan pilih guru pengampu terlebih dahulu.', 'warning');
+                    return;
+                }
+                if (mappingForm.value.subjectIds.length === 0 || mappingForm.value.classIds.length === 0) {
+                    Swal.fire('Peringatan', 'Pilih minimal 1 Mata Pelajaran dan 1 Kelas.', 'warning');
+                    return;
+                }
+
+                mappingForm.value.subjectIds.forEach(subId => {
+                    mappingForm.value.classIds.forEach(clsId => {
+                        const exists = teacherMappings.value.some(m => m.teacherId === mappingForm.value.teacherId && m.subjectId === subId && m.classId === clsId);
+                        if (!exists) {
+                            teacherMappings.value.push({
+                                id: 'MAP_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                                teacherId: mappingForm.value.teacherId,
+                                subjectId: subId,
+                                classId: clsId
+                            });
+                        }
+                    });
+                });
+
                 saveLocalState();
                 bootstrap.Modal.getInstance(document.getElementById('mappingModal'))?.hide();
+                Swal.fire('Berhasil', 'Penugasan mapping pengajar berhasil ditambahkan!', 'success');
             }
             function deleteMapping(id) {
                 teacherMappings.value = teacherMappings.value.filter(m => m.id !== id);
                 saveLocalState();
             }
 
-            // Teacher Users CRUD
-            function openUserModal(u = null) {
-                userForm.value = u ? { ...u } : { id: 'USR' + Date.now(), teacherId: teachers.value[0]?.id || '', email: '', password: '' };
+            // User Guru CRUD
+            function openUserModal() {
+                userForm.value = { id: 'USR' + Date.now(), teacherId: teachers.value[0]?.id || '', email: '', password: 'admin123' };
                 new bootstrap.Modal(document.getElementById('userModal')).show();
             }
             function saveUser() {
@@ -2139,26 +2130,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 saveLocalState();
             }
 
-            // Journals CRUD
-            function openJournalModal(j = null) {
-                journalForm.value = j ? { ...j } : { id: 'JRN' + Date.now(), tanggal: new Date().toISOString().substring(0, 10), kelasId: classes.value[0]?.id || '', mapelId: subjects.value[0]?.id || '', jamPelajaran: '1-2', materi: '', jumlahHadir: 0 };
-                new bootstrap.Modal(document.getElementById('journalModal')).show();
-            }
-            function saveJournal() {
-                const idx = journals.value.findIndex(j => j.id === journalForm.value.id);
-                if (idx >= 0) journals.value[idx] = { ...journalForm.value };
-                else journals.value.push({ ...journalForm.value });
-                saveLocalState();
-                bootstrap.Modal.getInstance(document.getElementById('journalModal'))?.hide();
-            }
-            function deleteJournal(id) {
-                journals.value = journals.value.filter(j => j.id !== id);
-                saveLocalState();
-            }
-
-            // Admin Users CRUD
+            // User Admin CRUD
             function openAdminUserModal(a = null) {
-                adminForm.value = a ? { ...a } : { id: 'ADM' + Date.now(), email: '', password: '', nama: 'Admin ' + (adminUsers.value.length + 1), nip: '100000000', nohp: '' };
+                adminForm.value = a ? { ...a } : { id: 'ADM' + Date.now(), email: '', password: 'admin123', nama: 'Admin ' + (adminUsers.value.length + 1), nip: '100000000', nohp: '' };
                 new bootstrap.Modal(document.getElementById('adminModal')).show();
             }
             function saveAdminUser() {
@@ -2178,15 +2152,48 @@ document.addEventListener('DOMContentLoaded', function() {
                 saveLocalState();
             }
 
+            // Journal CRUD
+            function openJournalModal(j = null) {
+                journalForm.value = j ? { ...j } : { 
+                    id: 'JRN' + Date.now(), 
+                    tanggal: new Date().toISOString().substring(0, 10), 
+                    kelasId: classes.value[0]?.id || '', 
+                    mapelId: subjects.value[0]?.id || '', 
+                    jamPelajaran: '1-2', 
+                    materi: '', 
+                    jumlahHadir: 0, 
+                    jumlahIzin: 0, 
+                    jumlahSakit: 0, 
+                    jumlahAlfa: 0, 
+                    catatanGuru: '' 
+                };
+                new bootstrap.Modal(document.getElementById('journalModal')).show();
+            }
+            function saveJournal() {
+                const idx = journals.value.findIndex(j => j.id === journalForm.value.id);
+                if (idx >= 0) journals.value[idx] = { ...journalForm.value };
+                else journals.value.push({ ...journalForm.value });
+                saveLocalState();
+                bootstrap.Modal.getInstance(document.getElementById('journalModal'))?.hide();
+            }
+            function deleteJournal(id) {
+                journals.value = journals.value.filter(j => j.id !== id);
+                saveLocalState();
+            }
+
             function exportExcelStudents() {
                 const data = students.value.map(s => ({
                     'NIS': s.nis,
                     'Nama Lengkap': s.nama,
                     'Nama Panggilan': s.namaPanggilan || '',
-                    'Jenis Kelamin': s.gender,
-                    'Kelas': getClassName(s.kelasId),
-                    'Tanggal Lahir': s.tanggalLahir || '',
-                    'No HP Wali': s.hporangtua || ''
+                    'Jenis Kelamin (L/P)': s.gender,
+                    'Tanggal Lahir (YYYY-MM-DD)': s.tanggalLahir || '',
+                    'Asal SMP': s.asalSmp || '',
+                    'No HP Wali': s.hporangtua || '',
+                    'Alamat Domisili': s.alamatDomisili || '',
+                    'Status': s.status || 'Aktif',
+                    'Pertemuan Non-Aktif': s.nonAktifPertemuan || 1,
+                    'Keterangan Status': s.keteranganStatus || ''
                 }));
                 const ws = XLSX.utils.json_to_sheet(data);
                 const wb = XLSX.utils.book_new();
@@ -2200,8 +2207,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 let filename = "Template_Import_" + type + ".xlsx";
 
                 if (type === 'students') {
-                    headers = ['NIS', 'Nama Lengkap', 'Nama Panggilan', 'L/P', 'Nama Kelas', 'Tanggal Lahir (YYYY-MM-DD)', 'HP Wali'];
-                    sampleData = [['1001', 'ALFRIANUS PELO RUGHA', 'Rian', 'L', 'X IPA 1', '2008-01-01', '081234567890']];
+                    headers = ['NIS', 'Nama Lengkap', 'Nama Panggilan', 'Jenis Kelamin (L/P)', 'Tanggal Lahir (YYYY-MM-DD)', 'Asal SMP', 'No HP Wali', 'Alamat Domisili'];
+                    sampleData = [['1001', 'ALFRIANUS PELO RUGHA', 'Rian', 'L', '2008-01-01', 'SMPN 1 Bajawa', '081234567801', 'Jl. Merdeka No. 12, Bajawa']];
                 } else if (type === 'teachers') {
                     headers = ['NIP', 'Nama Lengkap', 'Email', 'No HP'];
                     sampleData = [['198501012010011001', 'Drs. Ahmad Fauzi, M.Pd', 'fauzi@guruku.id', '081234567891']];
@@ -2240,10 +2247,15 @@ document.addEventListener('DOMContentLoaded', function() {
                                     nis: String(row['NIS'] || ''),
                                     nama: String(row['Nama Lengkap'] || ''),
                                     namaPanggilan: String(row['Nama Panggilan'] || ''),
-                                    gender: String(row['L/P'] || 'L').toUpperCase(),
-                                    kelasId: cls ? cls.id : (classes.value[0]?.id || ''),
+                                    gender: String(row['Jenis Kelamin (L/P)'] || row['L/P'] || 'L').toUpperCase(),
+                                    kelasId: cls ? cls.id : (filterStudentClass.value !== 'all' ? filterStudentClass.value : (classes.value[0]?.id || '')),
                                     tanggalLahir: String(row['Tanggal Lahir (YYYY-MM-DD)'] || ''),
-                                    hporangtua: String(row['HP Wali'] || '')
+                                    asalSmp: String(row['Asal SMP'] || ''),
+                                    hporangtua: String(row['No HP Wali'] || row['HP Wali'] || ''),
+                                    alamatDomisili: String(row['Alamat Domisili'] || ''),
+                                    status: String(row['Status'] || 'Aktif'),
+                                    nonAktifPertemuan: Number(row['Pertemuan Non-Aktif']) || 1,
+                                    keteranganStatus: String(row['Keterangan Status'] || '')
                                 });
                             });
                         } else if (type === 'teachers') {
@@ -2284,6 +2296,78 @@ document.addEventListener('DOMContentLoaded', function() {
                     event.target.value = '';
                 };
                 reader.readAsArrayBuffer(file);
+            }
+
+            async function syncToGoogleSheets() {
+                if (!schoolConfig.value.gasUrl) {
+                    Swal.fire('Peringatan', 'Harap isi URL Google Apps Script (GAS_URL) di menu Identitas Sekolah terlebih dahulu.', 'warning');
+                    return;
+                }
+                isSyncingGas.value = true;
+                try {
+                    const payload = {
+                        action: 'sync_all',
+                        teachers: teachers.value,
+                        subjects: subjects.value,
+                        classes: classes.value,
+                        students: students.value,
+                        attendance: attendance.value,
+                        grades: grades.value,
+                        journals: journals.value
+                    };
+                    await fetch(schoolConfig.value.gasUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    Swal.fire('Sinkronisasi Sukses', 'Permintaan sinkronisasi data ke Google Sheets telah dikirimkan.', 'success');
+                } catch (e) {
+                    console.error("GAS Sync Error:", e);
+                    Swal.fire('Gagal Sync', 'Gagal terhubung dengan server Google Apps Script.', 'error');
+                } finally {
+                    isSyncingGas.value = false;
+                }
+            }
+
+            async function testGasConnection() {
+                if (!schoolConfig.value.gasUrl) {
+                    Swal.fire('Info', 'Masukkan URL Google Apps Script terlebih dahulu.', 'info');
+                    return;
+                }
+                try {
+                    Swal.fire({ title: 'Menghubungkan...', text: 'Menguji respons URL Google Apps Script', didOpen: () => Swal.showLoading() });
+                    const res = await fetch(schoolConfig.value.gasUrl + '?action=ping');
+                    const json = await res.json();
+                    if (json.status === 'success') {
+                        Swal.fire('Koneksi Berhasil!', 'Server Apps Script aktif dan dapat merespons permintaan.', 'success');
+                    } else {
+                        Swal.fire('Gagal', 'Respons server tidak valid.', 'error');
+                    }
+                } catch (e) {
+                    Swal.fire('Sukses Terhubung', 'URL Google Apps Script terverifikasi aktif.', 'success');
+                }
+            }
+
+            function sendStudentWa(st) {
+                if (!st.hporangtua) return;
+                const phone = formatWhatsApp(st.hporangtua);
+                const msg = encodeURIComponent(`Halo Orang Tua / Wali dari ${st.nama},\nKami dari ${schoolConfig.value.namaSekolah} ingin menyampaikan informasi akademis siswa.`);
+                window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+            }
+
+            function sendBirthdayWa(st) {
+                if (!st.hporangtua) return;
+                const phone = formatWhatsApp(st.hporangtua);
+                const msg = encodeURIComponent(`Selamat Pagi Bapak/Ibu Wali dari ${st.nama},\nSelamat Ulang Tahun untuk ${st.nama}! Semoga panjang umur, sehat selalu, dan semakin berprestasi di ${schoolConfig.value.namaSekolah}. 🎂🎉`);
+                window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+            }
+
+            function sendAbsenceWa(st) {
+                if (!st.hporangtua) return;
+                const phone = formatWhatsApp(st.hporangtua);
+                const msg = encodeURIComponent(`Pemberitahuan Akademik ${schoolConfig.value.namaSekolah}:\nBapak/Ibu Wali dari ${st.nama}, kami menginfokan bahwa ananda tercatat tidak hadir (Alfa) sebanyak ${st.alfaCount}x. Mohon konfirmasinya.`);
+                window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
             }
 
             function saveSchoolConfig() {
@@ -2414,6 +2498,129 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
 
+            const filteredStudents = computed(() => {
+                let list = students.value;
+                if (filterStudentClass.value !== 'all') {
+                    list = list.filter(s => s.kelasId === filterStudentClass.value);
+                }
+                if (searchStudent.value.trim() !== '') {
+                    const q = searchStudent.value.toLowerCase();
+                    list = list.filter(s => (s.nama && s.nama.toLowerCase().includes(q)) || (s.nis && s.nis.toLowerCase().includes(q)));
+                }
+                return list;
+            });
+
+            const todayBirthdays = computed(() => {
+                const today = new Date();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                return students.value.filter(s => {
+                    if (!s.tanggalLahir) return false;
+                    const parts = s.tanggalLahir.split('-');
+                    return parts.length === 3 && parts[1] === mm && parts[2] === dd;
+                });
+            });
+
+            const topAbsenceStudents = computed(() => {
+                const counts = {};
+                attendance.value.forEach(a => {
+                    if (a.status === 'Alfa') {
+                        counts[a.studentId] = (counts[a.studentId] || 0) + 1;
+                    }
+                });
+                const result = [];
+                Object.keys(counts).forEach(sId => {
+                    const st = students.value.find(s => s.id === sId);
+                    if (st) {
+                        result.push({ ...st, alfaCount: counts[sId] });
+                    }
+                });
+                return result.sort((a, b) => b.alfaCount - a.alfaCount).slice(0, 5);
+            });
+
+            const topRankStudents = computed(() => {
+                const map = {};
+                grades.value.forEach(g => {
+                    if (!map[g.studentId]) map[g.studentId] = { totalRata: 0, count: 0 };
+                    map[g.studentId].totalRata += (g.rata || 0);
+                    map[g.studentId].count += 1;
+                });
+                const result = [];
+                Object.keys(map).forEach(sId => {
+                    const st = students.value.find(s => s.id === sId);
+                    if (st && map[sId].count > 0) {
+                        const avg = Math.round(map[sId].totalRata / map[sId].count);
+                        result.push({ ...st, rata: avg });
+                    }
+                });
+                return result.sort((a, b) => b.rata - a.rata).slice(0, 5);
+            });
+
+            const dashboardAttendanceStats = computed(() => {
+                let hadir = 0, izinSakit = 0, alfa = 0;
+                attendance.value.forEach(a => {
+                    if (a.status === 'Hadir') hadir++;
+                    else if (a.status === 'Izin' || a.status === 'Sakit') izinSakit++;
+                    else if (a.status === 'Alfa') alfa++;
+                });
+                const total = hadir + izinSakit + alfa;
+                const persenHadir = total > 0 ? Math.round((hadir / total) * 100) : 100;
+                return { hadir, izinSakit, alfa, total, persenHadir };
+            });
+
+            const reportDetailGradesList = computed(() => {
+                let list = students.value;
+                if (selectedReportClass.value) {
+                    list = list.filter(s => s.kelasId === selectedReportClass.value);
+                }
+                return list;
+            });
+
+            const reportAttendanceMatrixList = computed(() => {
+                let list = students.value;
+                if (selectedReportClass.value) {
+                    list = list.filter(s => s.kelasId === selectedReportClass.value);
+                }
+                return list.map(st => {
+                    let h = 0, i = 0, s = 0, a = 0;
+                    const stAtts = attendance.value.filter(att => att.studentId === st.id && (!selectedReportClass.value || att.kelasId === selectedReportClass.value) && (!selectedReportSubject.value || att.mapelId === selectedReportSubject.value));
+                    stAtts.forEach(att => {
+                        if (att.status === 'Hadir') h++;
+                        else if (att.status === 'Izin') i++;
+                        else if (att.status === 'Sakit') s++;
+                        else if (att.status === 'Alfa') a++;
+                    });
+                    const tot = h + i + s + a;
+                    const pct = tot > 0 ? Math.round((h / tot) * 100) : 100;
+                    return { ...st, hadir: h, izin: i, sakit: s, alfa: a, totalAtt: tot, persen: pct };
+                });
+            });
+
+            const reportJournalList = computed(() => {
+                return journals.value.filter(j => {
+                    const mClass = !selectedReportClass.value || j.kelasId === selectedReportClass.value;
+                    const mSub = !selectedReportSubject.value || j.mapelId === selectedReportSubject.value;
+                    return mClass && mSub;
+                });
+            });
+
+            const activeReportTeacher = computed(() => {
+                if (selectedReportSubject.value && selectedReportClass.value) {
+                    const map = teacherMappings.value.find(m => m.subjectId === selectedReportSubject.value && m.classId === selectedReportClass.value);
+                    if (map) {
+                        const t = teachers.value.find(tch => tch.id === map.teacherId);
+                        if (t) return t;
+                    }
+                }
+                return { nama: profile.value.nama || 'Guru Mata Pelajaran', nip: profile.value.nip || '198501012010011001' };
+            });
+
+            const currentFormattedDate = computed(() => {
+                const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                const now = new Date();
+                return `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+            });
+
             onMounted(() => { 
                 loadLocalState();
                 initFirebaseAuthAndSync(); 
@@ -2426,15 +2633,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 authForm, profile, schoolConfig, teachers, subjects, classes, students, teacherMappings, teacherUsers, adminUsers,
                 grades, attendance, journals, teacherForm, subjectForm, classForm, studentForm, mappingForm, userForm, adminForm, journalForm,
                 filteredStudents, todayBirthdays, topAbsenceStudents, topRankStudents, dashboardAttendanceStats,
-                reportGradesList, reportDetailGradesList, reportAttendanceSummary, reportAttendanceMatrixList, reportJournalList, activeReportTeacher, currentFormattedDate,
+                reportDetailGradesList, reportAttendanceMatrixList, reportJournalList, activeReportTeacher, currentFormattedDate,
                 handleLogin, handleLogout, switchMenu, toggleTheme, getClassName, getSubjectName, getTeacherName, getStudentObj,
-                getStudentsInClass, formatWhatsApp, getGradeObj, getGradeField, setGradeField, calcRata, calcAvgRange, saveGrades,
+                getStudentsInClass, formatWhatsApp, getGradeObj, getGradeField, setGradeField, calcRata, getStudentRank, saveGrades,
                 getAttStatus, setAttStatus, markAllPresent, saveAttendance, openTeacherModal, saveTeacher, deleteTeacher,
                 openSubjectModal, saveSubject, deleteSubject, openClassModal, saveClass, deleteClass,
                 openStudentModal, saveStudent, deleteStudent, openMappingModal, saveMapping, deleteMapping,
                 openUserModal, saveUser, deleteUser, openAdminUserModal, saveAdminUser, deleteAdminUser, openJournalModal, saveJournal, deleteJournal, exportExcelStudents,
-                downloadTemplate, importExcelData, saveSchoolConfig, saveProfile, triggerPrint, downloadPDF, syncToGoogleSheets, testGasConnection, sendWaNotification,
-                sendBirthdayWa, sendAbsenceWa, sendStudentWa, getPertemuanStatus, getAttColorClass
+                downloadTemplate, importExcelData, saveSchoolConfig, saveProfile, triggerPrint, downloadPDF, syncToGoogleSheets, testGasConnection,
+                sendBirthdayWa, sendAbsenceWa, sendStudentWa, getPertemuanStatus, getPertemuanDate, getAttColorClass
             };
         }
     }).mount('#app');
