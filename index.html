@@ -165,7 +165,6 @@
             box-shadow: 0 4px 12px rgba(142, 68, 173, 0.4);
         }
 
-        /* Attendance Toggle Buttons Styling */
         .btn-att {
             border-radius: 8px;
             font-weight: 700;
@@ -204,10 +203,9 @@
 <body>
 
 <div id="app">
-    <div v-if="loading" class="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-dark bg-opacity-50" style="z-index: 9999;">
-        <div class="spinner-border text-light" style="width: 3.5rem; height: 3.5rem;" role="status">
-            <span class="visually-hidden">Memuat...</span>
-        </div>
+    <div v-if="loading" class="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center bg-dark bg-opacity-75 text-white" style="z-index: 9999;">
+        <div class="spinner-border text-light mb-3" style="width: 3.5rem; height: 3.5rem;" role="status"></div>
+        <h6 class="fw-bold m-0">Menyingkronkan Data dengan Firebase Cloud...</h6>
     </div>
 
     <!-- AUTHENTICATION SCREEN -->
@@ -381,6 +379,11 @@
                     Halo, {{ profile.nama || (userRole === 'admin' ? 'Super Admin' : 'Guru Mapel') }} 👋
                 </h5>
                 <div class="d-flex align-items-center gap-3">
+                    <!-- CLOUD SYNC STATUS BADGE -->
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1 fs-8">
+                        <i class="fa-solid fa-cloud-check me-1"></i> Firebase Sync Active
+                    </span>
+
                     <button class="btn btn-outline-secondary btn-sm" @click="toggleTheme">
                         <i :class="theme === 'light' ? 'fa-solid fa-moon' : 'fa-solid fa-sun'"></i>
                     </button>
@@ -441,7 +444,6 @@
 
                     <!-- DASHBOARD EXTENDED ANALYTICS ROW -->
                     <div class="row g-4 mb-4">
-                        <!-- STATISTIK RINGKASAN PRESENSI & PERSENTASE KEHADIRAN -->
                         <div class="col-md-6 col-lg-4">
                             <div class="card-custom p-4 h-100">
                                 <h6 class="fw-bold mb-3"><i class="fa-solid fa-chart-pie text-primary me-2"></i>Ringkasan Kehadiran Siswa</h6>
@@ -469,7 +471,6 @@
                             </div>
                         </div>
 
-                        <!-- KARTU DAFTAR SISWA ALPA TERTINGGI (PERLU PERHATIAN) -->
                         <div class="col-md-6 col-lg-4">
                             <div class="card-custom p-4 h-100">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -496,7 +497,6 @@
                             </div>
                         </div>
 
-                        <!-- KARTU SISWA BERPRESTASI (NILAI RATA-RATA TERTINGGI) -->
                         <div class="col-md-12 col-lg-4">
                             <div class="card-custom p-4 h-100">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -1084,7 +1084,6 @@
                             </div>
                         </div>
 
-                        <!-- PARAMETER PERIODE DINAMIS -->
                         <div class="row g-3 bg-light p-3 rounded-3" v-if="selectedAttendanceClass">
                             <div class="col-md-6" v-if="selectedAttendancePeriod === 'week'">
                                 <label class="form-label small fw-bold">Rentang Tanggal Minggu</label>
@@ -1169,7 +1168,6 @@
                     <!-- REPORT PRINTABLE CONTAINER -->
                     <div v-if="reportDataReady" class="card-custom p-4 bg-white text-dark shadow" id="printableReport">
                         
-                        <!-- KOP SURAT SEKOLAH DINAMIS -->
                         <div v-if="schoolConfig.modeKop === 'upload' && schoolConfig.kopImageUrl" class="text-center mb-3">
                             <img :src="schoolConfig.kopImageUrl" alt="Kop Surat Sekolah" class="w-100" style="max-height: 140px; object-fit: contain;">
                         </div>
@@ -1234,7 +1232,7 @@
                             </div>
                         </div>
 
-                        <!-- REKAP ABSENSI / KEHADIRAN SISWA -->
+                        <!-- REKAP ABSENSI -->
                         <div v-if="reportType === 'rekap_absensi'">
                             <div class="text-center mb-4">
                                 <h5 class="fw-bold m-0 text-uppercase">REKAPITULASI PRESENSI / KEHADIRAN SISWA</h5>
@@ -1279,7 +1277,7 @@
                             </div>
                         </div>
 
-                        <!-- CETAK NILAI DETAIL (F1-F9 & S1-S3) -->
+                        <!-- CETAK NILAI DETAIL -->
                         <div v-if="reportType === 'daftar_nilai_detail'">
                             <div class="text-center mb-4">
                                 <h5 class="fw-bold m-0 text-uppercase">DAFTAR NILAI DETAIL (FORMATIF & SUMATIF)</h5>
@@ -1400,7 +1398,7 @@
                             </div>
                         </div>
 
-                        <!-- SIGNATURE SECTION DINAMIS -->
+                        <!-- SIGNATURE SECTION -->
                         <div class="mt-5 pt-4" style="font-size: 0.9rem; color: #000;">
                             <div class="row text-center">
                                 <div class="col-6">
@@ -1443,7 +1441,6 @@
                                 </div>
                             </div>
 
-                            <!-- IF MODE UPLOAD -->
                             <div v-if="schoolConfig.modeKop === 'upload'" class="mb-4">
                                 <label class="form-label fw-bold">URL Gambar Banner KOP Sekolah</label>
                                 <input type="text" class="form-control mb-2" v-model="schoolConfig.kopImageUrl" placeholder="https://example.com/banner-kop-sekolah.png">
@@ -1454,7 +1451,6 @@
                                 </div>
                             </div>
 
-                            <!-- IF MODE MANUAL -->
                             <div v-else class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Nama Resmi Sekolah</label>
@@ -1544,7 +1540,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body border-0 pt-3">
-                    <!-- TEACHER FORM -->
                     <form v-if="modalType === 'teacher'" @submit.prevent="saveTeacher">
                         <div class="mb-3">
                             <label class="form-label">NIP / NUPTK</label>
@@ -1572,7 +1567,6 @@
                         <button type="submit" class="btn btn-primary w-100">Simpan Data Guru</button>
                     </form>
 
-                    <!-- SUBJECT FORM -->
                     <form v-if="modalType === 'subject'" @submit.prevent="submitSubject">
                         <div class="mb-3">
                             <label class="form-label">Kode Mapel</label>
@@ -1585,7 +1579,6 @@
                         <button type="submit" class="btn btn-primary w-100">Simpan Mapel</button>
                     </form>
 
-                    <!-- CLASS FORM -->
                     <form v-if="modalType === 'class'" @submit.prevent="submitClass">
                         <div class="mb-3">
                             <label class="form-label">Nama Kelas</label>
@@ -1602,7 +1595,6 @@
                         <button type="submit" class="btn btn-primary w-100">Simpan Kelas</button>
                     </form>
 
-                    <!-- STUDENT FORM -->
                     <form v-if="modalType === 'student'" @submit.prevent="submitStudent">
                         <div class="row g-2 mb-3">
                             <div class="col-6">
@@ -1653,7 +1645,6 @@
                         <button type="submit" class="btn btn-primary w-100">Simpan Data Siswa</button>
                     </form>
 
-                    <!-- MAPPING FORM -->
                     <form v-if="modalType === 'mapping'" @submit.prevent="saveMapping">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Pilih Guru Pendidik</label>
@@ -1696,7 +1687,6 @@
                         <button type="submit" class="btn btn-primary w-100">Simpan Mapping Pengajaran</button>
                     </form>
 
-                    <!-- TEACHER USER FORM -->
                     <form v-if="modalType === 'teacher_user'" @submit.prevent="saveTeacherUser">
                         <div class="mb-3">
                             <label class="form-label">Pilih Guru Linked</label>
@@ -1723,7 +1713,6 @@
                         <button type="submit" class="btn btn-primary w-100">Simpan Akun User Guru</button>
                     </form>
 
-                    <!-- JOURNAL FORM -->
                     <form v-if="modalType === 'journal'" @submit.prevent="submitJournal">
                         <div class="mb-3">
                             <label class="form-label">Tanggal</label>
@@ -1765,41 +1754,35 @@
     </div>
 </div>
 
-<!-- Bootstrap 5 Bundle JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Vue.js Application Logic Script -->
 <script>
-// STREAMING_CHUNK:Configuring Firebase and Application Core Logic...
 // =========================================================================
 // KONFIGURASI UTAMA FIREBASE REALTIME DATABASE & BACKEND
 // =========================================================================
-const IS_PREVIEW = false; // Set 'false' JIKA INGIN FULL SINKRONISASI ONLINE FIREBASE
+const IS_PREVIEW = false; // Diset 'false' untuk Full Synchronization Cloud Online!
 
-const FIREBASE_DB_URL = "https://guruku2-de371-default-rtdb.asia-southeast1.firebasedatabase.app/";
+const FIREBASE_DB_URL = "https://guruku-b42ed-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
 const firebaseConfig = {
-      apiKey: "AIzaSyDCF1N280Oo77uJM-fk2ElDKa1Rf-nNNRk",
-      authDomain: "guruku2-de371.firebaseapp.com",
-      databaseURL: "https://guruku2-de371-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "guruku2-de371",
-      storageBucket: "guruku2-de371.firebasestorage.app",
-      messagingSenderId: "508044856753",
-      appId: "1:508044856753:web:c8441ad06d2502d2ed0190"
+  apiKey: "AIzaSyDCF1N280Oo77uJM-fk2ElDKa1Rf-nNNRk",
+  authDomain: "guruku2-de371.firebaseapp.com",
+  databaseURL: "https://guruku2-de371-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "guruku2-de371",
+  storageBucket: "guruku2-de371.firebasestorage.app",
+  messagingSenderId: "508044856753",
+  appId: "1:508044856753:web:c8441ad06d2502d2ed0190"
 };
 
-// Opsional: URL Endpoint Google Apps Script jika menggunakan Proxy backend GAS
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxrF0OPvGnGA4CFDUUzuJBRJPZll8jFdo_KuKdat8YX4Teb_5mXVfC3CnYwGZORSWWB/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwv0-cAx2Nk-vlS9kcngE1BEjrenJYAWS2M_ZR9qh-l2B0BYuDSvOMhyi9PDjhLBRue/exec";
 
 document.addEventListener('DOMContentLoaded', function() {
-    /* STREAMING_CHUNK:Initializing Vue 3 Application Instance... */
     const VueLib = window.Vue || (typeof Vue !== 'undefined' ? Vue : null);
     if (!VueLib) return;
     const { createApp, ref, computed, onMounted, nextTick } = VueLib;
 
     createApp({
         setup() {
-            /* STREAMING_CHUNK:Defining Reactive State Variables... */
             const loading = ref(false);
             const theme = ref('light');
             const isLoggedIn = ref(false);
@@ -1879,7 +1862,6 @@ document.addEventListener('DOMContentLoaded', function() {
             let classAttendanceChartInstance = null;
             let dashboardPieChartInstance = null;
 
-            /* STREAMING_CHUNK:Declaring Computed Properties for Filtering & Dashboard... */
             const todayBirthdays = computed(() => {
                 const today = new Date();
                 const mToday = today.getMonth() + 1;
@@ -1954,7 +1936,54 @@ document.addEventListener('DOMContentLoaded', function() {
                 return getClassAttendancePercentage(activeClassDetail.value.id);
             });
 
-            /* STREAMING_CHUNK:Implementing Storage & Cloud Synchronization Methods... */
+            // =========================================================================
+            // FUNGSI UNGGULAN: SYNC & TARIK DATA CLOUD FIREBASE DUA ARAH
+            // =========================================================================
+            async function fetchCloudState() {
+                loading.value = true;
+                try {
+                    const res = await fetch(`${FIREBASE_DB_URL}guruku.json`);
+                    if (res.ok) {
+                        const cloudData = await res.json();
+                        if (cloudData) {
+                            teachers.value = (cloudData.teachers || []).filter(Boolean);
+                            subjects.value = (cloudData.subjects || []).filter(Boolean);
+                            classes.value = (cloudData.classes || []).filter(Boolean);
+                            students.value = (cloudData.students || []).filter(Boolean);
+                            teacherMappings.value = (cloudData.mappings || []).filter(Boolean);
+                            teacherUsers.value = (cloudData.users || []).filter(Boolean);
+                            grades.value = (cloudData.grades || []).filter(Boolean);
+                            attendance.value = (cloudData.attendance || []).filter(Boolean);
+                            journals.value = (cloudData.journals || []).filter(Boolean);
+
+                            if (cloudData.school_config) {
+                                schoolConfig.value = { ...schoolConfig.value, ...cloudData.school_config };
+                            }
+                            
+                            // Backup juga ke local storage
+                            localStorage.setItem('guruku_teachers', JSON.stringify(teachers.value));
+                            localStorage.setItem('guruku_subjects', JSON.stringify(subjects.value));
+                            localStorage.setItem('guruku_classes', JSON.stringify(classes.value));
+                            localStorage.setItem('guruku_students', JSON.stringify(students.value));
+                            localStorage.setItem('guruku_mappings', JSON.stringify(teacherMappings.value));
+                            localStorage.setItem('guruku_users', JSON.stringify(teacherUsers.value));
+                            localStorage.setItem('guruku_grades', JSON.stringify(grades.value));
+                            localStorage.setItem('guruku_attendance', JSON.stringify(attendance.value));
+                            localStorage.setItem('guruku_journals', JSON.stringify(journals.value));
+                            localStorage.setItem('guruku_school_config', JSON.stringify(schoolConfig.value));
+                        } else {
+                            // Jika cloud masih kosong, inisialisasi default
+                            autoSetupDatabase();
+                        }
+                    }
+                } catch (err) {
+                    console.warn("Gagal terhubung ke Cloud Firebase, memuat memori lokal:", err);
+                    loadLocalState();
+                } finally {
+                    loading.value = false;
+                }
+            }
+
             function saveLocalState() {
                 try {
                     localStorage.setItem('guruku_teachers', JSON.stringify(teachers.value));
@@ -1968,8 +1997,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     localStorage.setItem('guruku_journals', JSON.stringify(journals.value));
                     localStorage.setItem('guruku_school_config', JSON.stringify(schoolConfig.value));
 
-                    // Jika IS_PREVIEW bernilai false, simpan otomatis ke Firebase Realtime Database
-                    if (!IS_PREVIEW && FIREBASE_DB_URL) {
+                    // Simpan terpusat ke Firebase Realtime Database
+                    if (FIREBASE_DB_URL) {
                         const cloudData = {
                             teachers: teachers.value,
                             subjects: subjects.value,
@@ -1986,7 +2015,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(cloudData)
-                        }).catch(err => console.warn('Koneksi Firebase gagal:', err));
+                        }).catch(err => console.warn('Penyimpanan Firebase gagal:', err));
                     }
                 } catch(e) { console.warn("Local storage write error", e); }
             }
@@ -2011,42 +2040,36 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             function autoSetupDatabase() {
-                const storedTeachers = localStorage.getItem('guruku_teachers');
-                if (!storedTeachers) {
-                    const todayStr = new Date().toISOString().substring(0, 10);
-                    teachers.value = [
-                        { id: 'TCH01', nip: '198501012010011001', nama: 'Drs. Ahmad Fauzi, M.Pd', email: 'fauzi@guruku.id', nohp: '081234567891', mapelId: 'SUB01' },
-                        { id: 'TCH02', nip: '198803152012022002', nama: 'Siti Nurhaliza, S.Pd', email: 'siti@guruku.id', nohp: '081234567892', mapelId: 'SUB02' }
-                    ];
-                    subjects.value = [
-                        { id: 'SUB01', kode: 'MAT-X', nama: 'Matematika Terapan' },
-                        { id: 'SUB02', kode: 'BIN-X', nama: 'Bahasa Indonesia' }
-                    ];
-                    classes.value = [
-                        { id: 'CLS01', nama: 'X IPA 1', tingkat: 10, tahunAjaran: '2025/2026' },
-                        { id: 'CLS02', nama: 'X IPA 2', tingkat: 10, tahunAjaran: '2025/2026' }
-                    ];
-                    students.value = [
-                        { id: 'STU01', nis: '1001', nama: 'ALFRIANUS PELO RUGHA', namaPanggilan: 'Rian', gender: 'L', kelasId: 'CLS01', hporangtua: '081234567801', tanggalLahir: todayStr, asalSmp: 'SMPN 1 Bajawa', alamatDomisili: 'Jl. Ahmad Yani No. 12' },
-                        { id: 'STU02', nis: '1002', nama: 'ANDREANUS LEO TEKA', namaPanggilan: 'Andre', gender: 'L', kelasId: 'CLS01', hporangtua: '081234567802', tanggalLahir: '2008-05-15', asalSmp: 'SMPN 2 Bajawa', alamatDomisili: 'Jl. Merdeka No. 45' },
-                        { id: 'STU03', nis: '1003', nama: 'MARIA CLARA', namaPanggilan: 'Clara', gender: 'P', kelasId: 'CLS02', hporangtua: '081234567803', tanggalLahir: '2008-11-20', asalSmp: 'SMP Katolik Bajawa', alamatDomisili: 'Jl. Mawar No. 08' }
-                    ];
-                    teacherMappings.value = [
-                        { id: 'MAP01', teacherId: 'TCH01', mapelIds: ['SUB01', 'SUB02'], kelasIds: ['CLS01', 'CLS02'], tahunAjaran: '2025/2026' }
-                    ];
-                    teacherUsers.value = [
-                        { id: 'USR01', teacherId: 'TCH01', email: 'guru@guruku.id', password: 'admin123', role: 'Guru Utama' }
-                    ];
-                    journals.value = [
-                        { id: 'JRN01', tanggal: todayStr, mapelId: 'SUB01', kelasId: 'CLS01', jamPelajaran: '1-4', materi: 'Aljabar Linier', jumlahHadir: 2 }
-                    ];
-                    saveLocalState();
-                } else {
-                    loadLocalState();
-                }
+                const todayStr = new Date().toISOString().substring(0, 10);
+                teachers.value = [
+                    { id: 'TCH01', nip: '198501012010011001', nama: 'Drs. Ahmad Fauzi, M.Pd', email: 'fauzi@guruku.id', nohp: '081234567891', mapelId: 'SUB01' },
+                    { id: 'TCH02', nip: '198803152012022002', nama: 'Siti Nurhaliza, S.Pd', email: 'siti@guruku.id', nohp: '081234567892', mapelId: 'SUB02' }
+                ];
+                subjects.value = [
+                    { id: 'SUB01', kode: 'MAT-X', nama: 'Matematika Terapan' },
+                    { id: 'SUB02', kode: 'BIN-X', nama: 'Bahasa Indonesia' }
+                ];
+                classes.value = [
+                    { id: 'CLS01', nama: 'X IPA 1', tingkat: 10, tahunAjaran: '2025/2026' },
+                    { id: 'CLS02', nama: 'X IPA 2', tingkat: 10, tahunAjaran: '2025/2026' }
+                ];
+                students.value = [
+                    { id: 'STU01', nis: '1001', nama: 'ALFRIANUS PELO RUGHA', namaPanggilan: 'Rian', gender: 'L', kelasId: 'CLS01', hporangtua: '081234567801', tanggalLahir: todayStr, asalSmp: 'SMPN 1 Bajawa', alamatDomisili: 'Jl. Ahmad Yani No. 12' },
+                    { id: 'STU02', nis: '1002', nama: 'ANDREANUS LEO TEKA', namaPanggilan: 'Andre', gender: 'L', kelasId: 'CLS01', hporangtua: '081234567802', tanggalLahir: '2008-05-15', asalSmp: 'SMPN 2 Bajawa', alamatDomisili: 'Jl. Merdeka No. 45' },
+                    { id: 'STU03', nis: '1003', nama: 'MARIA CLARA', namaPanggilan: 'Clara', gender: 'P', kelasId: 'CLS02', hporangtua: '081234567803', tanggalLahir: '2008-11-20', asalSmp: 'SMP Katolik Bajawa', alamatDomisili: 'Jl. Mawar No. 08' }
+                ];
+                teacherMappings.value = [
+                    { id: 'MAP01', teacherId: 'TCH01', mapelIds: ['SUB01', 'SUB02'], kelasIds: ['CLS01', 'CLS02'], tahunAjaran: '2025/2026' }
+                ];
+                teacherUsers.value = [
+                    { id: 'USR01', teacherId: 'TCH01', email: 'guru@guruku.id', password: 'admin123', role: 'Guru Utama' }
+                ];
+                journals.value = [
+                    { id: 'JRN01', tanggal: todayStr, mapelId: 'SUB01', kelasId: 'CLS01', jamPelajaran: '1-4', materi: 'Aljabar Linier', jumlahHadir: 2 }
+                ];
+                saveLocalState();
             }
 
-            /* STREAMING_CHUNK:Defining Helper Utility Functions... */
             function getTeacherName(id) { return teachers.value.find(t => t?.id === id)?.nama || '-'; }
             function getSubjectName(id) { return subjects.value.find(s => s?.id === id)?.nama || '-'; }
             function getClassName(id) { return classes.value.find(c => c?.id === id)?.nama || '-'; }
@@ -2113,34 +2136,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 return `${d.getDate()} ${mIndo} ${d.getFullYear()}`;
             }
 
-            /* STREAMING_CHUNK:Handling Authentication & Actions... */
-            const handleLogin = () => {
+            const handleLogin = async () => {
                 loading.value = true;
-                setTimeout(() => {
-                    loading.value = false;
-                    if (authRole.value === 'admin') {
-                        if (authForm.value.email === 'admin@guruku.id' && authForm.value.password === 'admin123') {
-                            isLoggedIn.value = true;
-                            userRole.value = 'admin';
-                            profile.value = { nama: 'Super Admin Portal', nip: '100000000', nohp: '081234567890' };
-                            switchMenu('dashboard');
-                            Swal.fire('Selamat Datang', 'Masuk sebagai Super Admin.', 'success');
-                            return;
-                        }
-                    } else {
-                        const tu = teacherUsers.value.find(u => u && u.email === authForm.value.email && u.password === authForm.value.password);
-                        if (tu || (authForm.value.email === 'guru@guruku.id' && authForm.value.password === 'admin123')) {
-                            isLoggedIn.value = true;
-                            userRole.value = 'guru';
-                            const tch = teachers.value.find(t => t?.id === tu?.teacherId);
-                            profile.value = { nama: tch ? tch.nama : 'Guru Mata Pelajaran', nip: tch ? tch.nip : '198501012010011001', nohp: tch ? tch.nohp : '081234567891' };
-                            switchMenu('dashboard');
-                            Swal.fire('Selamat Datang', 'Masuk sebagai Guru Mapel.', 'success');
-                            return;
-                        }
+                // Selalu tarik data cloud terbaru saat melakukan login!
+                await fetchCloudState();
+
+                if (authRole.value === 'admin') {
+                    if (authForm.value.email === 'admin@guruku.id' && authForm.value.password === 'admin123') {
+                        isLoggedIn.value = true;
+                        userRole.value = 'admin';
+                        profile.value = { nama: 'Super Admin Portal', nip: '100000000', nohp: '081234567890' };
+                        switchMenu('dashboard');
+                        Swal.fire('Selamat Datang', 'Masuk sebagai Super Admin.', 'success');
+                        return;
                     }
-                    Swal.fire('Gagal Login', 'Email atau password tidak cocok.', 'error');
-                }, 400);
+                } else {
+                    const tu = teacherUsers.value.find(u => u && u.email === authForm.value.email && u.password === authForm.value.password);
+                    if (tu || (authForm.value.email === 'guru@guruku.id' && authForm.value.password === 'admin123')) {
+                        isLoggedIn.value = true;
+                        userRole.value = 'guru';
+                        const tch = teachers.value.find(t => t?.id === tu?.teacherId);
+                        profile.value = { nama: tch ? tch.nama : 'Guru Mata Pelajaran', nip: tch ? tch.nip : '198501012010011001', nohp: tch ? tch.nohp : '081234567891' };
+                        switchMenu('dashboard');
+                        Swal.fire('Selamat Datang', 'Masuk sebagai Guru Mapel.', 'success');
+                        return;
+                    }
+                }
+                Swal.fire('Gagal Login', 'Email atau password tidak cocok.', 'error');
             };
 
             const handleLogout = () => {
@@ -2165,7 +2187,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.documentElement.setAttribute('data-theme', theme.value);
             };
 
-            /* STREAMING_CHUNK:Modal Dialog Control Handlers... */
             const openModal = (type) => {
                 modalType.value = type;
                 if (type === 'subject') {
@@ -2250,7 +2271,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             };
 
-            /* STREAMING_CHUNK:CRUD Data Handlers... */
             const saveTeacher = () => {
                 if (!teacherForm.value.id) {
                     teacherForm.value.id = 'TCH' + Date.now();
@@ -2346,7 +2366,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             };
 
-            /* STREAMING_CHUNK:Excel Import & Export Handlers... */
             const downloadTeacherTemplate = () => {
                 const data = [{ "NIP": "199001012020011001", "Nama Lengkap": "Ahmad Yani, S.Pd", "Email": "yani@guruku.id", "No WhatsApp": "081234567890" }];
                 const ws = XLSX.utils.json_to_sheet(data);
@@ -2528,7 +2547,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 reader.readAsArrayBuffer(file);
             };
 
-            /* STREAMING_CHUNK:Grade & Attendance Entry Functions... */
             const getGradeValue = (studentId, prefix, idx) => {
                 if (!tempGrades.value[studentId]) return '';
                 return tempGrades.value[studentId][prefix + idx] ?? '';
@@ -2630,7 +2648,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     else attendance.value.push(payload);
                 });
                 saveLocalState();
-                Swal.fire('Sukses', `Presensi Pertemuan P${selectedPertemuan.value} disimpan.`, 'success');
+                Swal.fire('Sukses', `Presensi Pertemuan P${selectedPertemuan.value} disimpan ke Firebase Cloud.`, 'success');
             };
 
             const markAllPresent = () => {
@@ -2678,7 +2696,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     else grades.value.push(payload);
                 });
                 saveLocalState();
-                Swal.fire('Sukses', 'Data Nilai disimpan.', 'success');
+                Swal.fire('Sukses', 'Data Nilai disimpan ke Firebase Cloud.', 'success');
             };
 
             const viewClassDataDetail = (cls) => {
@@ -2690,7 +2708,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             };
 
-            /* STREAMING_CHUNK:Rendering Dashboard & Analytics Charts... */
             const initDashboardCharts = () => {
                 const ctx = document.getElementById('dashboardAttendancePieChart');
                 if (!ctx) return;
@@ -2756,7 +2773,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             };
 
-            /* STREAMING_CHUNK:Report Generation & Printing Logic... */
             const generateReportData = () => {
                 reportDataReady.value = true;
                 let targetStudents = students.value.filter(Boolean);
@@ -2868,9 +2884,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire('Sukses', 'Profil diperbarui.', 'success');
             };
 
-            /* STREAMING_CHUNK:Application Mount Initialization... */
             onMounted(() => {
-                autoSetupDatabase();
+                // Saat aplikasi pertama kali dimuat, langsung tarik data real-time dari Firebase!
+                fetchCloudState();
                 nextTick(() => { initDashboardCharts(); });
             });
 
