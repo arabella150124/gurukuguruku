@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi - Guru Mapel</title>
+    <title>GuruKu PWA - Portal Academic Guru Modern</title>
     
     <!-- PWA Manifest Data URI -->
     <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIkd1cnVLdSBBcGFsaWthc2kgR3VydSBQTEEiLAogICJzaG9ydF9uYW1lIjogIkd1cnVLdSIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjRjRGM3Y4IiwKICAidGhlbWVfY29sb3IiOiAiIzhFNDRBRCIKZX0=">
@@ -225,13 +225,13 @@
         <div class="card-custom p-4 p-md-5 text-dark shadow-lg w-100" style="max-width: 480px; background: rgba(255,255,255,0.96);">
             <div class="text-center mb-4">
                 <i class="fa-solid fa-graduation-cap fa-3x text-primary mb-2"></i>
-                <h3 class="fw-bold m-0 text-primary">Aplikasi Guru Mapel</h3>
+                <h3 class="fw-bold m-0 text-primary">Portal GuruKu PWA</h3>
                 <p class="text-muted small">Akses Sistem Terproteksi Cloud & Realtime Database</p>
             </div>
 
             <div class="btn-group w-100 mb-4" role="group">
                 <button type="button" class="btn fw-semibold" :class="authRole === 'admin' ? 'btn-primary' : 'btn-outline-primary'" @click="authRole = 'admin'">
-                    <i class="fa-solid fa-user-shield me-1"></i> Admin
+                    <i class="fa-solid fa-user-shield me-1"></i> Super Admin
                 </button>
                 <button type="button" class="btn fw-semibold" :class="authRole === 'guru' ? 'btn-primary' : 'btn-outline-primary'" @click="authRole = 'guru'">
                     <i class="fa-solid fa-chalkboard-user me-1"></i> Guru Mapel
@@ -261,7 +261,7 @@
                 </button>
             </form>
             <div class="alert alert-info py-2 px-3 small text-center mb-0">
-                <i class="fa-solid fa-shield-halved me-1"></i> 2026-pembuat Aplikasi: <strong>ally R.</strong>
+                <i class="fa-solid fa-shield-halved me-1"></i> Sandi Default: <strong>admin123</strong>
             </div>
         </div>
     </div>
@@ -2186,12 +2186,44 @@ document.addEventListener('DOMContentLoaded', function() {
                 saveLocalState();
             }
 
+            function parseExcelDate(val) {
+                if (!val) return '';
+                if (val instanceof Date) {
+                    const yyyy = val.getFullYear();
+                    const mm = String(val.getMonth() + 1).padStart(2, '0');
+                    const dd = String(val.getDate()).padStart(2, '0');
+                    return `${yyyy}-${mm}-${dd}`;
+                }
+                if (typeof val === 'number' || (!isNaN(val) && !String(val).includes('-') && !String(val).includes('/'))) {
+                    const serial = Number(val);
+                    const utc_days = Math.floor(serial - 25569);
+                    const utc_value = utc_days * 86400;
+                    const date_info = new Date(utc_value * 1000);
+                    const yyyy = date_info.getFullYear();
+                    const mm = String(date_info.getMonth() + 1).padStart(2, '0');
+                    const dd = String(date_info.getDate()).padStart(2, '0');
+                    return `${yyyy}-${mm}-${dd}`;
+                }
+                const str = String(val).trim();
+                if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+                const parts = str.split(/[\/\-\.]/);
+                if (parts.length === 3) {
+                    if (parts[0].length === 4) {
+                        return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+                    } else if (parts[2].length === 4) {
+                        return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                    }
+                }
+                return str;
+            }
+
             function exportExcelStudents() {
                 const data = students.value.map(s => ({
                     'NIS': s.nis,
                     'Nama Lengkap': s.nama,
                     'Nama Panggilan': s.namaPanggilan || '',
                     'Jenis Kelamin (L/P)': s.gender,
+                    'Nama Kelas': getClassName(s.kelasId),
                     'Tanggal Lahir (YYYY-MM-DD)': s.tanggalLahir || '',
                     'Asal SMP': s.asalSmp || '',
                     'No HP Wali': s.hporangtua || '',
@@ -2212,8 +2244,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 let filename = "Template_Import_" + type + ".xlsx";
 
                 if (type === 'students') {
-                    headers = ['NIS', 'Nama Lengkap', 'Nama Panggilan', 'Jenis Kelamin (L/P)', 'Tanggal Lahir (YYYY-MM-DD)', 'Asal SMP', 'No HP Wali', 'Alamat Domisili'];
-                    sampleData = [['1001', 'ALFRIANUS PELO RUGHA', 'Rian', 'L', '2008-01-01', 'SMPN 1 Bajawa', '081234567801', 'Jl. Merdeka No. 12, Bajawa']];
+                    headers = ['NIS', 'Nama Lengkap', 'Nama Panggilan', 'Jenis Kelamin (L/P)', 'Nama Kelas', 'Tanggal Lahir (YYYY-MM-DD)', 'Asal SMP', 'No HP Wali', 'Alamat Domisili', 'Status'];
+                    sampleData = [['1001', 'ALFRIANUS PELO RUGHA', 'Rian', 'L', 'X IPA 1', '2008-01-01', 'SMPN 1 Bajawa', '081234567801', 'Jl. Merdeka No. 12, Bajawa', 'Aktif']];
                 } else if (type === 'teachers') {
                     headers = ['NIP', 'Nama Lengkap', 'Email', 'No HP'];
                     sampleData = [['198501012010011001', 'Drs. Ahmad Fauzi, M.Pd', 'fauzi@guruku.id', '081234567891']];
@@ -2239,25 +2271,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 reader.onload = (e) => {
                     try {
                         const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
+                        const workbook = XLSX.read(data, { type: 'array', cellDates: true, dateNF: 'yyyy-mm-dd' });
                         const sheetName = workbook.SheetNames[0];
                         const sheet = workbook.Sheets[sheetName];
-                        const json = XLSX.utils.sheet_to_json(sheet);
+                        const json = XLSX.utils.sheet_to_json(sheet, { raw: false, dateNF: 'yyyy-mm-dd' });
 
                         if (type === 'students') {
                             json.forEach(row => {
-                                const cls = classes.value.find(c => c.nama.trim().toLowerCase() === String(row['Nama Kelas'] || '').trim().toLowerCase());
+                                const rawClassStr = String(row['Nama Kelas'] || row['Kelas'] || '').trim();
+                                let cls = classes.value.find(c => c.nama.trim().toLowerCase() === rawClassStr.toLowerCase());
+                                if (!cls && rawClassStr) {
+                                    cls = {
+                                        id: 'CLS' + Date.now() + Math.random().toString(36).substr(2, 4),
+                                        nama: rawClassStr,
+                                        tingkat: 10,
+                                        tahunAjaran: '2025/2026'
+                                    };
+                                    classes.value.push(cls);
+                                }
+                                const kelasId = cls ? cls.id : (filterStudentClass.value !== 'all' ? filterStudentClass.value : (classes.value[0]?.id || ''));
+                                
+                                const rawGender = String(row['Jenis Kelamin (L/P)'] || row['Jenis Kelamin'] || row['L/P'] || row['Gender'] || 'L').trim().toUpperCase();
+                                const gender = rawGender.startsWith('P') || rawGender === 'PEREMPUAN' ? 'P' : 'L';
+
                                 students.value.push({
                                     id: 'STU' + Date.now() + Math.random().toString(36).substr(2, 4),
-                                    nis: String(row['NIS'] || ''),
-                                    nama: String(row['Nama Lengkap'] || ''),
-                                    namaPanggilan: String(row['Nama Panggilan'] || ''),
-                                    gender: String(row['Jenis Kelamin (L/P)'] || row['L/P'] || 'L').toUpperCase(),
-                                    kelasId: cls ? cls.id : (filterStudentClass.value !== 'all' ? filterStudentClass.value : (classes.value[0]?.id || '')),
-                                    tanggalLahir: String(row['Tanggal Lahir (YYYY-MM-DD)'] || ''),
-                                    asalSmp: String(row['Asal SMP'] || ''),
-                                    hporangtua: String(row['No HP Wali'] || row['HP Wali'] || ''),
-                                    alamatDomisili: String(row['Alamat Domisili'] || ''),
+                                    nis: String(row['NIS'] || row['Nis'] || ''),
+                                    nama: String(row['Nama Lengkap'] || row['Nama'] || ''),
+                                    namaPanggilan: String(row['Nama Panggilan'] || row['Panggilan'] || ''),
+                                    gender: gender,
+                                    kelasId: kelasId,
+                                    tanggalLahir: parseExcelDate(row['Tanggal Lahir (YYYY-MM-DD)'] || row['Tanggal Lahir'] || row['Tgl Lahir']),
+                                    asalSmp: String(row['Asal SMP'] || row['Asal Sekolah'] || ''),
+                                    hporangtua: String(row['No HP Wali'] || row['No. HP Wali'] || row['HP Wali'] || row['No HP'] || row['No WA'] || ''),
+                                    alamatDomisili: String(row['Alamat Domisili'] || row['Alamat'] || ''),
                                     status: String(row['Status'] || 'Aktif'),
                                     nonAktifPertemuan: Number(row['Pertemuan Non-Aktif']) || 1,
                                     keteranganStatus: String(row['Keterangan Status'] || '')
@@ -2267,25 +2314,25 @@ document.addEventListener('DOMContentLoaded', function() {
                             json.forEach(row => {
                                 teachers.value.push({
                                     id: 'TCH' + Date.now() + Math.random().toString(36).substr(2, 4),
-                                    nip: String(row['NIP'] || ''),
-                                    nama: String(row['Nama Lengkap'] || ''),
+                                    nip: String(row['NIP'] || row['ID'] || ''),
+                                    nama: String(row['Nama Lengkap'] || row['Nama'] || ''),
                                     email: String(row['Email'] || ''),
-                                    nohp: String(row['No HP'] || '')
+                                    nohp: String(row['No HP'] || row['No. HP'] || row['No WA'] || '')
                                 });
                             });
                         } else if (type === 'subjects') {
                             json.forEach(row => {
                                 subjects.value.push({
                                     id: 'SUB' + Date.now() + Math.random().toString(36).substr(2, 4),
-                                    kode: String(row['Kode Mapel'] || ''),
-                                    nama: String(row['Nama Mapel'] || '')
+                                    kode: String(row['Kode Mapel'] || row['Kode'] || ''),
+                                    nama: String(row['Nama Mapel'] || row['Nama Mata Pelajaran'] || row['Nama'] || '')
                                 });
                             });
                         } else if (type === 'classes') {
                             json.forEach(row => {
                                 classes.value.push({
                                     id: 'CLS' + Date.now() + Math.random().toString(36).substr(2, 4),
-                                    nama: String(row['Nama Kelas'] || ''),
+                                    nama: String(row['Nama Kelas'] || row['Nama'] || ''),
                                     tingkat: Number(row['Tingkat']) || 10,
                                     tahunAjaran: String(row['Tahun Ajaran'] || '2025/2026')
                                 });
