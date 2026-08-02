@@ -196,7 +196,7 @@
         .table-report td { border: 1px solid #BDC3C7 !important; font-size: 0.85rem; vertical-align: middle; }
 
         .table-grades input {
-            width: 42px;
+            width: 44px;
             text-align: center;
             font-size: 0.8rem;
             padding: 2px;
@@ -214,6 +214,7 @@
 <body>
 
 <div id="app">
+    <!-- SYNC LOADING OVERLAY -->
     <div v-if="loading" class="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center bg-dark bg-opacity-75 text-white" style="z-index: 9999;">
         <div class="spinner-border text-light mb-3" style="width: 3.5rem; height: 3.5rem;" role="status"></div>
         <h6 class="fw-bold m-0">Menyingkronkan Data dengan Firebase Cloud...</h6>
@@ -267,7 +268,6 @@
 
     <!-- MAIN DASHBOARD & APPLICATION LAYOUT -->
     <div v-else>
-        <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="p-4 border-bottom border-secondary d-flex align-items-center">
                 <i class="fa-solid fa-graduation-cap fa-2x text-warning me-3"></i>
@@ -283,6 +283,19 @@
                 </div>
 
                 <template v-if="userRole === 'admin'">
+                    <div class="px-3 py-2 text-uppercase text-white-50 fs-8 fw-semibold mt-2">Master Data</div>
+                    <div class="nav-link-custom" :class="{active: activeMenu === 'teachers'}" @click="switchMenu('teachers')">
+                        <i class="fa-solid fa-user-tie"></i> Data Guru
+                    </div>
+                    <div class="nav-link-custom" :class="{active: activeMenu === 'subjects'}" @click="switchMenu('subjects')">
+                        <i class="fa-solid fa-book"></i> Mata Pelajaran
+                    </div>
+                    <div class="nav-link-custom" :class="{active: activeMenu === 'classes'}" @click="switchMenu('classes')">
+                        <i class="fa-solid fa-school"></i> Data Kelas
+                    </div>
+                    <div class="nav-link-custom" :class="{active: activeMenu === 'students'}" @click="switchMenu('students')">
+                        <i class="fa-solid fa-users"></i> Data Siswa
+                    </div>
                     <div class="px-3 py-2 text-uppercase text-white-50 fs-8 fw-semibold mt-2">Penugasan & Akun</div>
                     <div class="nav-link-custom" :class="{active: activeMenu === 'mappings'}" @click="switchMenu('mappings')">
                         <i class="fa-solid fa-diagram-project"></i> Mapping Pengajaran
@@ -388,7 +401,6 @@
             </nav>
 
             <main>
-                <!-- DASHBOARD VIEW -->
                 <div v-if="activeMenu === 'dashboard'">
                     <div v-if="todayBirthdays.length > 0" class="card-custom p-3 mb-4 bg-primary bg-opacity-10 border border-primary text-primary">
                         <div class="d-flex align-items-center">
@@ -398,7 +410,7 @@
                                 <div class="d-flex flex-wrap gap-2 mt-2">
                                     <div v-for="sb in todayBirthdays" :key="sb.id" class="badge bg-primary fs-7 p-2 d-inline-flex align-items-center gap-2">
                                         <span>🎂 <strong>{{ sb.nama }}</strong> ({{ sb.namaPanggilan || sb.nama }}) - Kelas {{ getClassName(sb.kelasId) }}</span>
-                                        <button @click="sendWaNotification(sb.hporangtua, 'Selamat Ulang Tahun untuk ananda ' + sb.nama + '! 🎉 Semoga panjang umur dan semakin berprestasi.')" class="btn btn-sm btn-light text-success fw-bold px-2 py-0 ms-1" style="font-size: 0.75rem;">
+                                        <button @click="sendBirthdayWa(sb)" class="btn btn-sm btn-light text-success fw-bold px-2 py-0 ms-1" style="font-size: 0.75rem;">
                                             <i class="fa-brands fa-whatsapp me-1"></i> WA Wali
                                         </button>
                                     </div>
@@ -481,7 +493,7 @@
                                         <div class="text-end">
                                             <span class="badge bg-danger fs-7 mb-1">{{ stu.alfaCount }}x Alfa</span>
                                             <br v-if="stu.hporangtua">
-                                            <button v-if="stu.hporangtua" @click="sendWaNotification(stu.hporangtua, 'Halo Bpk/Ibu Wali dari ' + stu.nama + ', kami menginfokan catatan alfa ananda di sekolah.')" class="btn btn-xs btn-outline-success p-1 py-0 fs-8" title="Hubungi Wali"><i class="fa-brands fa-whatsapp"></i> Chat Wali</button>
+                                            <button v-if="stu.hporangtua" @click="sendAbsenceWa(stu)" class="btn btn-xs btn-outline-success p-1 py-0 fs-8" title="Hubungi Wali"><i class="fa-brands fa-whatsapp"></i> Chat Wali</button>
                                         </div>
                                     </div>
                                     <div v-if="topAbsenceStudents.length === 0" class="text-center py-4 text-muted small">
@@ -523,9 +535,16 @@
                 <!-- TEACHERS VIEW (SUPER ADMIN) -->
                 <div v-if="activeMenu === 'teachers'">
                     <div class="card-custom p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                             <h5 class="fw-bold m-0"><i class="fa-solid fa-user-tie text-primary me-2"></i>Master Data Guru</h5>
-                            <button class="btn btn-primary btn-sm" @click="openTeacherModal()"><i class="fa-solid fa-plus me-1"></i> Tambah Guru</button>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-secondary btn-sm" @click="downloadTemplate('teachers')"><i class="fa-solid fa-file-arrow-down me-1"></i> Template Excel</button>
+                                <label class="btn btn-outline-success btn-sm mb-0 cursor-pointer">
+                                    <i class="fa-solid fa-file-excel me-1"></i> Impor Excel
+                                    <input type="file" accept=".xlsx, .xls" class="d-none" @change="importExcelData($event, 'teachers')">
+                                </label>
+                                <button class="btn btn-primary btn-sm" @click="openTeacherModal()"><i class="fa-solid fa-plus me-1"></i> Tambah Guru</button>
+                            </div>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle">
@@ -561,9 +580,16 @@
                 <!-- SUBJECTS VIEW (SUPER ADMIN) -->
                 <div v-if="activeMenu === 'subjects'">
                     <div class="card-custom p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                             <h5 class="fw-bold m-0"><i class="fa-solid fa-book text-success me-2"></i>Master Mata Pelajaran</h5>
-                            <button class="btn btn-success btn-sm text-white" @click="openSubjectModal()"><i class="fa-solid fa-plus me-1"></i> Tambah Mapel</button>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-secondary btn-sm" @click="downloadTemplate('subjects')"><i class="fa-solid fa-file-arrow-down me-1"></i> Template Excel</button>
+                                <label class="btn btn-outline-success btn-sm mb-0 cursor-pointer">
+                                    <i class="fa-solid fa-file-excel me-1"></i> Impor Excel
+                                    <input type="file" accept=".xlsx, .xls" class="d-none" @change="importExcelData($event, 'subjects')">
+                                </label>
+                                <button class="btn btn-success btn-sm text-white" @click="openSubjectModal()"><i class="fa-solid fa-plus me-1"></i> Tambah Mapel</button>
+                            </div>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle">
@@ -595,9 +621,16 @@
                 <!-- CLASSES VIEW (SUPER ADMIN) -->
                 <div v-if="activeMenu === 'classes'">
                     <div class="card-custom p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                             <h5 class="fw-bold m-0"><i class="fa-solid fa-school text-info me-2"></i>Master Data Kelas</h5>
-                            <button class="btn btn-info btn-sm text-white" @click="openClassModal()"><i class="fa-solid fa-plus me-1"></i> Tambah Kelas</button>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-secondary btn-sm" @click="downloadTemplate('classes')"><i class="fa-solid fa-file-arrow-down me-1"></i> Template Excel</button>
+                                <label class="btn btn-outline-success btn-sm mb-0 cursor-pointer">
+                                    <i class="fa-solid fa-file-excel me-1"></i> Impor Excel
+                                    <input type="file" accept=".xlsx, .xls" class="d-none" @change="importExcelData($event, 'classes')">
+                                </label>
+                                <button class="btn btn-info btn-sm text-white" @click="openClassModal()"><i class="fa-solid fa-plus me-1"></i> Tambah Kelas</button>
+                            </div>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle">
@@ -634,7 +667,12 @@
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                             <h5 class="fw-bold m-0"><i class="fa-solid fa-users text-warning me-2"></i>Master Data Siswa</h5>
                             <div class="d-flex gap-2">
-                                <button class="btn btn-outline-success btn-sm" @click="exportExcelStudents"><i class="fa-solid fa-file-excel me-1"></i> Ekspor Excel</button>
+                                <button class="btn btn-outline-secondary btn-sm" @click="downloadTemplate('students')"><i class="fa-solid fa-file-arrow-down me-1"></i> Template Excel</button>
+                                <label class="btn btn-outline-success btn-sm mb-0 cursor-pointer">
+                                    <i class="fa-solid fa-file-excel me-1"></i> Impor Excel
+                                    <input type="file" accept=".xlsx, .xls" class="d-none" @change="importExcelData($event, 'students')">
+                                </label>
+                                <button class="btn btn-outline-primary btn-sm" @click="exportExcelStudents"><i class="fa-solid fa-download me-1"></i> Ekspor Excel</button>
                                 <button class="btn btn-warning btn-sm text-dark fw-bold" @click="openStudentModal()"><i class="fa-solid fa-plus me-1"></i> Tambah Siswa</button>
                             </div>
                         </div>
@@ -672,7 +710,7 @@
                                         <td><span class="badge" :class="st.gender === 'L' ? 'bg-info' : 'bg-danger'">{{ st.gender }}</span></td>
                                         <td>{{ getClassName(st.kelasId) }}</td>
                                         <td>
-                                            <button v-if="st.hporangtua" @click="sendWaNotification(st.hporangtua, 'Halo Wali dari ' + st.nama)" class="btn btn-xs text-success border-0 bg-transparent fw-bold p-0">
+                                            <button v-if="st.hporangtua" @click="sendStudentWa(st)" class="btn btn-xs text-success border-0 bg-transparent fw-bold p-0">
                                                 <i class="fa-brands fa-whatsapp me-1"></i> {{ st.hporangtua }}
                                             </button>
                                             <span v-else class="text-muted">-</span>
@@ -692,6 +730,40 @@
                 </div>
 
                 <!-- MAPPINGS VIEW (SUPER ADMIN) -->
+                <div v-if="activeMenu === 'mappings'">
+                    <div class="card-custom p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold m-0"><i class="fa-solid fa-diagram-project text-primary me-2"></i>Mapping Penugasan Guru</h5>
+                            <button class="btn btn-primary btn-sm fw-bold" @click="openMappingModal()"><i class="fa-solid fa-plus me-1"></i> Tambah Mapping</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Guru Pengampu</th>
+                                        <th>Mata Pelajaran</th>
+                                        <th>Kelas</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="m in teacherMappings" :key="m.id">
+                                        <td class="fw-bold">{{ getTeacherName(m.teacherId) }}</td>
+                                        <td>{{ getSubjectName(m.subjectId) }}</td>
+                                        <td><span class="badge bg-info text-dark">{{ getClassName(m.classId) }}</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-danger" @click="deleteMapping(m.id)"><i class="fa-solid fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="teacherMappings.length === 0">
+                                        <td colspan="4" class="text-center py-4 text-muted">Belum ada mapping penugasan guru.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- TEACHER & ADMIN USERS VIEW (SUPER ADMIN) -->
                 <div v-if="activeMenu === 'teacher_users'">
                     <div class="card-custom p-4 mb-4">
@@ -810,13 +882,13 @@
                                     <tr v-for="st in getStudentsInClass(selectedGradeClass)" :key="st.id">
                                         <td class="fw-bold fs-7">{{ st.nama }}</td>
                                         <td v-for="n in 9" :key="'f_'+n">
-                                            <input type="number" min="0" max="100" v-model.number="getGradeObj(st.id)['f'+n]" @input="calcRata(st.id)">
+                                            <input type="number" min="0" max="100" :value="getGradeField(st.id, 'f' + n)" @input="setGradeField(st.id, 'f' + n, $event.target.value)">
                                         </td>
                                         <td v-for="n in 3" :key="'s_'+n">
-                                            <input type="number" min="0" max="100" v-model.number="getGradeObj(st.id)['s'+n]" @input="calcRata(st.id)">
+                                            <input type="number" min="0" max="100" :value="getGradeField(st.id, 's' + n)" @input="setGradeField(st.id, 's' + n, $event.target.value)">
                                         </td>
-                                        <td><input type="number" min="0" max="100" v-model.number="getGradeObj(st.id).pts" @input="calcRata(st.id)"></td>
-                                        <td><input type="number" min="0" max="100" v-model.number="getGradeObj(st.id).pas" @input="calcRata(st.id)"></td>
+                                        <td><input type="number" min="0" max="100" :value="getGradeField(st.id, 'pts')" @input="setGradeField(st.id, 'pts', $event.target.value)"></td>
+                                        <td><input type="number" min="0" max="100" :value="getGradeField(st.id, 'pas')" @input="setGradeField(st.id, 'pas', $event.target.value)"></td>
                                         <td class="text-center fw-bold bg-light" :class="getGradeObj(st.id).rata < 75 ? 'text-danger' : 'text-success'">
                                             {{ getGradeObj(st.id).rata || 0 }}
                                         </td>
@@ -931,11 +1003,11 @@
                         <h5 class="fw-bold mb-3"><i class="fa-solid fa-file-invoice text-info me-2"></i>Cetak & Rekap Laporan Akademik Lengkap</h5>
                         <div class="row g-3">
                             <div class="col-md-3">
-                                <label class="form-label font-semibold">Jenis Laporan</label>
+                                <label class="form-label font-semibold">Jenis Laporan Cetak</label>
                                 <select class="form-select" v-model="selectedReportType">
-                                    <option value="grades">Rekap Nilai Siswa</option>
-                                    <option value="attendance">Rekap Presensi Siswa</option>
-                                    <option value="journal">Rekap Jurnal Mengajar</option>
+                                    <option value="grades_detail">Matriks Nilai Siswa (F1-F9, S1-S3, STS, SAS, NA)</option>
+                                    <option value="attendance_p1_p18">Rekap Presensi Pertemuan (P1 - P18)</option>
+                                    <option value="journal">Rekap Jurnal Harian Mengajar</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
@@ -968,77 +1040,87 @@
 
                         <div class="text-center my-4">
                             <h5 class="fw-bold text-uppercase m-0">
-                                {{ selectedReportType === 'grades' ? 'REKAPITULASI NILAI AKADEMIK SISWA' : (selectedReportType === 'attendance' ? 'LAPORAN REKAPITULASI PRESENSI SISWA' : 'JURNAL HARIAN MENGAJAR GURU') }}
+                                {{ selectedReportType === 'grades_detail' ? 'LAPORAN MATRIKS NILAI AKADEMIK SISWA (FORMATIF & SUMATIF)' : (selectedReportType === 'attendance_p1_p18' ? 'LAPORAN REKAPITULASI PRESENSI SISWA (PERTEMUAN P1 - P18)' : 'JURNAL HARIAN MENGAJAR GURU') }}
                             </h5>
-                            <p class="text-muted small m-0">
+                            <p class="text-muted small m-0 mt-1">
                                 <span v-if="selectedReportClass">Kelas: <strong>{{ getClassName(selectedReportClass) }}</strong> | </span>
                                 <span v-if="selectedReportSubject">Mata Pelajaran: <strong>{{ getSubjectName(selectedReportSubject) }}</strong> | </span>
-                                Guru Pengampu: <strong>{{ activeReportTeacher.nama }}</strong>
+                                Guru Pengampu: <strong>{{ activeReportTeacher.nama }}</strong> (NIP. {{ activeReportTeacher.nip }})
                             </p>
                         </div>
 
-                        <!-- TABEL REKAP NILAI -->
-                        <table v-if="selectedReportType === 'grades'" class="table table-report w-100">
+                        <!-- TABEL REKAP NILAI DETIL (F1-F9, S1-S3, STS, SAS) -->
+                        <table v-if="selectedReportType === 'grades_detail'" class="table table-report w-100 table-bordered align-middle">
                             <thead>
                                 <tr>
-                                    <th>No</th>
-                                    <th>NIS</th>
-                                    <th>Nama Siswa</th>
-                                    <th>Mata Pelajaran</th>
-                                    <th>Rata Formatif</th>
-                                    <th>Rata Sumatif</th>
-                                    <th>PTS</th>
-                                    <th>PAS</th>
-                                    <th>Nilai Akhir</th>
+                                    <th rowspan="2" style="width: 30px;">No</th>
+                                    <th rowspan="2" style="width: 70px;">NIS</th>
+                                    <th rowspan="2" style="width: 180px;">Nama Siswa</th>
+                                    <th colspan="9">Formatif (F1 - F9)</th>
+                                    <th colspan="3">Sumatif (S1 - S3)</th>
+                                    <th rowspan="2" style="width: 45px;">STS</th>
+                                    <th rowspan="2" style="width: 45px;">SAS</th>
+                                    <th rowspan="2" style="width: 55px;">Nilai Akhir</th>
+                                </tr>
+                                <tr>
+                                    <th>F1</th><th>F2</th><th>F3</th><th>F4</th><th>F5</th><th>F6</th><th>F7</th><th>F8</th><th>F9</th>
+                                    <th>S1</th><th>S2</th><th>S3</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(g, idx) in reportGradesList" :key="g.id" class="text-center">
+                                <tr v-for="(st, idx) in reportDetailGradesList" :key="st.id" class="text-center fs-8">
                                     <td>{{ idx + 1 }}</td>
-                                    <td><code>{{ getStudentObj(g.studentId)?.nis }}</code></td>
-                                    <td class="text-start fw-bold">{{ getStudentObj(g.studentId)?.nama }}</td>
-                                    <td>{{ getSubjectName(g.mapelId) }}</td>
-                                    <td>{{ calcAvgRange(g, 'f', 9) }}</td>
-                                    <td>{{ calcAvgRange(g, 's', 3) }}</td>
-                                    <td>{{ g.pts || 0 }}</td>
-                                    <td>{{ g.pas || 0 }}</td>
-                                    <td class="fw-bold">{{ g.rata || 0 }}</td>
+                                    <td><code>{{ st.nis }}</code></td>
+                                    <td class="text-start fw-bold fs-7">{{ st.nama }}</td>
+                                    <td v-for="n in 9" :key="'f_'+n">{{ getGradeField(st.id, 'f' + n) || '-' }}</td>
+                                    <td v-for="n in 3" :key="'s_'+n">{{ getGradeField(st.id, 's' + n) || '-' }}</td>
+                                    <td class="fw-semibold">{{ getGradeField(st.id, 'pts') || '-' }}</td>
+                                    <td class="fw-semibold">{{ getGradeField(st.id, 'pas') || '-' }}</td>
+                                    <td class="fw-bold bg-light" :class="getGradeObj(st.id).rata < 75 ? 'text-danger' : 'text-success'">
+                                        {{ getGradeObj(st.id).rata || 0 }}
+                                    </td>
                                 </tr>
-                                <tr v-if="reportGradesList.length === 0">
-                                    <td colspan="9" class="text-center py-4 text-muted">Belum ada data rekap nilai untuk filter yang dipilih.</td>
+                                <tr v-if="reportDetailGradesList.length === 0">
+                                    <td colspan="18" class="text-center py-4 text-muted fs-7">Belum ada data siswa / nilai untuk filter yang dipilih.</td>
                                 </tr>
                             </tbody>
                         </table>
 
-                        <!-- TABEL REKAP PRESENSI -->
-                        <table v-if="selectedReportType === 'attendance'" class="table table-report w-100">
+                        <!-- TABEL REKAP PRESENSI PERTEMUAN P1 - P18 -->
+                        <table v-if="selectedReportType === 'attendance_p1_p18'" class="table table-report w-100 table-bordered align-middle">
                             <thead>
                                 <tr>
-                                    <th>No</th>
-                                    <th>NIS</th>
-                                    <th>Nama Siswa</th>
-                                    <th>Hadir (H)</th>
-                                    <th>Izin (I)</th>
-                                    <th>Sakit (S)</th>
-                                    <th>Alfa (A)</th>
-                                    <th>Total Pertemuan</th>
-                                    <th>% Kehadiran</th>
+                                    <th rowspan="2" style="width: 30px;">No</th>
+                                    <th rowspan="2" style="width: 70px;">NIS</th>
+                                    <th rowspan="2" style="width: 170px;">Nama Siswa</th>
+                                    <th colspan="18">Pertemuan Ke- (P1 - P18)</th>
+                                    <th colspan="4">Total</th>
+                                    <th rowspan="2" style="width: 50px;">%</th>
+                                </tr>
+                                <tr>
+                                    <th v-for="p in 18" :key="'h_p_'+p" style="font-size: 0.65rem; padding: 2px;">P{{ p }}</th>
+                                    <th class="text-success" style="padding: 2px;">H</th>
+                                    <th class="text-warning" style="padding: 2px;">I</th>
+                                    <th class="text-info" style="padding: 2px;">S</th>
+                                    <th class="text-danger" style="padding: 2px;">A</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(st, idx) in reportAttendanceSummary" :key="st.id" class="text-center">
+                                <tr v-for="(st, idx) in reportAttendanceMatrixList" :key="st.id" class="text-center fs-8">
                                     <td>{{ idx + 1 }}</td>
                                     <td><code>{{ st.nis }}</code></td>
-                                    <td class="text-start fw-bold">{{ st.nama }}</td>
-                                    <td class="text-success fw-bold">{{ st.hadir }}</td>
-                                    <td class="text-warning fw-bold">{{ st.izin }}</td>
-                                    <td class="text-info fw-bold">{{ st.sakit }}</td>
-                                    <td class="text-danger fw-bold">{{ st.alfa }}</td>
-                                    <td>{{ st.total }}</td>
-                                    <td class="fw-bold">{{ st.persen }}%</td>
+                                    <td class="text-start fw-bold fs-7">{{ st.nama }}</td>
+                                    <td v-for="p in 18" :key="'cell_p_'+p" style="font-size: 0.72rem; padding: 2px;" :class="getAttColorClass(getPertemuanStatus(st.id, p))">
+                                        {{ getPertemuanStatus(st.id, p) }}
+                                    </td>
+                                    <td class="fw-bold text-success">{{ st.hadir }}</td>
+                                    <td class="fw-bold text-warning">{{ st.izin }}</td>
+                                    <td class="fw-bold text-info">{{ st.sakit }}</td>
+                                    <td class="fw-bold text-danger">{{ st.alfa }}</td>
+                                    <td class="fw-bold bg-light">{{ st.persen }}%</td>
                                 </tr>
-                                <tr v-if="reportAttendanceSummary.length === 0">
-                                    <td colspan="9" class="text-center py-4 text-muted">Belum ada data presensi siswa.</td>
+                                <tr v-if="reportAttendanceMatrixList.length === 0">
+                                    <td colspan="26" class="text-center py-4 text-muted fs-7">Belum ada data siswa / presensi untuk filter kelas & mapel yang dipilih.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1176,6 +1258,43 @@
                         <button class="btn btn-warning w-100 fw-bold" @click="saveProfile"><i class="fa-solid fa-floppy-disk me-1"></i> Perbarui Profil</button>
                     </div>
                 </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL TEACHER -->
+    <div class="modal fade" id="teacherModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Form Master Guru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label small">NIP / ID Guru</label>
+                        <input type="text" class="form-control" v-model="teacherForm.nip" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Nama Lengkap & Gelar</label>
+                        <input type="text" class="form-control" v-model="teacherForm.nama" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Email Guru</label>
+                        <input type="email" class="form-control" v-model="teacherForm.email" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">No. WhatsApp</label>
+                        <input type="text" class="form-control" v-model="teacherForm.nohp">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary fw-bold" @click="saveTeacher">Simpan Data Guru</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL USER ADMIN -->
     <div class="modal fade" id="adminModal" tabindex="-1">
         <div class="modal-dialog">
@@ -1429,7 +1548,7 @@
 
 <script>
 const firebaseConfig = {
-    apiKey: "AIzaSyDgfi8j1ypnSsxfVMx8O5zEXur0BC-XrcQ",
+  apiKey: "AIzaSyDgfi8j1ypnSsxfVMx8O5zEXur0BC-XrcQ",
   authDomain: "guruguru3.firebaseapp.com",
   databaseURL: "https://guruguru3-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "guruguru3",
@@ -1445,7 +1564,7 @@ if (typeof firebase !== 'undefined' && !firebase.apps.length) {
 document.addEventListener('DOMContentLoaded', function() {
     const VueLib = window.Vue || (typeof Vue !== 'undefined' ? Vue : null);
     if (!VueLib) return;
-    const { createApp, ref, computed, onMounted, watch, nextTick } = VueLib;
+    const { createApp, ref, computed, onMounted, nextTick } = VueLib;
 
     createApp({
         setup() {
@@ -1468,7 +1587,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const selectedAttSubject = ref('');
             const selectedAttDate = ref(new Date().toISOString().substring(0, 10));
 
-            const selectedReportType = ref('grades');
+            const selectedReportType = ref('grades_detail');
             const selectedReportClass = ref('');
             const selectedReportSubject = ref('');
 
@@ -1683,6 +1802,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`, '_blank');
             }
 
+            function sendBirthdayWa(sb) {
+                sendWaNotification(sb.hporangtua, `Selamat Ulang Tahun untuk ananda ${sb.nama}! 🎉 Semoga panjang umur dan semakin berprestasi.`);
+            }
+
+            function sendAbsenceWa(stu) {
+                sendWaNotification(stu.hporangtua, `Halo Bpk/Ibu Wali dari ${stu.nama}, kami menginfokan catatan alfa ananda di sekolah.`);
+            }
+
+            function sendStudentWa(st) {
+                sendWaNotification(st.hporangtua, `Halo Wali dari ${st.nama}`);
+            }
+
             const filteredStudents = computed(() => {
                 return students.value.filter(s => {
                     const matchesClass = filterStudentClass.value === 'all' || s.kelasId === filterStudentClass.value;
@@ -1738,6 +1869,55 @@ document.addEventListener('DOMContentLoaded', function() {
                     return matchesClass && matchesSubject;
                 });
             });
+
+            const reportDetailGradesList = computed(() => {
+                if (!selectedReportClass.value) return students.value;
+                return getStudentsInClass(selectedReportClass.value);
+            });
+
+            const reportAttendanceMatrixList = computed(() => {
+                const targetStudents = selectedReportClass.value ? getStudentsInClass(selectedReportClass.value) : students.value;
+                return targetStudents.map(st => {
+                    const stAtts = attendance.value.filter(a => {
+                        const matchesStu = a && a.studentId === st.id;
+                        const matchesClass = !selectedReportClass.value || a.kelasId === selectedReportClass.value;
+                        const matchesSubject = !selectedReportSubject.value || a.mapelId === selectedReportSubject.value;
+                        return matchesStu && matchesClass && matchesSubject;
+                    });
+                    const hadir = stAtts.filter(a => a.status === 'Hadir').length;
+                    const izin = stAtts.filter(a => a.status === 'Izin').length;
+                    const sakit = stAtts.filter(a => a.status === 'Sakit').length;
+                    const alfa = stAtts.filter(a => a.status === 'Alfa').length;
+                    const total = stAtts.length;
+                    const persen = total > 0 ? Math.round((hadir / total) * 100) : 100;
+                    return { ...st, hadir, izin, sakit, alfa, total, persen };
+                });
+            });
+
+            function getPertemuanStatus(studentId, pertemuanNum) {
+                const filteredAtts = attendance.value.filter(a => {
+                    const matchesStu = a && a.studentId === studentId;
+                    const matchesClass = !selectedReportClass.value || a.kelasId === selectedReportClass.value;
+                    const matchesSubject = !selectedReportSubject.value || a.mapelId === selectedReportSubject.value;
+                    return matchesStu && matchesClass && matchesSubject;
+                });
+                if (filteredAtts.length >= pertemuanNum) {
+                    const record = filteredAtts[pertemuanNum - 1];
+                    if (record.status === 'Hadir') return 'H';
+                    if (record.status === 'Izin') return 'I';
+                    if (record.status === 'Sakit') return 'S';
+                    if (record.status === 'Alfa') return 'A';
+                }
+                return '-';
+            }
+
+            function getAttColorClass(status) {
+                if (status === 'H') return 'text-success fw-bold';
+                if (status === 'I') return 'text-warning fw-bold';
+                if (status === 'S') return 'text-info fw-bold';
+                if (status === 'A') return 'text-danger fw-bold';
+                return 'text-muted';
+            }
 
             const reportAttendanceSummary = computed(() => {
                 const targetStudents = selectedReportClass.value ? getStudentsInClass(selectedReportClass.value) : students.value;
@@ -1798,6 +1978,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     grades.value.push(existing);
                 }
                 return existing;
+            }
+
+            function getGradeField(studentId, field) {
+                const g = getGradeObj(studentId);
+                return g ? (g[field] ?? 0) : 0;
+            }
+
+            function setGradeField(studentId, field, val) {
+                const g = getGradeObj(studentId);
+                if (g) {
+                    g[field] = val === '' ? 0 : Number(val);
+                    calcRata(studentId);
+                }
             }
 
             function calcRata(studentId) {
@@ -2001,6 +2194,98 @@ document.addEventListener('DOMContentLoaded', function() {
                 XLSX.writeFile(wb, "Data_Siswa_GuruKu.xlsx");
             }
 
+            function downloadTemplate(type) {
+                let headers = [];
+                let sampleData = [];
+                let filename = "Template_Import_" + type + ".xlsx";
+
+                if (type === 'students') {
+                    headers = ['NIS', 'Nama Lengkap', 'Nama Panggilan', 'L/P', 'Nama Kelas', 'Tanggal Lahir (YYYY-MM-DD)', 'HP Wali'];
+                    sampleData = [['1001', 'ALFRIANUS PELO RUGHA', 'Rian', 'L', 'X IPA 1', '2008-01-01', '081234567890']];
+                } else if (type === 'teachers') {
+                    headers = ['NIP', 'Nama Lengkap', 'Email', 'No HP'];
+                    sampleData = [['198501012010011001', 'Drs. Ahmad Fauzi, M.Pd', 'fauzi@guruku.id', '081234567891']];
+                } else if (type === 'subjects') {
+                    headers = ['Kode Mapel', 'Nama Mapel'];
+                    sampleData = [['MAT-X', 'Matematika Terapan']];
+                } else if (type === 'classes') {
+                    headers = ['Nama Kelas', 'Tingkat', 'Tahun Ajaran'];
+                    sampleData = [['X IPA 1', '10', '2025/2026']];
+                }
+
+                const ws = XLSX.utils.aoa_to_sheet([headers, ...sampleData]);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Template");
+                XLSX.writeFile(wb, filename);
+            }
+
+            function importExcelData(event, type) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const sheetName = workbook.SheetNames[0];
+                        const sheet = workbook.Sheets[sheetName];
+                        const json = XLSX.utils.sheet_to_json(sheet);
+
+                        if (type === 'students') {
+                            json.forEach(row => {
+                                const cls = classes.value.find(c => c.nama.trim().toLowerCase() === String(row['Nama Kelas'] || '').trim().toLowerCase());
+                                students.value.push({
+                                    id: 'STU' + Date.now() + Math.random().toString(36).substr(2, 4),
+                                    nis: String(row['NIS'] || ''),
+                                    nama: String(row['Nama Lengkap'] || ''),
+                                    namaPanggilan: String(row['Nama Panggilan'] || ''),
+                                    gender: String(row['L/P'] || 'L').toUpperCase(),
+                                    kelasId: cls ? cls.id : (classes.value[0]?.id || ''),
+                                    tanggalLahir: String(row['Tanggal Lahir (YYYY-MM-DD)'] || ''),
+                                    hporangtua: String(row['HP Wali'] || '')
+                                });
+                            });
+                        } else if (type === 'teachers') {
+                            json.forEach(row => {
+                                teachers.value.push({
+                                    id: 'TCH' + Date.now() + Math.random().toString(36).substr(2, 4),
+                                    nip: String(row['NIP'] || ''),
+                                    nama: String(row['Nama Lengkap'] || ''),
+                                    email: String(row['Email'] || ''),
+                                    nohp: String(row['No HP'] || '')
+                                });
+                            });
+                        } else if (type === 'subjects') {
+                            json.forEach(row => {
+                                subjects.value.push({
+                                    id: 'SUB' + Date.now() + Math.random().toString(36).substr(2, 4),
+                                    kode: String(row['Kode Mapel'] || ''),
+                                    nama: String(row['Nama Mapel'] || '')
+                                });
+                            });
+                        } else if (type === 'classes') {
+                            json.forEach(row => {
+                                classes.value.push({
+                                    id: 'CLS' + Date.now() + Math.random().toString(36).substr(2, 4),
+                                    nama: String(row['Nama Kelas'] || ''),
+                                    tingkat: Number(row['Tingkat']) || 10,
+                                    tahunAjaran: String(row['Tahun Ajaran'] || '2025/2026')
+                                });
+                            });
+                        }
+
+                        saveLocalState();
+                        Swal.fire('Impor Sukses', `Berhasil mengimpor ${json.length} data ke dalam sistem!`, 'success');
+                    } catch (err) {
+                        console.error("Excel import error:", err);
+                        Swal.fire('Gagal Impor', 'Format file Excel tidak sesuai dengan template.', 'error');
+                    }
+                    event.target.value = '';
+                };
+                reader.readAsArrayBuffer(file);
+            }
+
             function saveSchoolConfig() {
                 saveLocalState();
                 Swal.fire('Berhasil', 'Pengaturan sekolah berhasil diperbarui!', 'success');
@@ -2018,11 +2303,11 @@ document.addEventListener('DOMContentLoaded', function() {
             function downloadPDF() {
                 const element = document.getElementById('printArea');
                 const opt = {
-                    margin: 0.5,
+                    margin: 0.3,
                     filename: `Laporan_GuruKu_${selectedReportType.value}_${Date.now()}.pdf`,
                     image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: { scale: 2 },
-                    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                    jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
                 };
                 html2pdf().set(opt).from(element).save();
             }
@@ -2036,13 +2321,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const inputPassword = authForm.value.password.trim();
 
                 if (authRole.value === 'admin') {
-                    // 1. Verifikasi dari daftar adminUsers di Firebase Database
                     const foundAdmin = adminUsers.value.find(a => 
-                        a && a.email && a.email.trim().toLowerCase() === inputEmail.toLowerCase() && a.password === inputPassword
+                        a && a.email && a.email.trim().toLowerCase() === inputEmail.toLowerCase() && String(a.password).trim() === inputPassword
                     );
 
-                    // 2. Fallback jika akun admin kustom belum dikonfigurasi
-                    const isDefaultAdmin = (inputEmail === 'admin@guruku.id' || inputEmail === 'admin') && inputPassword === 'admin123';
+                    const isDefaultAdmin = (inputEmail.toLowerCase() === 'admin@guruku.id' || inputEmail.toLowerCase() === 'admin') && inputPassword === 'admin123';
 
                     if (foundAdmin || isDefaultAdmin) {
                         isLoggedIn.value = true;
@@ -2062,10 +2345,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 } else {
                     const foundUser = teacherUsers.value.find(u => 
-                        u && u.email && u.email.trim().toLowerCase() === inputEmail.toLowerCase() && u.password === inputPassword
+                        u && u.email && u.email.trim().toLowerCase() === inputEmail.toLowerCase() && String(u.password).trim() === inputPassword
                     );
                     
-                    const isDefaultGuru = (inputEmail === 'guru@guruku.id' || inputEmail === 'guru') && inputPassword === 'admin123';
+                    const isDefaultGuru = (inputEmail.toLowerCase() === 'guru@guruku.id' || inputEmail.toLowerCase() === 'guru') && inputPassword === 'admin123';
 
                     if (foundUser || isDefaultGuru) {
                         isLoggedIn.value = true;
@@ -2098,10 +2381,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     nextTick(() => renderAttendanceChart());
                 }
             };
+
             const toggleTheme = () => {
                 theme.value = theme.value === 'light' ? 'dark' : 'light';
                 document.documentElement.setAttribute('data-theme', theme.value);
             };
+
             const handleLogout = () => { isLoggedIn.value = false; };
 
             function renderAttendanceChart() {
@@ -2141,14 +2426,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 authForm, profile, schoolConfig, teachers, subjects, classes, students, teacherMappings, teacherUsers, adminUsers,
                 grades, attendance, journals, teacherForm, subjectForm, classForm, studentForm, mappingForm, userForm, adminForm, journalForm,
                 filteredStudents, todayBirthdays, topAbsenceStudents, topRankStudents, dashboardAttendanceStats,
-                reportGradesList, reportAttendanceSummary, reportJournalList, activeReportTeacher, currentFormattedDate,
+                reportGradesList, reportDetailGradesList, reportAttendanceSummary, reportAttendanceMatrixList, reportJournalList, activeReportTeacher, currentFormattedDate,
                 handleLogin, handleLogout, switchMenu, toggleTheme, getClassName, getSubjectName, getTeacherName, getStudentObj,
-                getStudentsInClass, formatWhatsApp, getGradeObj, calcRata, calcAvgRange, saveGrades,
+                getStudentsInClass, formatWhatsApp, getGradeObj, getGradeField, setGradeField, calcRata, calcAvgRange, saveGrades,
                 getAttStatus, setAttStatus, markAllPresent, saveAttendance, openTeacherModal, saveTeacher, deleteTeacher,
                 openSubjectModal, saveSubject, deleteSubject, openClassModal, saveClass, deleteClass,
                 openStudentModal, saveStudent, deleteStudent, openMappingModal, saveMapping, deleteMapping,
                 openUserModal, saveUser, deleteUser, openAdminUserModal, saveAdminUser, deleteAdminUser, openJournalModal, saveJournal, deleteJournal, exportExcelStudents,
-                saveSchoolConfig, saveProfile, triggerPrint, downloadPDF, syncToGoogleSheets, testGasConnection, sendWaNotification
+                downloadTemplate, importExcelData, saveSchoolConfig, saveProfile, triggerPrint, downloadPDF, syncToGoogleSheets, testGasConnection, sendWaNotification,
+                sendBirthdayWa, sendAbsenceWa, sendStudentWa, getPertemuanStatus, getAttColorClass
             };
         }
     }).mount('#app');
