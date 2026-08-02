@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GuruKu PWA - Portal Academic Guru Modern</title>
+    <title>Aplikasi Sekolah - Guru Mapel</title>
     
     <!-- PWA Manifest Data URI -->
     <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIkd1cnVLdSBBcGFsaWthc2kgR3VydSBQTEEiLAogICJzaG9ydF9uYW1lIjogIkd1cnVLdSIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjRjRGM3Y4IiwKICAidGhlbWVfY29sb3IiOiAiIzhFNDRBRCIKZX0=">
@@ -225,7 +225,7 @@
         <div class="card-custom p-4 p-md-5 text-dark shadow-lg w-100" style="max-width: 480px; background: rgba(255,255,255,0.96);">
             <div class="text-center mb-4">
                 <i class="fa-solid fa-graduation-cap fa-3x text-primary mb-2"></i>
-                <h3 class="fw-bold m-0 text-primary">Aplikasi PresensiKu</h3>
+                <h3 class="fw-bold m-0 text-primary">Aplikasi Guru Mapel</h3>
                 <p class="text-muted small">Akses Sistem Terproteksi Cloud & Realtime Database</p>
             </div>
 
@@ -261,7 +261,7 @@
                 </button>
             </form>
             <div class="alert alert-info py-2 px-3 small text-center mb-0">
-                <i class="fa-solid fa-shield-halved me-1"></i> 2026 oleh: <strong>ally R.</strong>
+                <i class="fa-solid fa-shield-halved me-1"></i> Aplikasi ini dibuat 2026, oleh: <strong>ally R.</strong>
             </div>
         </div>
     </div>
@@ -272,7 +272,7 @@
             <div class="p-4 border-bottom border-secondary d-flex align-items-center">
                 <i class="fa-solid fa-graduation-cap fa-2x text-warning me-3"></i>
                 <div>
-                    <h5 class="m-0 fw-bold">MenuKu</h5>
+                    <h5 class="m-0 fw-bold">GuruKu PWA</h5>
                     <small class="text-white-50 fs-7">{{ userRole === 'admin' ? 'Mode Super Admin' : 'Portal Pengajar' }}</small>
                 </div>
             </div>
@@ -308,7 +308,7 @@
                 <template v-if="userRole === 'guru'">
                     <div class="px-3 py-2 text-uppercase text-white-50 fs-8 fw-semibold mt-2">Akademik</div>
                     <div class="nav-link-custom" :class="{active: activeMenu === 'grades'}" @click="switchMenu('grades')">
-                        <i class="fa-solid fa-square-poll-vertical"></i> Input Nilai
+                        <i class="fa-solid fa-square-poll-vertical"></i> Nilai Siswa (F1-F9/S1-S3)
                     </div>
                     <div class="nav-link-custom" :class="{active: activeMenu === 'attendance'}" @click="switchMenu('attendance')">
                         <i class="fa-solid fa-clipboard-user"></i> Absensi Siswa
@@ -322,7 +322,8 @@
                 <div class="nav-link-custom" :class="{active: activeMenu === 'reports'}" @click="switchMenu('reports')">
                     <i class="fa-solid fa-file-invoice"></i> Rekap & Cetak
                 </div>
-                <div class="nav-link-custom" :class="{active: activeMenu === 'school_config'}" @click="switchMenu('school_config')">
+                <!-- Identitas Sekolah Hanya Muncul untuk Super Admin -->
+                <div v-if="userRole === 'admin'" class="nav-link-custom" :class="{active: activeMenu === 'school_config'}" @click="switchMenu('school_config')">
                     <i class="fa-solid fa-building-columns"></i> Identitas Sekolah
                 </div>
                 <div class="nav-link-custom" :class="{active: activeMenu === 'profile'}" @click="switchMenu('profile')">
@@ -401,6 +402,7 @@
             </nav>
 
             <main>
+                <!-- DASHBOARD VIEW -->
                 <div v-if="activeMenu === 'dashboard'">
                     <div v-if="todayBirthdays.length > 0" class="card-custom p-3 mb-4 bg-primary bg-opacity-10 border border-primary text-primary">
                         <div class="d-flex align-items-center">
@@ -661,6 +663,7 @@
                     </div>
                 </div>
 
+                <!-- STUDENTS VIEW (SUPER ADMIN) -->
                 <div v-if="activeMenu === 'students'">
                     <div class="card-custom p-4">
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
@@ -852,6 +855,7 @@
                     </div>
                 </div>
 
+                <!-- GRADES VIEW -->
                 <div v-if="activeMenu === 'grades'">
                     <div class="card-custom p-4">
                         <h5 class="fw-bold mb-3"><i class="fa-solid fa-square-poll-vertical text-primary me-2"></i>Input Nilai Siswa (F1-F9 / S1-S3 / STS / SAS)</h5>
@@ -928,7 +932,7 @@
                     </div>
                 </div>
 
-                <!-- ATTENDANCE VIEW (GURU MAPEL) -->
+                <!-- ATTENDANCE VIEW -->
                 <div v-if="activeMenu === 'attendance'">
                     <div class="card-custom p-4">
                         <h5 class="fw-bold mb-3"><i class="fa-solid fa-clipboard-user text-success me-2"></i>Absensi Presensi Siswa</h5>
@@ -988,7 +992,7 @@
                     </div>
                 </div>
 
-                <!-- JOURNAL VIEW (GURU MAPEL) -->
+                <!-- JOURNAL VIEW -->
                 <div v-if="activeMenu === 'journal'">
                     <div class="card-custom p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -1036,6 +1040,7 @@
                     </div>
                 </div>
 
+                <!-- REPORTS VIEW -->
                 <div v-if="activeMenu === 'reports'">
                     <div class="card-custom p-4 no-print mb-4">
                         <h5 class="fw-bold mb-3"><i class="fa-solid fa-file-invoice text-info me-2"></i>Cetak & Rekap Laporan Akademik Lengkap</h5>
@@ -1088,7 +1093,7 @@
                             </p>
                         </div>
 
-                        <!-- TABEL REKAP NILAI DETIL (F1-F9, S1-S3, STS, SAS) -->
+                        <!-- TABEL REKAP NILAI DETIL -->
                         <table v-if="selectedReportType === 'grades_detail'" class="table table-report w-100 table-bordered align-middle">
                             <thead>
                                 <tr>
@@ -1669,13 +1674,13 @@
 
 <script>
 const firebaseConfig = {
-    apiKey: "AIzaSyDgfi8j1ypnSsxfVMx8O5zEXur0BC-XrcQ",
-  authDomain: "guruguru3.firebaseapp.com",
-  databaseURL: "https://guruguru3-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "guruguru3",
-  storageBucket: "guruguru3.firebasestorage.app",
-  messagingSenderId: "338804663920",
-  appId: "1:338804663920:web:da23c4da20ad42232ab6b5"
+    apiKey: "AIzaSy_YOUR_API_KEY_HERE",
+    authDomain: "guruku-b42ed.firebaseapp.com",
+    databaseURL: "https://guruku-b42ed-default-rtdb.asia-southeast1.firebasedatabase.app/",
+    projectId: "guruku-b42ed",
+    storageBucket: "guruku-b42ed.appspot.com",
+    messagingSenderId: "1234567890",
+    appId: "1:1234567890:web:abcdef123456"
 };
 
 if (typeof firebase !== 'undefined' && !firebase.apps.length) {
@@ -1756,12 +1761,12 @@ document.addEventListener('DOMContentLoaded', function() {
             ]);
 
             const teacherUsers = ref([
-                { id: 'USR01', teacherId: 'TCH01', email: 'guru@guruku.id', password: 'admin123456' },
-                { id: 'USR02', teacherId: 'TCH02', email: 'maria@guruku.id', password: 'admin123456' }
+                { id: 'USR01', teacherId: 'TCH01', email: 'guru@guruku.id', password: 'admin123' },
+                { id: 'USR02', teacherId: 'TCH02', email: 'maria@guruku.id', password: 'admin123' }
             ]);
 
             const adminUsers = ref([
-                { id: 'ADM01', email: 'admin@guruku.id', password: 'admin123456', nama: 'Super Admin Utama', nip: '100000000', nohp: '081234567890' }
+                { id: 'ADM01', email: 'admin@guruku.id', password: 'admin123', nama: 'Super Admin Utama', nip: '100000000', nohp: '081234567890' }
             ]);
 
             const grades = ref([]);
@@ -1796,7 +1801,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 };
                 localStorage.setItem('guruku_app_data', JSON.stringify(appData));
 
-                if (typeof firebase !== 'undefined' && firebase.apps.length) {
+                if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
                     try {
                         firebase.database().ref('guruku/public/data').set(appData);
                     } catch (e) {
@@ -1829,7 +1834,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             async function initFirebaseAuthAndSync() {
-                if (typeof firebase !== 'undefined' && firebase.apps.length) {
+                if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
                     try {
                         await firebase.auth().signInAnonymously();
                         firebase.database().ref('guruku/public/data').on('value', (snapshot) => {
@@ -2516,8 +2521,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 const dd = String(today.getDate()).padStart(2, '0');
                 return students.value.filter(s => {
                     if (!s.tanggalLahir) return false;
-                    const parts = s.tanggalLahir.split('-');
-                    return parts.length === 3 && parts[1] === mm && parts[2] === dd;
+                    const dobStr = String(s.tanggalLahir).trim();
+                    let parts = [];
+                    if (dobStr.includes('-')) parts = dobStr.split('-');
+                    else if (dobStr.includes('/')) parts = dobStr.split('/');
+
+                    if (parts.length === 3) {
+                        // Format YYYY-MM-DD
+                        if (parts[0].length === 4) {
+                            const m = parts[1].padStart(2, '0');
+                            const d = parts[2].padStart(2, '0');
+                            return m === mm && d === dd;
+                        }
+                        // Format DD-MM-YYYY
+                        if (parts[2].length === 4) {
+                            const d = parts[0].padStart(2, '0');
+                            const m = parts[1].padStart(2, '0');
+                            return m === mm && d === dd;
+                        }
+                    }
+                    return false;
                 });
             });
 
