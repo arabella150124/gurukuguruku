@@ -396,15 +396,19 @@
             <main>
                 <!-- DASHBOARD VIEW -->
                 <div v-if="activeMenu === 'dashboard'">
+                    <!-- BANNER NOTIFIKASI ULANG TAHUN SISWA -->
                     <div v-if="todayBirthdays.length > 0" class="card-custom p-3 mb-4 bg-primary bg-opacity-10 border border-primary text-primary">
                         <div class="d-flex align-items-center">
                             <i class="fa-solid fa-cake-candles fa-2x me-3 text-warning"></i>
-                            <div>
+                            <div class="w-100">
                                 <h6 class="fw-bold m-0 mb-1"><i class="fa-solid fa-bell me-1"></i> Siswa Berulang Tahun Hari Ini! 🎉</h6>
                                 <div class="d-flex flex-wrap gap-2 mt-2">
-                                    <span v-for="sb in todayBirthdays" :key="sb.id" class="badge bg-primary fs-7 p-2">
-                                        🎂 <strong>{{ sb.nama }}</strong> ({{ sb.namaPanggilan || sb.nama }}) - Kelas {{ getClassName(sb.kelasId) }} [Tgl Lahir: {{ sb.tanggalLahir }}]
-                                    </span>
+                                    <div v-for="sb in todayBirthdays" :key="sb.id" class="badge bg-primary fs-7 p-2 d-inline-flex align-items-center gap-2">
+                                        <span>🎂 <strong>{{ sb.nama }}</strong> ({{ sb.namaPanggilan || sb.nama }}) - Kelas {{ getClassName(sb.kelasId) }} [Tgl Lahir: {{ sb.tanggalLahir }}]</span>
+                                        <a v-if="sb.hporangtua" :href="'https://wa.me/' + formatWhatsApp(sb.hporangtua) + '?text=' + encodeURIComponent('Selamat Ulang Tahun untuk ananda ' + sb.nama + '! 🎉 Semoga panjang umur, sehat selalu, dan semakin berprestasi di sekolah. Salam hangat dari Bapak/Ibu Guru.')" target="_blank" class="btn btn-sm btn-light text-success fw-bold px-2 py-0 ms-1" style="font-size: 0.75rem;" title="Kirim Ucapan WA Ke Wali Siswa">
+                                            <i class="fa-brands fa-whatsapp me-1"></i> Kirim Ucapan WA
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1765,16 +1769,16 @@ const IS_PREVIEW = false; // Diset 'false' untuk Full Synchronization Cloud Onli
 const FIREBASE_DB_URL = "https://guruku-b42ed-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDCF1N280Oo77uJM-fk2ElDKa1Rf-nNNRk",
-  authDomain: "guruku2-de371.firebaseapp.com",
-  databaseURL: "https://guruku2-de371-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "guruku2-de371",
-  storageBucket: "guruku2-de371.firebasestorage.app",
-  messagingSenderId: "508044856753",
-  appId: "1:508044856753:web:c8441ad06d2502d2ed0190"
+    apiKey: "API_KEY_FIREBASE_ANDA",
+    authDomain: "guruku-b42ed.firebaseapp.com",
+    databaseURL: "https://guruku-b42ed-default-rtdb.asia-southeast1.firebasedatabase.app/",
+    projectId: "guruku-b42ed",
+    storageBucket: "guruku-b42ed.appspot.com",
+    messagingSenderId: "SENDER_ID_ANDA",
+    appId: "APP_ID_ANDA"
 };
 
-const GAS_URL = "https://script.google.com/macros/s/AKfycbwv0-cAx2Nk-vlS9kcngE1BEjrenJYAWS2M_ZR9qh-l2B0BYuDSvOMhyi9PDjhLBRue/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbx4bXNj3QugjMIiOorxYXxf0frBaJoNS7zUEpGVazLz0FWBLd9nQ9QL_3qAK5DAjGBJBA/exec";
 
 document.addEventListener('DOMContentLoaded', function() {
     const VueLib = window.Vue || (typeof Vue !== 'undefined' ? Vue : null);
@@ -2147,7 +2151,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         userRole.value = 'admin';
                         profile.value = { nama: 'Super Admin Portal', nip: '100000000', nohp: '081234567890' };
                         switchMenu('dashboard');
-                        Swal.fire('Selamat Datang', 'Masuk sebagai Super Admin.', 'success');
+                        Swal.fire({
+                            title: 'Selamat Datang',
+                            text: 'Masuk sebagai Super Admin.',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        checkBirthdayAlert();
                         return;
                     }
                 } else {
@@ -2158,11 +2169,33 @@ document.addEventListener('DOMContentLoaded', function() {
                         const tch = teachers.value.find(t => t?.id === tu?.teacherId);
                         profile.value = { nama: tch ? tch.nama : 'Guru Mata Pelajaran', nip: tch ? tch.nip : '198501012010011001', nohp: tch ? tch.nohp : '081234567891' };
                         switchMenu('dashboard');
-                        Swal.fire('Selamat Datang', 'Masuk sebagai Guru Mapel.', 'success');
+                        Swal.fire({
+                            title: 'Selamat Datang',
+                            text: 'Masuk sebagai Guru Mapel.',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        checkBirthdayAlert();
                         return;
                     }
                 }
                 Swal.fire('Gagal Login', 'Email atau password tidak cocok.', 'error');
+            };
+
+            const checkBirthdayAlert = () => {
+                if (todayBirthdays.value.length > 0) {
+                    setTimeout(() => {
+                        const names = todayBirthdays.value.map(s => `• <b>${s.nama}</b> (Kelas ${getClassName(s.kelasId)})`).join('<br>');
+                        Swal.fire({
+                            icon: 'info',
+                            title: '🎉 Notifikasi Ulang Tahun Siswa!',
+                            html: `<p>Hari ini terdapat <b>${todayBirthdays.value.length} siswa</b> yang berulang tahun:</p><div class="text-start bg-light p-3 rounded mb-2">${names}</div><p class="mt-2 mb-0 small text-muted">Bapak/Ibu Guru dapat langsung mengirim ucapan ucapan selamat ke nomor WhatsApp wali siswa melalui tombol yang tersedia pada Beranda!</p>`,
+                            confirmButtonText: 'Lihat & Beri Ucapan',
+                            confirmButtonColor: '#8E44AD'
+                        });
+                    }, 1600);
+                }
             };
 
             const handleLogout = () => {
