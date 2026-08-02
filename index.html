@@ -225,7 +225,7 @@
         <div class="card-custom p-4 p-md-5 text-dark shadow-lg w-100" style="max-width: 480px; background: rgba(255,255,255,0.96);">
             <div class="text-center mb-4">
                 <i class="fa-solid fa-graduation-cap fa-3x text-primary mb-2"></i>
-                <h3 class="fw-bold m-0 text-primary">Aplikasi Guru Mapel</h3>
+                <h3 class="fw-bold m-0 text-primary">Portal GuruKu PWA</h3>
                 <p class="text-muted small">Akses Sistem Terproteksi Cloud & Realtime Database</p>
             </div>
 
@@ -261,7 +261,7 @@
                 </button>
             </form>
             <div class="alert alert-info py-2 px-3 small text-center mb-0">
-                <i class="fa-solid fa-shield-halved me-1"></i> 2026-Pembuat Aplikasi: <strong>ally R.</strong>
+                <i class="fa-solid fa-shield-halved me-1"></i> Sandi Default: <strong>admin123</strong>
             </div>
         </div>
     </div>
@@ -1674,13 +1674,13 @@
 
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyDgfi8j1ypnSsxfVMx8O5zEXur0BC-XrcQ",
-  authDomain: "guruguru3.firebaseapp.com",
-  databaseURL: "https://guruguru3-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "guruguru3",
-  storageBucket: "guruguru3.firebasestorage.app",
-  messagingSenderId: "338804663920",
-  appId: "1:338804663920:web:da23c4da20ad42232ab6b5"
+      apiKey: "AIzaSyDgfi8j1ypnSsxfVMx8O5zEXur0BC-XrcQ",
+      authDomain: "guruguru3.firebaseapp.com",
+      databaseURL: "https://guruguru3-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "guruguru3",
+      storageBucket: "guruguru3.firebasestorage.app",
+      messagingSenderId: "338804663920",
+      appId: "1:338804663920:web:da23c4da20ad42232ab6b5"
 };
 
 if (typeof firebase !== 'undefined' && !firebase.apps.length) {
@@ -1893,8 +1893,7 @@ document.addEventListener('DOMContentLoaded', function() {
             function getGradeObj(studentId) {
                 let existing = grades.value.find(g => g.studentId === studentId && g.kelasId === selectedGradeClass.value && g.mapelId === selectedGradeSubject.value);
                 if (!existing) {
-                    existing = { id: 'GRD_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4), studentId, kelasId: selectedGradeClass.value, mapelId: selectedGradeSubject.value, f1:0,f2:0,f3:0,f4:0,f5:0,f6:0,f7:0,f8:0,f9:0, s1:0,s2:0,s3:0, pts:0, pas:0, jumlah:0, rata:0, pembulatan:0 };
-                    grades.value.push(existing);
+                    return { id: '', studentId, kelasId: selectedGradeClass.value, mapelId: selectedGradeSubject.value, f1:0,f2:0,f3:0,f4:0,f5:0,f6:0,f7:0,f8:0,f9:0, s1:0,s2:0,s3:0, pts:0, pas:0, jumlah:0, rata:0, pembulatan:0 };
                 }
                 return existing;
             }
@@ -1905,24 +1904,37 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             function setGradeField(studentId, field, val) {
-                const g = getGradeObj(studentId);
-                if (g) {
-                    g[field] = val === '' ? 0 : Number(val);
-                    calcRata(studentId);
+                let existing = grades.value.find(g => g.studentId === studentId && g.kelasId === selectedGradeClass.value && g.mapelId === selectedGradeSubject.value);
+                if (!existing) {
+                    existing = { 
+                        id: 'GRD_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4), 
+                        studentId, 
+                        kelasId: selectedGradeClass.value, 
+                        mapelId: selectedGradeSubject.value, 
+                        f1:0,f2:0,f3:0,f4:0,f5:0,f6:0,f7:0,f8:0,f9:0, 
+                        s1:0,s2:0,s3:0, pts:0, pas:0, jumlah:0, rata:0, pembulatan:0 
+                    };
+                    grades.value.push(existing);
                 }
+                existing[field] = val === '' ? 0 : Number(val);
+                calcRataObj(existing);
             }
 
-            function calcRata(studentId) {
-                const g = getGradeObj(studentId);
-                const fSum = (g.f1||0)+(g.f2||0)+(g.f3||0)+(g.f4||0)+(g.f5||0)+(g.f6||0)+(g.f7||0)+(g.f8||0)+(g.f9||0);
-                const sSum = (g.s1||0)+(g.s2||0)+(g.s3||0);
+            function calcRataObj(g) {
+                const fSum = (Number(g.f1)||0)+(Number(g.f2)||0)+(Number(g.f3)||0)+(Number(g.f4)||0)+(Number(g.f5)||0)+(Number(g.f6)||0)+(Number(g.f7)||0)+(Number(g.f8)||0)+(Number(g.f9)||0);
+                const sSum = (Number(g.s1)||0)+(Number(g.s2)||0)+(Number(g.s3)||0);
                 
-                g.jumlah = fSum + sSum + (g.pts||0) + (g.pas||0);
+                g.jumlah = fSum + sSum + (Number(g.pts)||0) + (Number(g.pas)||0);
                 
                 const fAvg = fSum / 9;
                 const sAvg = sSum / 3;
-                g.rata = Math.round((fAvg + sAvg + (g.pts||0) + (g.pas||0)) / 4);
+                g.rata = Math.round((fAvg + sAvg + (Number(g.pts)||0) + (Number(g.pas)||0)) / 4);
                 g.pembulatan = Math.ceil(g.rata);
+            }
+
+            function calcRata(studentId) {
+                let existing = grades.value.find(g => g.studentId === studentId && g.kelasId === selectedGradeClass.value && g.mapelId === selectedGradeSubject.value);
+                if (existing) calcRataObj(existing);
             }
 
             function getStudentRank(studentId, classId, subjectId) {
