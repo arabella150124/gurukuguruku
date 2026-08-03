@@ -95,7 +95,7 @@
           </form>
 
           <div class="mt-4 pt-4 border-t border-slate-100 flex justify-center space-x-2 text-[11px]">
-            <button @click="fillQuickLogin('admin', 'admin123')" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg font-bold hover:bg-indigo-100 transition">
+            <button @click="fillQuickLogin('admin', adminPassword)" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg font-bold hover:bg-indigo-100 transition">
               <i class="fas fa-user-shield mr-1"></i> Isi Admin
             </button>
             <button @click="fillQuickLogin('guru@guruku.id', 'guru123')" class="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg font-bold hover:bg-purple-100 transition">
@@ -130,7 +130,7 @@
               
               <template v-if="currentUser.role === 'admin'">
                 <button @click="currentTab = 'schoolConfig'" :class="['w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition', currentTab === 'schoolConfig' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100']">
-                  <i class="fas fa-university w-5 text-base"></i><span>Identitas Sekolah</span>
+                  <i class="fas fa-university w-5 text-base"></i><span>Identitas & Keamanan</span>
                 </button>
                 <button @click="currentTab = 'students'" :class="['w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition', currentTab === 'students' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100']">
                   <i class="fas fa-user-graduate w-5 text-base"></i><span>Master Siswa</span>
@@ -332,38 +332,72 @@
 
           </div>
 
+          <!-- TAB IDENTITAS SEKOLAH & UBAH PASSWORD ADMIN -->
           <div v-if="currentTab === 'schoolConfig' && currentUser.role === 'admin'" class="space-y-6">
             <div class="flex items-center justify-between">
               <div>
-                <h1 class="text-2xl font-bold text-slate-800">Identitas Sekolah</h1>
-                <p class="text-xs text-slate-500">Atur KOP Surat & Parameter Cetak Dokumen</p>
+                <h1 class="text-2xl font-bold text-slate-800">Identitas Sekolah & Keamanan</h1>
+                <p class="text-xs text-slate-500">Atur KOP Surat & Pengaturan Kata Sandi Akun Admin</p>
               </div>
               <button @click="saveSchoolConfig" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold shadow-md">Simpan Identitas</button>
             </div>
 
-            <div class="glass-card p-6 rounded-2xl border border-slate-200 max-w-xl space-y-4">
-              <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1">Nama Sekolah</label>
-                <input v-model="schoolConfig.namaSekolah" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- CARD 1: IDENTITAS SEKOLAH -->
+              <div class="glass-card p-6 rounded-2xl border border-slate-200 space-y-4">
+                <h3 class="font-bold text-slate-800 text-sm border-b pb-2 flex items-center">
+                  <i class="fas fa-university text-indigo-600 mr-2"></i> Identitas & KOP Sekolah
+                </h3>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Nama Sekolah</label>
+                  <input v-model="schoolConfig.namaSekolah" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">NPSN</label>
+                    <input v-model="schoolConfig.npsn" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Nama Tempat / Kota</label>
+                    <input v-model="schoolConfig.kota" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 pt-3 border-t">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Nama Kepala Sekolah</label>
+                    <input v-model="schoolConfig.kepsekNama" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">NIP Kepala Sekolah</label>
+                    <input v-model="schoolConfig.kepsekNip" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
+                  </div>
+                </div>
               </div>
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1">NPSN</label>
-                  <input v-model="schoolConfig.npsn" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1">Nama Tempat / Kota</label>
-                  <input v-model="schoolConfig.kota" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
-                </div>
-              </div>
-              <div class="grid grid-cols-2 gap-4 pt-3 border-t">
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1">Nama Kepala Sekolah</label>
-                  <input v-model="schoolConfig.kepsekNama" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1">NIP Kepala Sekolah</label>
-                  <input v-model="schoolConfig.kepsekNip" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
+
+              <!-- CARD 2: UBAH KATA SANDI ADMIN -->
+              <div class="glass-card p-6 rounded-2xl border border-indigo-100 bg-indigo-50/20 space-y-4">
+                <h3 class="font-bold text-slate-800 text-sm border-b pb-2 flex items-center">
+                  <i class="fas fa-user-shield text-indigo-600 mr-2"></i> Ubah Kata Sandi Akun Admin
+                </h3>
+                <form @submit.prevent="changeAdminPassword" class="space-y-3">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Kata Sandi Admin Saat Ini</label>
+                    <input v-model="adminPassForm.oldPass" type="password" required placeholder="Masukkan password lama" class="w-full px-3 py-2 border rounded-xl text-xs bg-white">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Kata Sandi Baru</label>
+                    <input v-model="adminPassForm.newPass" type="password" required placeholder="Minimal 4 karakter" class="w-full px-3 py-2 border rounded-xl text-xs bg-white">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Konfirmasi Kata Sandi Baru</label>
+                    <input v-model="adminPassForm.confirmPass" type="password" required placeholder="Ulangi kata sandi baru" class="w-full px-3 py-2 border rounded-xl text-xs bg-white">
+                  </div>
+                  <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 shadow-md">
+                    <i class="fas fa-key"></i><span>Update Kata Sandi Admin</span>
+                  </button>
+                </form>
+                <div class="text-[11px] text-slate-500 italic pt-2">
+                  * Password Admin baru akan otomatis tersimpan di browser dan tersinkronisasi ke Cloud Database.
                 </div>
               </div>
             </div>
@@ -1222,13 +1256,13 @@
   <script>
     const IS_PREVIEW = false;
     const firebaseConfig = {
-        apiKey: "AIzaSyBhNmYAwcGDUPABrEwtINfv_DdlfX7eD3Q",
-        authDomain: "guru4-5dc58.firebaseapp.com",
-        databaseURL: "https://guru4-5dc58-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "guru4-5dc58",
-        storageBucket: "guru4-5dc58.firebasestorage.app",
-        messagingSenderId: "1034333759548",
-        appId: "1:1034333759548:web:dc6e11848389b0a58c3b39"
+      apiKey: "AIzaSyBhNmYAwcGDUPABrEwtINfv_DdlfX7eD3Q",
+      authDomain: "guru4-5dc58.firebaseapp.com",
+      databaseURL: "https://guru4-5dc58-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "guru4-5dc58",
+      storageBucket: "guru4-5dc58.firebasestorage.app",
+      messagingSenderId: "1034333759548",
+      appId: "1:1034333759548:web:dc6e11848389b0a58c3b39"
     };
 
     const isFirebaseActive = firebaseConfig.apiKey !== "API_KEY_ANDA" && !IS_PREVIEW;
@@ -1243,6 +1277,9 @@
         const currentUser = ref(null);
         const currentTab = ref('dashboard');
         const loginForm = ref({ identifier: '', password: '' });
+
+        const adminPassword = ref(localStorage.getItem('guruku_admin_password') || 'admin123');
+        const adminPassForm = ref({ oldPass: '', newPass: '', confirmPass: '' });
 
         const schoolConfig = ref({ namaSekolah: 'SMK NEGERI 1 INDONESIA', npsn: '10801234', kota: 'Jakarta', kepsekNama: 'Drs. H. Ahmad Dahlan, M.Pd', kepsekNip: '19700101 199503 1 001' });
         const students = ref([]);
@@ -1323,8 +1360,8 @@
 
           const cleanId = id.toLowerCase();
 
-          // 1. Cek Login Admin (Lokal Fallback)
-          if ((cleanId === 'admin' || cleanId === 'admin@guruku.id') && pass === 'admin123') {
+          // 1. Cek Login Admin (Lokal Fallback / Custom Password)
+          if ((cleanId === 'admin' || cleanId === 'admin@guruku.id') && pass === adminPassword.value) {
             const adminUser = { email: 'admin@guruku.id', nama: 'Administrator', role: 'admin' };
             currentUser.value = adminUser;
             localStorage.setItem('guruku_session', JSON.stringify(adminUser));
@@ -1367,7 +1404,7 @@
             return;
           }
 
-          alert("Login Gagal! NIP/Email atau Password Anda salah.\n\nDefault Admin:\nID: admin\nPassword: admin123");
+          alert("Login Gagal! NIP/Email atau Password Anda salah.");
         };
 
         const handleLogout = () => {
@@ -1376,6 +1413,33 @@
           }
           currentUser.value = null;
           localStorage.removeItem('guruku_session');
+        };
+
+        const changeAdminPassword = () => {
+          if (adminPassForm.value.oldPass !== adminPassword.value) {
+            alert("Kata sandi lama Admin salah!");
+            return;
+          }
+          if (!adminPassForm.value.newPass || adminPassForm.value.newPass.length < 4) {
+            alert("Kata sandi baru minimal 4 karakter!");
+            return;
+          }
+          if (adminPassForm.value.newPass !== adminPassForm.value.confirmPass) {
+            alert("Konfirmasi kata sandi baru tidak cocok!");
+            return;
+          }
+
+          adminPassword.value = adminPassForm.value.newPass;
+          localStorage.setItem('guruku_admin_password', adminPassForm.value.newPass);
+
+          if (isFirebaseActive && typeof firebase !== 'undefined') {
+            try {
+              firebase.database().ref('guruku/adminPassword').set(adminPassForm.value.newPass);
+            } catch(e) { console.log('Firebase password sync error:', e); }
+          }
+
+          adminPassForm.value = { oldPass: '', newPass: '', confirmPass: '' };
+          alert("Kata sandi Admin berhasil diperbarui! Gunakan kata sandi baru untuk login selanjutnya.");
         };
 
         const availableClasses = computed(() => {
@@ -1782,6 +1846,7 @@
           localStorage.setItem('guruku_grades', JSON.stringify(grades.value));
           localStorage.setItem('guruku_journals', JSON.stringify(journals.value));
           localStorage.setItem('guruku_schoolConfig', JSON.stringify(schoolConfig.value));
+          localStorage.setItem('guruku_admin_password', adminPassword.value);
 
           if (isFirebaseActive && typeof firebase !== 'undefined') {
             try {
@@ -1794,17 +1859,21 @@
                 attendance: attendance.value,
                 grades: grades.value,
                 journals: journals.value,
-                schoolConfig: schoolConfig.value
+                schoolConfig: schoolConfig.value,
+                adminPassword: adminPassword.value
               });
             } catch(e) { console.log('Firebase sync error:', e); }
           }
         };
 
         const loadLocalState = () => {
-          // Restore saved session
+          // Restore saved session & password
           const savedSession = localStorage.getItem('guruku_session');
           if (savedSession) {
             try { currentUser.value = JSON.parse(savedSession); } catch(e) {}
+          }
+          if (localStorage.getItem('guruku_admin_password')) {
+            adminPassword.value = localStorage.getItem('guruku_admin_password');
           }
 
           if (localStorage.getItem('guruku_classes')) classes.value = ensureArray(JSON.parse(localStorage.getItem('guruku_classes')));
@@ -1830,6 +1899,10 @@
                 if (data.grades) grades.value = data.grades || {};
                 if (data.journals) journals.value = ensureArray(data.journals);
                 if (data.schoolConfig) schoolConfig.value = data.schoolConfig;
+                if (data.adminPassword) {
+                  adminPassword.value = data.adminPassword;
+                  localStorage.setItem('guruku_admin_password', data.adminPassword);
+                }
               }
             });
           }
@@ -1849,6 +1922,7 @@
 
         return {
           currentUser, currentTab, loginForm, handleLogin, handleLogout, fillQuickLogin,
+          adminPassword, adminPassForm, changeAdminPassword,
           schoolConfig, saveSchoolConfig, students, teachers, subjects, classes, mappings, journals,
           studentSearchQuery, studentClassFilter, filteredStudents, currentClassStudents,
           selectedClassId, selectedSubjectId, activeMeeting, reportCategory,
