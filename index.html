@@ -83,7 +83,7 @@
           <form @submit.prevent="handleLogin" class="space-y-4">
             <div>
               <label class="block text-xs font-bold text-slate-600 mb-1 uppercase">Email / NIP / Username</label>
-              <input v-model="loginForm.identifier" type="text" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm" placeholder="Masukkan ID Login">
+              <input v-model="loginForm.identifier" type="text" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm" placeholder="Contoh: admin atau guru@guruku.id">
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-600 mb-1 uppercase">Kata Sandi</label>
@@ -94,7 +94,16 @@
             </button>
           </form>
 
-          <div class="mt-6 text-center text-[11px] text-slate-400 font-medium">
+          <div class="mt-4 pt-4 border-t border-slate-100 flex justify-center space-x-2 text-[11px]">
+            <button @click="fillQuickLogin('admin', 'admin123')" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg font-bold hover:bg-indigo-100 transition">
+              <i class="fas fa-user-shield mr-1"></i> Isi Admin
+            </button>
+            <button @click="fillQuickLogin('guru@guruku.id', 'guru123')" class="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg font-bold hover:bg-purple-100 transition">
+              <i class="fas fa-chalkboard-teacher mr-1"></i> Isi Guru
+            </button>
+          </div>
+
+          <div class="mt-4 text-center text-[11px] text-slate-400 font-medium">
             Version 5.0 • Hybrid Auth Cloud Realtime
           </div>
         </div>
@@ -307,7 +316,7 @@
                       <div class="font-bold text-slate-800 text-xs">{{ s.nama }}</div>
                       <div class="text-[10px] text-slate-400">Kelas {{ s.kelas }}</div>
                       <span v-if="s.potensiPanggilan" class="inline-block mt-0.5 px-2 py-0.5 bg-rose-600 text-white rounded text-[9px] font-bold animate-pulse">
-                        ⚠️ POTENSI PANGGILAAN ORANG TUA
+                        ⚠️ POTENSI PANGGILAN ORANG TUA
                       </span>
                     </div>
                   </div>
@@ -1211,15 +1220,15 @@
   </div>
 
   <script>
-    const IS_PREVIEW = false;
+    const IS_PREVIEW = true;
     const firebaseConfig = {
-        apiKey: "AIzaSyBhNmYAwcGDUPABrEwtINfv_DdlfX7eD3Q",
-        authDomain: "guru4-5dc58.firebaseapp.com",
-        databaseURL: "https://guru4-5dc58-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "guru4-5dc58",
-        storageBucket: "guru4-5dc58.firebasestorage.app",
-        messagingSenderId: "1034333759548",
-        appId: "1:1034333759548:web:dc6e11848389b0a58c3b39"
+      apiKey: "API_KEY_ANDA",
+      authDomain: "PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://PROJECT_ID-default-rtdb.firebaseio.com",
+      projectId: "PROJECT_ID",
+      storageBucket: "PROJECT_ID.appspot.com",
+      messagingSenderId: "SENDER_ID",
+      appId: "APP_ID"
     };
 
     const isFirebaseActive = firebaseConfig.apiKey !== "API_KEY_ANDA" && !IS_PREVIEW;
@@ -1251,10 +1260,10 @@
         const selectedClassId = ref('');
         const selectedSubjectId = ref('');
         const activeMeeting = ref('p1');
-        const reportCategory = ref('rekapPresensi');
+        const reportCategory = ref('presensi');
 
         const batchGradeCol = ref('f1');
-        const batchGradeVal = ref(75);
+        const batchGradeVal = ref('');
 
         const attendancePeriodType = ref('monthly');
         const weeklyStartDate = ref('2026-08-01');
@@ -1266,6 +1275,18 @@
         const modalForm = ref({});
 
         let chartInstance = null;
+
+        const ensureArray = (val) => {
+          if (!val) return [];
+          if (Array.isArray(val)) return val.filter(Boolean);
+          if (typeof val === 'object') return Object.values(val).filter(Boolean);
+          return [];
+        };
+
+        const fillQuickLogin = (id, pass) => {
+          loginForm.value.identifier = id;
+          loginForm.value.password = pass;
+        };
 
         const autoSetupDatabase = () => {
           if (!localStorage.getItem('guruku_setup_v5_done')) {
@@ -1291,22 +1312,71 @@
           }
         };
 
-        const handleLogin = () => {
-          const id = loginForm.value.identifier.trim();
-          const pass = loginForm.value.password.trim();
-          if ((id === 'admin' || id === 'admin@guruku.id') && pass === 'admin123') {
-            currentUser.value = { email: 'admin@guruku.id', nama: 'Administrator', role: 'admin' };
+        const handleLogin = async () => {
+          const id = String(loginForm.value.identifier || '').trim();
+          const pass = String(loginForm.value.password || '').trim();
+
+          if (!id || !pass) {
+            alert("Harap isi Email/NIP dan Kata Sandi!");
             return;
           }
-          const foundTeacher = teachers.value.find(t => (t.email === id || t.nip === id) && t.password === pass);
+
+          const cleanId = id.toLowerCase();
+
+          // 1. Cek Login Admin (Lokal Fallback)
+          if ((cleanId === 'admin' || cleanId === 'admin@guruku.id') && pass === 'admin123') {
+            const adminUser = { email: 'admin@guruku.id', nama: 'Administrator', role: 'admin' };
+            currentUser.value = adminUser;
+            localStorage.setItem('guruku_session', JSON.stringify(adminUser));
+            return;
+          }
+
+          // 2. Cek Login Admin via Firebase Auth (jika Firebase aktif)
+          if (isFirebaseActive && cleanId.includes('@')) {
+            try {
+              const res = await firebase.auth().signInWithEmailAndPassword(id, pass);
+              if (res && res.user) {
+                const adminUser = { email: res.user.email, nama: res.user.displayName || 'Administrator', role: 'admin' };
+                currentUser.value = adminUser;
+                localStorage.setItem('guruku_session', JSON.stringify(adminUser));
+                return;
+              }
+            } catch (fbErr) {
+              console.log("Firebase Auth failed, checking local teacher database...", fbErr);
+            }
+          }
+
+          // 3. Cek Login Guru Mapel (Database Realtime)
+          const teacherList = ensureArray(teachers.value);
+          const foundTeacher = teacherList.find(t => {
+            if (!t) return false;
+            const tEmail = String(t.email || '').trim().toLowerCase();
+            const tNip = String(t.nip || '').trim().toLowerCase();
+            const tPass = String(t.password || '').trim();
+
+            const matchId = (tEmail !== '' && tEmail === cleanId) || (tNip !== '' && tNip === cleanId);
+            const matchPass = tPass === pass;
+
+            return matchId && matchPass;
+          });
+
           if (foundTeacher) {
-            currentUser.value = { ...foundTeacher, role: 'guru' };
+            const guruUser = { ...foundTeacher, role: 'guru' };
+            currentUser.value = guruUser;
+            localStorage.setItem('guruku_session', JSON.stringify(guruUser));
             return;
           }
-          alert("Login Gagal! NIP/Email atau Password Anda salah.");
+
+          alert("Login Gagal! NIP/Email atau Password Anda salah.\n\nDefault Admin:\nID: admin\nPassword: admin123");
         };
 
-        const handleLogout = () => { currentUser.value = null; };
+        const handleLogout = () => {
+          if (isFirebaseActive && typeof firebase !== 'undefined') {
+            try { firebase.auth().signOut(); } catch(e) {}
+          }
+          currentUser.value = null;
+          localStorage.removeItem('guruku_session');
+        };
 
         const availableClasses = computed(() => {
           if (currentUser.value?.role === 'admin') return classes.value;
@@ -1527,8 +1597,8 @@
                 if (r.NIS && r.Nama) {
                   students.value.push({ 
                     id: 's_' + Date.now() + Math.random(), 
-                    nis: String(r.NIS), 
-                    nama: r.Nama, 
+                    nis: String(r.NIS).trim(), 
+                    nama: String(r.Nama).trim(), 
                     kelas: r.Kelas || '', 
                     gender: r.Gender || 'L', 
                     asalSmp: r.Asal_SMP || '',
@@ -1536,12 +1606,23 @@
                     alamat: r.Alamat || '',
                     statusSiswa: r.Status_Siswa || 'Aktif',
                     keteranganStatus: r.Keterangan_Status || '',
-                    hpWali: r.HP_Wali || '' 
+                    hpWali: String(r.HP_Wali || '').trim() 
                   }); 
                 }
               });
             } else if (type === 'teachers') {
-              data.forEach(r => { if (r.Nama) teachers.value.push({ id: 't_' + Date.now() + Math.random(), nip: String(r.NIP || ''), nama: r.Nama, email: r.Email || '', password: r.Password || '123456', role: 'guru' }); });
+              data.forEach(r => { 
+                if (r.Nama) {
+                  teachers.value.push({ 
+                    id: 't_' + Date.now() + Math.random(), 
+                    nip: String(r.NIP || '').trim(), 
+                    nama: String(r.Nama || '').trim(), 
+                    email: String(r.Email || '').trim(), 
+                    password: String(r.Password || '123456').trim(), 
+                    role: 'guru' 
+                  }); 
+                }
+              });
             } else if (type === 'subjects') {
               data.forEach(r => { if (r.NamaMapel) subjects.value.push({ id: 'sub_' + Date.now() + Math.random(), kodeMapel: r.KodeMapel || '', namaMapel: r.NamaMapel }); });
             } else if (type === 'classes') {
@@ -1598,11 +1679,19 @@
               students.value.push({ id: 's_' + Date.now(), ...modalForm.value });
             }
           } else if (type === 'teacher') {
+            const payload = {
+              ...modalForm.value,
+              nip: String(modalForm.value.nip || '').trim(),
+              nama: String(modalForm.value.nama || '').trim(),
+              email: String(modalForm.value.email || '').trim(),
+              password: String(modalForm.value.password || '').trim(),
+              role: 'guru'
+            };
             if (modalForm.value.id) {
               const idx = teachers.value.findIndex(t => t.id === modalForm.value.id);
-              if (idx !== -1) teachers.value[idx] = { ...modalForm.value };
+              if (idx !== -1) teachers.value[idx] = payload;
             } else {
-              teachers.value.push({ id: 't_' + Date.now(), role: 'guru', ...modalForm.value });
+              teachers.value.push({ id: 't_' + Date.now(), ...payload });
             }
           } else if (type === 'subject') {
             if (modalForm.value.id) {
@@ -1712,28 +1801,34 @@
         };
 
         const loadLocalState = () => {
-          if (localStorage.getItem('guruku_classes')) classes.value = JSON.parse(localStorage.getItem('guruku_classes'));
-          if (localStorage.getItem('guruku_students')) students.value = JSON.parse(localStorage.getItem('guruku_students'));
-          if (localStorage.getItem('guruku_teachers')) teachers.value = JSON.parse(localStorage.getItem('guruku_teachers'));
-          if (localStorage.getItem('guruku_subjects')) subjects.value = JSON.parse(localStorage.getItem('guruku_subjects'));
-          if (localStorage.getItem('guruku_mappings')) mappings.value = JSON.parse(localStorage.getItem('guruku_mappings'));
-          if (localStorage.getItem('guruku_attendance')) attendance.value = JSON.parse(localStorage.getItem('guruku_attendance'));
-          if (localStorage.getItem('guruku_grades')) grades.value = JSON.parse(localStorage.getItem('guruku_grades'));
-          if (localStorage.getItem('guruku_journals')) journals.value = JSON.parse(localStorage.getItem('guruku_journals'));
+          // Restore saved session
+          const savedSession = localStorage.getItem('guruku_session');
+          if (savedSession) {
+            try { currentUser.value = JSON.parse(savedSession); } catch(e) {}
+          }
+
+          if (localStorage.getItem('guruku_classes')) classes.value = ensureArray(JSON.parse(localStorage.getItem('guruku_classes')));
+          if (localStorage.getItem('guruku_students')) students.value = ensureArray(JSON.parse(localStorage.getItem('guruku_students')));
+          if (localStorage.getItem('guruku_teachers')) teachers.value = ensureArray(JSON.parse(localStorage.getItem('guruku_teachers')));
+          if (localStorage.getItem('guruku_subjects')) subjects.value = ensureArray(JSON.parse(localStorage.getItem('guruku_subjects')));
+          if (localStorage.getItem('guruku_mappings')) mappings.value = ensureArray(JSON.parse(localStorage.getItem('guruku_mappings')));
+          if (localStorage.getItem('guruku_attendance')) attendance.value = JSON.parse(localStorage.getItem('guruku_attendance')) || {};
+          if (localStorage.getItem('guruku_grades')) grades.value = JSON.parse(localStorage.getItem('guruku_grades')) || {};
+          if (localStorage.getItem('guruku_journals')) journals.value = ensureArray(JSON.parse(localStorage.getItem('guruku_journals')));
           if (localStorage.getItem('guruku_schoolConfig')) schoolConfig.value = JSON.parse(localStorage.getItem('guruku_schoolConfig'));
 
           if (isFirebaseActive && typeof firebase !== 'undefined') {
             firebase.database().ref('guruku').on('value', (snapshot) => {
               const data = snapshot.val();
               if (data) {
-                if (data.classes) classes.value = data.classes;
-                if (data.students) students.value = data.students;
-                if (data.teachers) teachers.value = data.teachers;
-                if (data.subjects) subjects.value = data.subjects;
-                if (data.mappings) mappings.value = data.mappings;
-                if (data.attendance) attendance.value = data.attendance;
-                if (data.grades) grades.value = data.grades;
-                if (data.journals) journals.value = data.journals;
+                if (data.classes) classes.value = ensureArray(data.classes);
+                if (data.students) students.value = ensureArray(data.students);
+                if (data.teachers) teachers.value = ensureArray(data.teachers);
+                if (data.subjects) subjects.value = ensureArray(data.subjects);
+                if (data.mappings) mappings.value = ensureArray(data.mappings);
+                if (data.attendance) attendance.value = data.attendance || {};
+                if (data.grades) grades.value = data.grades || {};
+                if (data.journals) journals.value = ensureArray(data.journals);
                 if (data.schoolConfig) schoolConfig.value = data.schoolConfig;
               }
             });
@@ -1753,7 +1848,7 @@
         });
 
         return {
-          currentUser, currentTab, loginForm, handleLogin, handleLogout,
+          currentUser, currentTab, loginForm, handleLogin, handleLogout, fillQuickLogin,
           schoolConfig, saveSchoolConfig, students, teachers, subjects, classes, mappings, journals,
           studentSearchQuery, studentClassFilter, filteredStudents, currentClassStudents,
           selectedClassId, selectedSubjectId, activeMeeting, reportCategory,
