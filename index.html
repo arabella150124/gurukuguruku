@@ -23,7 +23,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- PWA Manifest Inline Data URI -->
-  <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIkd1cnVLIFA0QSIsCiAgInNob3J0X25hbWUiOiAiR3VydUt1IiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmOGZhZmMiLAogICJ0aGVtZV9jb2xvciI6ICIjNGY0NmU1IiwKICAic3RhcnRfdXJsIjogIi4iLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJodHRwczovL2Nkbi1pY29ucy1wbmdmbGF0aWNvbi5jb20vNTEyLzM0MjkvMzQyOTE0OS5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIKICAgIH0KICBdCn0=">
+  <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIkd1cnVLIFA0QSIsCiAgInNob3J0X25hbWUiOiAiR3VydUt1IiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmOGZhZmMiLAogICJ0aGVtZV9jb2xvciI6ICIjNGY0NmU1IiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9jZG4taWNvbnMtcG5nLmZsYXRpY29uLmNvbS81MTIvMzQyOS8zNDI5MTQ5LnBuZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIgogICAgfQogIF0KfQ==">
 
   <style>
     #blogger-pwa-root {
@@ -114,14 +114,14 @@
             </button>
           </form>
 
-          <!--<div class="mt-4 pt-4 border-t border-slate-100 flex justify-center space-x-2 text-[11px]">
+          <div class="mt-4 pt-4 border-t border-slate-100 flex justify-center space-x-2 text-[11px]">
             <button @click="fillQuickLogin('admin')" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg font-bold hover:bg-indigo-100 transition">
               <i class="fas fa-user-shield mr-1"></i> Isi Admin
             </button>
             <button @click="fillQuickLogin('guru')" class="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg font-bold hover:bg-purple-100 transition">
               <i class="fas fa-chalkboard-teacher mr-1"></i> Isi Guru Pertama
             </button>
-          </div>-->
+          </div>
 
           <div class="mt-4 text-center text-[11px] text-slate-400 font-medium">
             2026 • Dirakit oleh Ally R.
@@ -131,7 +131,6 @@
 
       <div v-else class="flex min-h-screen">
 
-        <!-- DESKTOP SIDEBAR -->
         <aside class="desktop-sidebar fixed top-0 left-0 h-screen w-64 glass-nav border-r border-slate-200 flex-col justify-between p-4 z-30 overflow-y-auto">
           <div>
             <div class="flex items-center space-x-3 p-3 mb-4 bg-indigo-50 rounded-2xl">
@@ -145,7 +144,7 @@
             </div>
 
             <!-- CLOUD STATUS BADGE IN SIDEBAR -->
-            <button @click="showCloudSettingsModal = true" class="w-full mb-4 p-2.5 rounded-xl border flex items-center justify-between text-left transition"
+            <button @click="currentTab = 'cloudSettings'" class="w-full mb-4 p-2.5 rounded-xl border flex items-center justify-between text-left transition"
                     :class="firebaseStatus === 'connected' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-amber-50 border-amber-200 text-amber-900'">
               <div class="flex items-center space-x-2 overflow-hidden">
                 <span class="w-2.5 h-2.5 rounded-full shrink-0" :class="firebaseStatus === 'connected' ? 'bg-emerald-500 animate-ping' : 'bg-amber-500 animate-pulse'"></span>
@@ -215,7 +214,6 @@
           </div>
         </aside>
 
-        <!-- MOBILE BOTTOM NAV -->
         <nav class="mobile-bottom-nav fixed bottom-0 left-0 right-0 glass-nav border-t border-slate-200 justify-around p-2 z-40">
           <button @click="currentTab = 'dashboard'" :class="['flex flex-col items-center p-1 rounded-xl text-[10px] font-bold', currentTab === 'dashboard' ? 'text-indigo-600' : 'text-slate-500']">
             <i class="fas fa-chart-pie text-base"></i><span>Analytics</span>
@@ -240,7 +238,6 @@
         <!-- MAIN CONTENT AREA -->
         <main class="main-content flex-1 p-4 md:p-8 overflow-y-auto">
 
-          <!-- 1. DASHBOARD & ANALYTICS -->
           <div v-if="currentTab === 'dashboard'" class="space-y-6">
             <div class="flex items-center justify-between">
               <div>
@@ -274,12 +271,12 @@
               </div>
             </div>
 
-            <!-- CLOUD CONNECTED BANNER (SLIM) -->
+            <!-- CLOUD CONNECTED BANNER -->
             <div v-else-if="firebaseStatus === 'connected'" class="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between text-xs">
               <div class="flex items-center space-x-2">
                 <div class="w-3 h-3 bg-emerald-500 rounded-full animate-ping"></div>
                 <span class="font-bold text-emerald-900">
-                  ☁️ Cloud Sync Aktif: Data yang Anda input otomatis langsung tersimpan ke Cloud dan muncul di HP/Gmail lain.
+                  ☁️ Cloud Sync Aktif: Data yang Anda input otomatis tersimpan di Cloud & tersinkron antar perangkat.
                 </span>
               </div>
               <span class="text-[10px] text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded font-bold">Otomatis Sync</span>
@@ -353,7 +350,7 @@
                       <span>{{ s.nama }}</span>
                       <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="px-1.5 py-0.5 bg-rose-100 text-rose-700 text-[9px] rounded font-black uppercase">{{ s.statusSiswa }}</span>
                     </div>
-                    <div class="text-[10px] text-slate-400 mt-0.5">Kelas {{ s.kelas }} • Tgl Lahir: {{ s.tglLahir }} • Asal SMP: {{ s.asalSmp || '-' }}</div>
+                    <div class="text-[10px] text-slate-400 mt-0.5">Kelas {{ s.kelas }} • Tgl Lahir: {{ s.tglLahir }}</div>
                   </div>
                   <a :href="'https://wa.me/' + (s.hpWali || '') + '?text=Selamat%20Ulang%20Tahun%20untuk%20Ananda%20' + encodeURIComponent(s.nama)" target="_blank" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-bold flex items-center space-x-1">
                     <i class="fab fa-whatsapp"></i><span>Ucapan</span>
@@ -371,31 +368,7 @@
                   </h3>
                   <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-lg mt-1 inline-block">Kelas Terbaik: {{ bestPerformingClass.nama }} ({{ bestPerformingClass.rate }}%)</span>
                 </div>
-
-                <div class="flex flex-wrap items-center gap-2 bg-indigo-50/50 p-2 rounded-xl border border-indigo-100 text-xs">
-                  <div class="flex items-center space-x-2 font-bold">
-                    <label class="cursor-pointer flex items-center space-x-1"><input type="radio" value="weekly" v-model="attendancePeriodType" @change="renderChart"> <span>Mingguan</span></label>
-                    <label class="cursor-pointer flex items-center space-x-1"><input type="radio" value="monthly" v-model="attendancePeriodType" @change="renderChart"> <span>Bulanan</span></label>
-                    <label class="cursor-pointer flex items-center space-x-1"><input type="radio" value="semester" v-model="attendancePeriodType" @change="renderChart"> <span>Semester</span></label>
-                  </div>
-
-                  <div v-if="attendancePeriodType === 'weekly'" class="flex items-center space-x-1">
-                    <input type="date" v-model="weeklyStartDate" @change="renderChart" class="px-2 py-1 border rounded text-[11px]">
-                    <span>-</span>
-                    <input type="date" v-model="weeklyEndDate" @change="renderChart" class="px-2 py-1 border rounded text-[11px]">
-                  </div>
-                  <div v-if="attendancePeriodType === 'monthly'">
-                    <input type="month" v-model="selectedMonth" @change="renderChart" class="px-2 py-1 border rounded text-[11px]">
-                  </div>
-                  <div v-if="attendancePeriodType === 'semester'">
-                    <select v-model="selectedSemester" @change="renderChart" class="px-2 py-1 border rounded text-[11px] font-bold">
-                      <option value="1">Semester Ganjil (Jul - Des)</option>
-                      <option value="2">Semester Genap (Jan - Jun)</option>
-                    </select>
-                  </div>
-                </div>
               </div>
-
               <div class="h-64 relative">
                 <canvas id="bestClassChart"></canvas>
               </div>
@@ -404,8 +377,9 @@
             <!-- TOP 20 ALPA TERBANYAK -->
             <div class="glass-card p-5 rounded-2xl border border-rose-100 bg-rose-50/20">
               <h3 class="font-bold text-slate-800 text-sm flex items-center mb-4">
-                <i class="fas fa-exclamation-triangle text-rose-500 mr-2 text-base"></i> Top 20 Siswa Alpa Terbanyak & Potensi Panggilan Orang Tua
+                <i class="fas fa-exclamation-triangle text-rose-500 mr-2 text-base"></i> Top 20 Siswa Alpa Terbanyak
               </h3>
+              <div v-if="top20Absent.length === 0" class="text-xs text-slate-400 italic">Belum ada rekap presensi alpa.</div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div v-for="(s, idx) in top20Absent" :key="idx" class="flex items-center justify-between p-3 bg-white rounded-xl border border-rose-100 shadow-sm">
                   <div class="flex items-center space-x-3">
@@ -413,16 +387,10 @@
                     <div>
                       <div class="font-bold text-slate-800 text-xs">{{ s.nama }}</div>
                       <div class="text-[10px] text-slate-400">Kelas {{ s.kelas }}</div>
-                      <span v-if="s.potensiPanggilan" class="inline-block mt-0.5 px-2 py-0.5 bg-rose-600 text-white rounded text-[9px] font-bold animate-pulse">
-                        ⚠️ POTENSI PANGGILAN ORANG TUA
-                      </span>
                     </div>
                   </div>
                   <div class="text-right flex items-center space-x-2">
                     <span class="px-2.5 py-1 bg-rose-100 text-rose-700 rounded-lg text-xs font-black">{{ s.alpaCount }} Alpa</span>
-                    <a v-if="s.potensiPanggilan" :href="'https://wa.me/' + (s.hpWali || '') + '?text=Pemberitahuan%20Surat%20Panggilan%20Orang%20Tua%20untuk%20Siswa%20' + encodeURIComponent(s.nama)" target="_blank" class="p-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-bold" title="Chat Wali Siswa">
-                      <i class="fab fa-whatsapp"></i>
-                    </a>
                   </div>
                 </div>
               </div>
@@ -430,18 +398,17 @@
 
           </div>
 
-          <!-- 1B. PENGATURAN CLOUD FIREBASE (EASY SETUP) -->
           <div v-if="currentTab === 'cloudSettings' && currentUser.role === 'admin'" class="space-y-6">
             <div class="flex items-center justify-between">
               <div>
                 <h1 class="text-2xl font-bold text-slate-800">Pengaturan Cloud Firebase</h1>
-                <p class="text-xs text-slate-500">Hubungkan aplikasi ke Cloud secara otomatis tanpa edit kode HTML</p>
+                <p class="text-xs text-slate-500">Hubungkan aplikasi ke Cloud secara otomatis</p>
               </div>
             </div>
 
             <div class="glass-card p-6 rounded-2xl border border-slate-200 space-y-4 max-w-2xl">
               <h3 class="font-bold text-slate-800 text-sm border-b pb-2 flex items-center justify-between">
-                <span class="flex items-center"><i class="fas fa-cloud text-indigo-600 mr-2"></i> Konfigurasi Cloud Firebase</span>
+                <span class="flex items-center"><i class="fas fa-cloud text-indigo-600 mr-2"></i> Konfigurasi Realtime Database</span>
                 <span :class="firebaseStatus === 'connected' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'" class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase">
                   {{ firebaseStatus === 'connected' ? 'Terhubung' : 'Belum Terhubung' }}
                 </span>
@@ -450,7 +417,7 @@
               <div class="space-y-3">
                 <div>
                   <label class="block text-xs font-bold text-slate-600 mb-1">API Key Firebase</label>
-                  <input v-model="cloudConfigInput.apiKey" type="text" placeholder="Contoh: AIzaSyD..." class="w-full px-3 py-2 border rounded-xl text-xs font-mono">
+                  <input v-model="cloudConfigInput.apiKey" type="text" placeholder="AIzaSyD..." class="w-full px-3 py-2 border rounded-xl text-xs font-mono">
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-slate-600 mb-1">Database URL (Realtime Database)</label>
@@ -464,52 +431,40 @@
 
               <div class="pt-2 flex justify-between items-center border-t">
                 <button @click="saveCloudConfig" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-md flex items-center space-x-1.5">
-                  <i class="fas fa-save"></i><span>Simpan & Terapkan Koneksi Cloud</span>
+                  <i class="fas fa-save"></i><span>Simpan Koneksi Cloud</span>
                 </button>
-                <button @click="resetToDefaultCloudConfig" class="text-xs text-slate-400 hover:text-slate-600 underline">Reset Bawaan</button>
-              </div>
-
-              <div class="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 text-[11px] text-slate-600 space-y-1">
-                <div class="font-bold text-indigo-900">💡 Cara Menemukan Kredensial Ini:</div>
-                <ol class="list-decimal pl-4 space-y-0.5">
-                  <li>Buka <b>Firebase Console</b> (console.firebase.google.com).</li>
-                  <li>Masuk ke <b>Project Settings (Gambar Roda Gigi ⚙️)</b>.</li>
-                  <li>Scroll ke bawah pada bagian <b>Your Apps</b> -> Pilih Web App -> Salin `apiKey`, `databaseURL`, dan `projectId`.</li>
-                </ol>
               </div>
             </div>
           </div>
 
-          <!-- 2. IDENTITAS SEKOLAH & PENGATURAN KATA SANDI ADMIN -->
           <div v-if="currentTab === 'schoolConfig' && currentUser.role === 'admin'" class="space-y-6">
             <div class="flex items-center justify-between">
               <div>
                 <h1 class="text-2xl font-bold text-slate-800">Identitas & Keamanan Admin</h1>
-                <p class="text-xs text-slate-500">Atur KOP Surat 4 Baris, Tanda Tangan Digital & Password Admin</p>
+                <p class="text-xs text-slate-500">Atur KOP Surat 4 Baris & Password Admin</p>
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- FORM IDENTITAS SEKOLAH (KOP 4 BARIS) -->
               <div class="glass-card p-6 rounded-2xl border border-slate-200 space-y-4">
                 <h3 class="font-bold text-slate-800 text-sm border-b pb-2 flex items-center">
                   <i class="fas fa-school text-indigo-600 mr-2"></i> Identitas KOP Sekolah (4 Baris)
                 </h3>
                 <div>
                   <label class="block text-xs font-bold text-slate-600 mb-1">KOP Baris 1 (Yayasan)</label>
-                  <input v-model="schoolConfig.kopLine1" type="text" class="w-full px-3 py-2 border rounded-xl text-xs" placeholder="Yayasan persekolahan Katolik Sanjaya Ngada">
+                  <input v-model="schoolConfig.kopLine1" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-slate-600 mb-1">KOP Baris 2 (Jenis Sekolah)</label>
-                  <input v-model="schoolConfig.kopLine2" type="text" class="w-full px-3 py-2 border rounded-xl text-xs" placeholder="Sekolah Menengah Kejuruan Swasta">
+                  <input v-model="schoolConfig.kopLine2" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1">KOP Baris 3 (Nama Sekolah Utama)</label>
-                  <input v-model="schoolConfig.kopLine3" type="text" class="w-full px-3 py-2 border rounded-xl text-xs font-bold" placeholder="SMKS SANJAYA BAJAWA">
+                  <label class="block text-xs font-bold text-slate-600 mb-1">KOP Baris 3 (Nama Sekolah)</label>
+                  <input v-model="schoolConfig.kopLine3" type="text" class="w-full px-3 py-2 border rounded-xl text-xs font-bold">
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-slate-600 mb-1">KOP Baris 4 (Alamat Lengkap)</label>
-                  <input v-model="schoolConfig.kopLine4" type="text" class="w-full px-3 py-2 border rounded-xl text-xs" placeholder="Jl. Let.Jend. Soeprapto, Bajawa-Kab. Ngada-Flores, NTT">
+                  <input v-model="schoolConfig.kopLine4" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
                 </div>
                 <div class="grid grid-cols-2 gap-4 pt-2">
                   <div>
@@ -517,57 +472,42 @@
                     <input v-model="schoolConfig.npsn" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
                   </div>
                   <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Nama Tempat / Kota</label>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Kota</label>
                     <input v-model="schoolConfig.kota" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
                   </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4 pt-2 border-t">
-                  <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Nama Kepala Sekolah</label>
-                    <input v-model="schoolConfig.kepsekNama" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
-                  </div>
-                  <div class="flex flex-col justify-center pt-2">
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                      <input type="checkbox" v-model="schoolConfig.showSignature" class="w-4 h-4 text-indigo-600 rounded">
-                      <span class="text-xs font-bold text-slate-700">Gunakan Tanda Tangan Digital</span>
-                    </label>
-                  </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Nama Kepala Sekolah</label>
+                  <input v-model="schoolConfig.kepsekNama" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
                 </div>
-                <button @click="saveSchoolConfig" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-md">Simpan Identitas Sekolah</button>
+                <button @click="saveSchoolConfig" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-md">Simpan KOP Sekolah</button>
               </div>
 
-              <!-- FORM UBAH KATA SANDI ADMIN -->
+              <!-- PASSWORD ADMIN -->
               <div class="glass-card p-6 rounded-2xl border border-purple-100 bg-purple-50/20 space-y-4">
                 <h3 class="font-bold text-slate-800 text-sm border-b pb-2 flex items-center">
-                  <i class="fas fa-key text-purple-600 mr-2"></i> Ubah Kata Sandi Akun Admin
+                  <i class="fas fa-key text-purple-600 mr-2"></i> Ubah Password Admin
                 </h3>
                 <form @submit.prevent="changeAdminPassword" class="space-y-3">
                   <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Password Admin Lama</label>
-                    <input v-model="adminPassForm.oldPass" type="password" required class="w-full px-3 py-2 border rounded-xl text-xs" placeholder="••••••••">
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Password Lama</label>
+                    <input v-model="adminPassForm.oldPass" type="password" required class="w-full px-3 py-2 border rounded-xl text-xs">
                   </div>
                   <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Password Admin Baru</label>
-                    <input v-model="adminPassForm.newPass" type="password" required class="w-full px-3 py-2 border rounded-xl text-xs" placeholder="••••••••">
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Password Baru</label>
+                    <input v-model="adminPassForm.newPass" type="password" required class="w-full px-3 py-2 border rounded-xl text-xs">
                   </div>
-                  <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Konfirmasi Password Baru</label>
-                    <input v-model="adminPassForm.confirmPass" type="password" required class="w-full px-3 py-2 border rounded-xl text-xs" placeholder="••••••••">
-                  </div>
-                  <button type="submit" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs shadow-md flex items-center justify-center space-x-1.5">
-                    <i class="fas fa-lock-open"></i><span>Update Kata Sandi Admin</span>
-                  </button>
+                  <button type="submit" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs shadow-md">Update Password Admin</button>
                 </form>
               </div>
             </div>
           </div>
 
-          <!-- 2B. IDENTITAS & KEAMANAN GURU MAPEL -->
           <div v-if="currentTab === 'teacherProfile' && currentUser.role === 'guru'" class="space-y-6">
             <div class="flex items-center justify-between">
               <div>
                 <h1 class="text-2xl font-bold text-slate-800">Identitas & Keamanan Guru</h1>
-                <p class="text-xs text-slate-500">Kelola Password Akun Guru & Tanda Tangan Digital Profil</p>
+                <p class="text-xs text-slate-500">Kelola Password & TTD Digital</p>
               </div>
             </div>
 
@@ -578,913 +518,493 @@
                 </h3>
                 <div>
                   <label class="block text-xs font-bold text-slate-600 mb-1">Nama Guru</label>
-                  <input :value="currentUser.nama" disabled type="text" class="w-full px-3 py-2 border bg-slate-100 rounded-xl text-xs font-bold text-slate-700">
+                  <input :value="currentUser.nama" disabled class="w-full px-3 py-2 bg-slate-100 border rounded-xl text-xs font-bold">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1">NIP / Email</label>
-                  <input :value="currentUser.nip || currentUser.email" disabled type="text" class="w-full px-3 py-2 border bg-slate-100 rounded-xl text-xs text-slate-700">
+                  <label class="block text-xs font-bold text-slate-600 mb-1">URL Tanda Tangan (Opsional)</label>
+                  <input v-model="teacherSignatureUrl" type="text" placeholder="https://..." class="w-full px-3 py-2 border rounded-xl text-xs">
                 </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1">URL / Image Tanda Tangan Digital (Opsional)</label>
-                  <input v-model="teacherSignatureUrl" type="text" placeholder="https://... atau tempel URL Gambar TTD" class="w-full px-3 py-2 border rounded-xl text-xs">
-                </div>
-                <div v-if="teacherSignatureUrl" class="p-3 border rounded-xl bg-slate-50 text-center">
-                  <span class="block text-[10px] font-bold text-slate-400 mb-1">Pratinjau TTD:</span>
-                  <img :src="teacherSignatureUrl" class="h-16 mx-auto object-contain" alt="TTD Guru">
-                </div>
-                <button @click="saveTeacherSignature" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-md">Simpan Tanda Tangan Digital</button>
+                <button @click="saveTeacherSignature" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-md">Simpan TTD</button>
               </div>
 
               <div class="glass-card p-6 rounded-2xl border border-purple-100 bg-purple-50/20 space-y-4">
                 <h3 class="font-bold text-slate-800 text-sm border-b pb-2 flex items-center">
-                  <i class="fas fa-key text-purple-600 mr-2"></i> Ubah Kata Sandi Akun
+                  <i class="fas fa-key text-purple-600 mr-2"></i> Ubah Password Guru
                 </h3>
                 <form @submit.prevent="changeTeacherPassword" class="space-y-3">
                   <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Password Saat Ini</label>
-                    <input v-model="teacherPassForm.oldPass" type="password" required class="w-full px-3 py-2 border rounded-xl text-xs" placeholder="••••••••">
-                  </div>
-                  <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Password Baru</label>
-                    <input v-model="teacherPassForm.newPass" type="password" required class="w-full px-3 py-2 border rounded-xl text-xs" placeholder="••••••••">
+                    <input v-model="teacherPassForm.newPass" type="password" required class="w-full px-3 py-2 border rounded-xl text-xs">
                   </div>
-                  <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Konfirmasi Password Baru</label>
-                    <input v-model="teacherPassForm.confirmPass" type="password" required class="w-full px-3 py-2 border rounded-xl text-xs" placeholder="••••••••">
-                  </div>
-                  <button type="submit" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs shadow-md flex items-center justify-center space-x-1.5">
-                    <i class="fas fa-lock-open"></i><span>Update Kata Sandi Guru</span>
-                  </button>
+                  <button type="submit" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs shadow-md">Update Password</button>
                 </form>
               </div>
             </div>
           </div>
 
-          <!-- 3. MASTER SISWA DENGAN PAGINASI -->
-          <div v-if="currentTab === 'students' && currentUser.role === 'admin'" class="space-y-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div v-if="currentTab === 'students'" class="space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div>
                 <h1 class="text-2xl font-bold text-slate-800">Master Data Siswa</h1>
-                <p class="text-xs text-slate-500">Kelola data siswa via Template & Impor Excel (Total: {{ students.length }} Siswa)</p>
+                <p class="text-xs text-slate-500">Kelola Data Siswa & Import dari Excel</p>
               </div>
               <div class="flex flex-wrap items-center gap-2">
-                <button @click="downloadTemplate('students')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center space-x-1">
-                  <i class="fas fa-download"></i><span>Download Template Excel</span>
-                </button>
-                <label class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold cursor-pointer flex items-center space-x-1">
-                  <i class="fas fa-file-excel"></i><span>Impor Excel Siswa</span>
-                  <input type="file" @change="importExcel('students', $event)" accept=".xlsx, .xls" class="hidden">
+                <label class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold cursor-pointer flex items-center space-x-1 shadow">
+                  <i class="fas fa-file-excel"></i><span>Import Excel</span>
+                  <input type="file" @change="importStudentsExcel" accept=".xlsx, .xls" class="hidden">
                 </label>
-                <button @click="openModal('student')" class="px-3.5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold"><i class="fas fa-plus mr-1"></i> Tambah Siswa</button>
-                <button @click="deleteAllData('students')" class="px-3.5 py-2 bg-rose-600 text-white rounded-xl text-xs font-bold"><i class="fas fa-trash-alt mr-1"></i> Hapus Semua</button>
+                <button @click="openStudentModal()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1 shadow">
+                  <i class="fas fa-plus"></i><span>Tambah Siswa</span>
+                </button>
               </div>
             </div>
 
-            <div class="glass-card p-4 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
-              <div class="flex flex-1 flex-col md:flex-row items-center gap-3 w-full">
-                <input v-model="studentSearchQuery" type="text" placeholder="Ketik NIS / Nama Siswa..." class="w-full md:w-64 px-3 py-2 border rounded-xl text-xs">
-                <select v-model="studentClassFilter" class="w-full md:w-48 px-3 py-2 border rounded-xl text-xs font-bold">
-                  <option value="">Semua Kelas ({{ students.length }})</option>
-                  <option v-for="c in classes" :key="c.id" :value="c.namaKelas">{{ c.namaKelas }}</option>
+            <div class="glass-card p-4 rounded-2xl border border-slate-200">
+              <div class="flex flex-col md:flex-row items-center justify-between gap-3 mb-4">
+                <input v-model="studentSearch" type="text" placeholder="Cari Nama / NISN Siswa..." class="w-full md:w-64 px-3 py-2 border rounded-xl text-xs">
+                <select v-model="studentFilterClass" class="w-full md:w-48 px-3 py-2 border rounded-xl text-xs font-bold">
+                  <option value="">Semua Kelas</option>
+                  <option v-for="c in classes" :key="c.id" :value="c.nama">{{ c.nama }}</option>
                 </select>
               </div>
-              <div class="flex items-center space-x-2 text-xs font-bold">
-                <button @click="studentPage > 1 ? studentPage-- : null" :disabled="studentPage <= 1" class="px-3 py-1.5 bg-slate-100 rounded-lg disabled:opacity-50">Prev</button>
-                <span>Halaman {{ studentPage }} / {{ totalStudentPages || 1 }}</span>
-                <button @click="studentPage < totalStudentPages ? studentPage++ : null" :disabled="studentPage >= totalStudentPages" class="px-3 py-1.5 bg-slate-100 rounded-lg disabled:opacity-50">Next</button>
-              </div>
-            </div>
 
-            <div class="glass-card rounded-2xl overflow-hidden border border-slate-200">
-              <div v-if="paginatedStudents.length === 0" class="p-8 text-center text-slate-400 text-xs">
-                Belum ada data siswa. Silakan klik <b>Impor Excel Siswa</b> atau <b>Tambah Siswa</b>.
-              </div>
-              <table v-else class="w-full text-left text-xs">
-                <thead class="bg-slate-100 font-bold border-b">
-                  <tr>
-                    <th class="p-3">NIS</th>
-                    <th class="p-3">Nama Lengkap</th>
-                    <th class="p-3">Kelas</th>
-                    <th class="p-3">L/P</th>
-                    <th class="p-3">Asal SMP</th>
-                    <th class="p-3">Tgl Lahir</th>
-                    <th class="p-3">Status Siswa</th>
-                    <th class="p-3">HP Wali</th>
-                    <th class="p-3 text-center">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y">
-                  <tr v-for="s in paginatedStudents" :key="s.id" :class="{'bg-rose-50/40': s.statusSiswa && s.statusSiswa !== 'Aktif', 'hover:bg-slate-50': !s.statusSiswa || s.statusSiswa === 'Aktif'}">
-                    <td class="p-3 font-mono font-bold text-indigo-600">{{ s.nis }}</td>
-                    <td class="p-3 font-semibold">
-                      <div>{{ s.nama }}</div>
-                      <div class="text-[10px] text-slate-400 italic" v-if="s.alamat">Alamat: {{ s.alamat }}</div>
-                    </td>
-                    <td class="p-3"><span class="px-2 py-0.5 bg-slate-100 rounded font-bold">{{ s.kelas }}</span></td>
-                    <td class="p-3 font-bold">{{ s.gender }}</td>
-                    <td class="p-3 text-slate-600">{{ s.asalSmp || '-' }}</td>
-                    <td class="p-3 text-slate-600">{{ s.tglLahir || '-' }}</td>
-                    <td class="p-3 font-bold">
-                      <span :class="{'px-2 py-0.5 rounded text-[10px] font-black uppercase': true, 'bg-emerald-100 text-emerald-800': !s.statusSiswa || s.statusSiswa === 'Aktif', 'bg-rose-100 text-rose-800': s.statusSiswa === 'DO', 'bg-amber-100 text-amber-800': s.statusSiswa === 'Mutasi', 'bg-purple-100 text-purple-800': s.statusSiswa === 'Lainnya'}">
-                        {{ s.statusSiswa || 'Aktif' }}
-                      </span>
-                      <div v-if="s.keteranganStatus && s.statusSiswa !== 'Aktif'" class="text-[10px] text-rose-600 font-normal italic mt-0.5">Ket: {{ s.keteranganStatus }}</div>
-                    </td>
-                    <td class="p-3 text-slate-500">{{ s.hpWali || '-' }}</td>
-                    <td class="p-3 text-center space-x-1">
-                      <button @click="openModal('student', s)" class="p-1 text-indigo-600"><i class="fas fa-edit"></i></button>
-                      <button @click="deleteData('students', s.id)" class="p-1 text-rose-600"><i class="fas fa-trash"></i></button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- 4. MASTER GURU -->
-          <div v-if="currentTab === 'teachers' && currentUser.role === 'admin'" class="space-y-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <h1 class="text-2xl font-bold text-slate-800">Master Data Guru</h1>
-                <p class="text-xs text-slate-500">Kelola Profil & Akun Login Guru Mapel via Excel (Total: {{ teachers.length }} Guru)</p>
-              </div>
-              <div class="flex flex-wrap items-center gap-2">
-                <button @click="downloadTemplate('teachers')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center space-x-1">
-                  <i class="fas fa-download"></i><span>Download Template Excel</span>
-                </button>
-                <label class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold cursor-pointer flex items-center space-x-1">
-                  <i class="fas fa-file-excel"></i><span>Impor Excel Guru</span>
-                  <input type="file" @change="importExcel('teachers', $event)" accept=".xlsx, .xls" class="hidden">
-                </label>
-                <button @click="openModal('teacher')" class="px-3.5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold"><i class="fas fa-plus mr-1"></i> Tambah Guru</button>
-                <button @click="deleteAllData('teachers')" class="px-3.5 py-2 bg-rose-600 text-white rounded-xl text-xs font-bold"><i class="fas fa-trash-alt mr-1"></i> Hapus Semua</button>
-              </div>
-            </div>
-
-            <div class="glass-card rounded-2xl overflow-hidden border border-slate-200">
-              <div v-if="teachers.length === 0" class="p-8 text-center text-slate-400 text-xs">
-                Belum ada data guru. Silakan klik <b>Impor Excel Guru</b>.
-              </div>
-              <table v-else class="w-full text-left text-xs">
-                <thead class="bg-slate-100 font-bold border-b">
-                  <tr>
-                    <th class="p-3">NIP</th>
-                    <th class="p-3">Nama Guru</th>
-                    <th class="p-3">Email / Username</th>
-                    <th class="p-3">Password Login</th>
-                    <th class="p-3 text-center">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y">
-                  <tr v-for="t in teachers" :key="t.id" class="hover:bg-slate-50">
-                    <td class="p-3 font-mono font-bold text-indigo-600">{{ t.nip }}</td>
-                    <td class="p-3 font-semibold">{{ t.nama }}</td>
-                    <td class="p-3 text-slate-600">{{ t.email }}</td>
-                    <td class="p-3 font-mono text-purple-600 font-bold">{{ t.password || '••••••' }}</td>
-                    <td class="p-3 text-center space-x-1">
-                      <button @click="openModal('teacher', t)" class="p-1 text-indigo-600"><i class="fas fa-edit"></i></button>
-                      <button @click="deleteData('teachers', t.id)" class="p-1 text-rose-600"><i class="fas fa-trash"></i></button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- 5. MASTER MAPEL -->
-          <div v-if="currentTab === 'subjects' && currentUser.role === 'admin'" class="space-y-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <h1 class="text-2xl font-bold text-slate-800">Master Mata Pelajaran</h1>
-                <p class="text-xs text-slate-500">Kelola Kurikulum Mata Pelajaran via Excel</p>
-              </div>
-              <div class="flex flex-wrap items-center gap-2">
-                <button @click="downloadTemplate('subjects')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center space-x-1">
-                  <i class="fas fa-download"></i><span>Download Template Excel</span>
-                </button>
-                <label class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold cursor-pointer flex items-center space-x-1">
-                  <i class="fas fa-file-excel"></i><span>Impor Excel Mapel</span>
-                  <input type="file" @change="importExcel('subjects', $event)" accept=".xlsx, .xls" class="hidden">
-                </label>
-                <button @click="openModal('subject')" class="px-3.5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold"><i class="fas fa-plus mr-1"></i> Tambah Mapel</button>
-                <button @click="deleteAllData('subjects')" class="px-3.5 py-2 bg-rose-600 text-white rounded-xl text-xs font-bold"><i class="fas fa-trash-alt mr-1"></i> Hapus Semua</button>
-              </div>
-            </div>
-
-            <div class="glass-card rounded-2xl overflow-hidden border border-slate-200">
-              <div v-if="subjects.length === 0" class="p-8 text-center text-slate-400 text-xs">
-                Belum ada data mata pelajaran. Silakan klik <b>Impor Excel Mapel</b>.
-              </div>
-              <table v-else class="w-full text-left text-xs">
-                <thead class="bg-slate-100 font-bold border-b">
-                  <tr>
-                    <th class="p-3">Kode Mapel</th>
-                    <th class="p-3">Nama Mata Pelajaran</th>
-                    <th class="p-3 text-center">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y">
-                  <tr v-for="sub in subjects" :key="sub.id" class="hover:bg-slate-50">
-                    <td class="p-3 font-mono font-bold text-purple-600">{{ sub.kodeMapel }}</td>
-                    <td class="p-3 font-semibold">{{ sub.namaMapel }}</td>
-                    <td class="p-3 text-center space-x-1">
-                      <button @click="openModal('subject', sub)" class="p-1 text-indigo-600"><i class="fas fa-edit"></i></button>
-                      <button @click="deleteData('subjects', sub.id)" class="p-1 text-rose-600"><i class="fas fa-trash"></i></button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- 6. MASTER KELAS -->
-          <div v-if="currentTab === 'classes' && currentUser.role === 'admin'" class="space-y-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <h1 class="text-2xl font-bold text-slate-800">Master Data Kelas</h1>
-                <p class="text-xs text-slate-500">Kelola Rombel & Tingkatan Menggunakan Template & Impor Excel</p>
-              </div>
-              <div class="flex flex-wrap items-center gap-2">
-                <button @click="downloadTemplate('classes')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center space-x-1">
-                  <i class="fas fa-download"></i><span>Download Template Excel</span>
-                </button>
-                <label class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold cursor-pointer flex items-center space-x-1">
-                  <i class="fas fa-file-excel"></i><span>Impor Excel Kelas</span>
-                  <input type="file" @change="importExcel('classes', $event)" accept=".xlsx, .xls" class="hidden">
-                </label>
-                <button @click="openModal('class')" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1">
-                  <i class="fas fa-plus"></i><span>Tambah Kelas</span>
-                </button>
-                <button @click="deleteAllData('classes')" class="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1">
-                  <i class="fas fa-trash"></i><span>Hapus Semua Kelas</span>
-                </button>
-              </div>
-            </div>
-
-            <div v-if="classes.length === 0" class="glass-card p-8 text-center text-slate-400 text-xs rounded-2xl">
-              Belum ada data kelas. Silakan klik <b>Impor Excel Kelas</b> atau <b>Tambah Kelas</b>.
-            </div>
-            <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div v-for="c in classes" :key="c.id" class="glass-card p-4 rounded-2xl border border-slate-200 flex items-center justify-between">
-                <div>
-                  <div class="font-bold text-sm text-slate-800">{{ c.namaKelas }}</div>
-                  <div class="text-[10px] text-slate-400">Tingkat: {{ c.tingkat || '-' }}</div>
-                </div>
-                <div class="flex items-center space-x-1">
-                  <button @click="openModal('class', c)" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition" title="Edit Kelas"><i class="fas fa-edit"></i></button>
-                  <button @click="deleteData('classes', c.id)" class="p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition" title="Hapus Kelas"><i class="fas fa-trash"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 7. MAPPING PENGAJAR -->
-          <div v-if="currentTab === 'mappings' && currentUser.role === 'admin'" class="space-y-6">
-            <div class="flex items-center justify-between">
-              <div>
-                <h1 class="text-2xl font-bold text-slate-800">Mapping Pengajar</h1>
-                <p class="text-xs text-slate-500">Hubungkan Guru dengan Mapel & Kelas Diampu (Multi-Mapel Sesuai Kebutuhan)</p>
-              </div>
-              <button @click="openMappingModal()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold shadow-md"><i class="fas fa-plus mr-1"></i> Tambah Mapping Guru</button>
-            </div>
-
-            <div v-if="mappings.length === 0" class="glass-card p-8 text-center text-slate-400 text-xs rounded-2xl">
-              Belum ada data mapping pengajar. Klik <b>Tambah Mapping Guru</b>.
-            </div>
-            <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div v-for="m in mappings" :key="m.id" class="glass-card p-5 rounded-2xl border border-slate-200 space-y-3">
-                <div class="flex items-center justify-between border-b pb-2">
-                  <div class="font-bold text-slate-800 text-sm flex items-center">
-                    <i class="fas fa-user-tie text-indigo-600 mr-2"></i> {{ getTeacherName(m.teacherId) }}
-                  </div>
-                  <button @click="deleteData('mappings', m.id)" class="text-rose-500 hover:bg-rose-50 p-1 rounded text-xs"><i class="fas fa-trash"></i></button>
-                </div>
-                <div>
-                  <span class="text-[10px] font-bold text-slate-400 uppercase">Mata Pelajaran:</span>
-                  <div class="font-semibold text-purple-600 text-xs">{{ getSubjectNames(m.subjectIds) }}</div>
-                </div>
-                <div>
-                  <span class="text-[10px] font-bold text-slate-400 uppercase">Kelas Yang Diampu:</span>
-                  <div class="flex flex-wrap gap-1 mt-1">
-                    <span v-for="cId in m.classIds" :key="cId" class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[10px] font-bold">{{ getClassName(cId) }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 8. INPUT NILAI SISWA -->
-          <div v-if="currentTab === 'grades'" class="space-y-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <h1 class="text-2xl font-bold text-slate-800">Input Nilai Siswa</h1>
-                <p class="text-xs text-slate-500">Matriks Formatif (F1-F9) & Sumatif (S1-S3, STS, SAS)</p>
-              </div>
-              <div class="flex flex-wrap items-center gap-2">
-                <select v-model="selectedSubjectId" class="px-3 py-2 bg-white border rounded-xl text-xs font-bold">
-                  <option value="">-- Pilih Mapel --</option>
-                  <option v-for="s in availableSubjects" :key="s.id" :value="s.id">{{ s.namaMapel }}</option>
-                </select>
-                <select v-model="selectedClassId" class="px-3 py-2 bg-white border rounded-xl text-xs font-bold">
-                  <option value="">-- Pilih Kelas --</option>
-                  <option v-for="c in availableClasses" :key="c.id" :value="c.id">{{ c.namaKelas }}</option>
-                </select>
-              </div>
-            </div>
-
-            <div v-if="selectedClassId && selectedSubjectId" class="glass-card p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3 bg-indigo-50/50 border border-indigo-100">
-              <div class="flex flex-wrap items-center gap-2 text-xs font-bold">
-                <span class="text-indigo-700 flex items-center"><i class="fas fa-magic mr-1"></i> Pengisian Nilai Massal:</span>
-                <select v-model="batchGradeCol" class="px-3 py-1.5 bg-white border border-indigo-200 rounded-lg text-xs font-bold">
-                  <option value="f1">F1</option><option value="f2">F2</option><option value="f3">F3</option>
-                  <option value="f4">F4</option><option value="f5">F5</option><option value="f6">F6</option>
-                  <option value="f7">F7</option><option value="f8">F8</option><option value="f9">F9</option>
-                  <option value="s1">S1</option><option value="s2">S2</option><option value="s3">S3</option>
-                  <option value="sts">STS</option><option value="sas">SAS</option>
-                </select>
-                <input type="number" v-model.number="batchGradeVal" placeholder="Misal 75" class="w-24 px-3 py-1.5 bg-white border border-indigo-200 rounded-lg text-xs font-bold text-center">
-                <button @click="applyBatchGrade" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm flex items-center space-x-1 transition">
-                  <i class="fas fa-check"></i><span>Terapkan Ke Semua</span>
-                </button>
-              </div>
-              <span class="text-[11px] font-bold text-emerald-700 flex items-center">
-                <i class="fas fa-check-circle mr-1"></i> Auto-Save Ke Cloud Aktif
-              </span>
-            </div>
-
-            <div v-if="selectedClassId && selectedSubjectId" class="glass-card rounded-2xl overflow-hidden border border-slate-200">
               <div class="overflow-x-auto">
-                <table class="w-full text-center text-xs border-collapse">
-                  <thead>
-                    <tr class="bg-slate-800 text-white font-bold">
-                      <th class="p-2 text-left w-40">Nama Siswa</th>
-                      <th v-for="n in 9" :key="'f'+n" class="p-1 bg-slate-700">F{{n}}</th>
-                      <th v-for="n in 3" :key="'s'+n" class="p-1 bg-indigo-900">S{{n}}</th>
-                      <th class="p-1 bg-purple-900">STS</th>
-                      <th class="p-1 bg-purple-900">SAS</th>
-                      <th class="p-1 bg-slate-900">Rata2</th>
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-100 text-slate-600 uppercase font-bold text-[10px]">
+                    <tr>
+                      <th class="p-3">NISN</th>
+                      <th class="p-3">Nama Siswa</th>
+                      <th class="p-3">Kelas</th>
+                      <th class="p-3">Jenis Kelamin</th>
+                      <th class="p-3">Tanggal Lahir</th>
+                      <th class="p-3 text-center">Aksi</th>
                     </tr>
                   </thead>
-                  <tbody class="divide-y bg-white">
-                    <tr v-for="s in currentClassStudents" :key="s.id" :class="{'bg-rose-50/50': s.statusSiswa && s.statusSiswa !== 'Aktif', 'hover:bg-slate-50': !s.statusSiswa || s.statusSiswa === 'Aktif'}">
-                      <td class="p-2.5 text-left font-bold text-slate-800">
-                        <div>{{ s.nama }}</div>
-                        <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="inline-block px-1.5 py-0.2 bg-rose-600 text-white text-[9px] rounded font-black uppercase mt-0.5">
-                          {{ s.statusSiswa }}: {{ s.keteranganStatus || '-' }}
-                        </span>
+                  <tbody class="divide-y divide-slate-100">
+                    <tr v-for="s in filteredStudents" :key="s.id" class="hover:bg-slate-50">
+                      <td class="p-3 font-mono text-[11px] font-bold">{{ s.nisn }}</td>
+                      <td class="p-3 font-bold text-slate-800">{{ s.nama }}</td>
+                      <td class="p-3"><span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded font-bold">{{ s.kelas }}</span></td>
+                      <td class="p-3">{{ s.jk === 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+                      <td class="p-3">{{ s.tglLahir || '-' }}</td>
+                      <td class="p-3 text-center space-x-1">
+                        <button @click="openStudentModal(s)" class="p-1.5 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100"><i class="fas fa-edit"></i></button>
+                        <button @click="deleteStudent(s.id)" class="p-1.5 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100"><i class="fas fa-trash"></i></button>
                       </td>
-                      <td v-for="col in ['f1','f2','f3','f4','f5','f6','f7','f8','f9']" :key="col" class="p-1 border-r border-slate-100">
-                        <input type="number" :value="getStudentGrade(s.id, col)" 
-                               :disabled="s.statusSiswa && s.statusSiswa !== 'Aktif'"
-                               @input="updateGrade(s.id, col, $event.target.value)" 
-                               class="w-10 text-center py-1 border rounded focus:ring-1 focus:ring-indigo-500 font-bold text-slate-700 disabled:bg-slate-100 disabled:text-slate-400">
-                      </td>
-                      <td v-for="col in ['s1','s2','s3']" :key="col" class="p-1 bg-indigo-50/30 border-r border-slate-100">
-                        <input type="number" :value="getStudentGrade(s.id, col)" 
-                               :disabled="s.statusSiswa && s.statusSiswa !== 'Aktif'"
-                               @input="updateGrade(s.id, col, $event.target.value)" 
-                               class="w-10 text-center py-1 border border-indigo-200 rounded font-bold text-indigo-700 disabled:bg-slate-100 disabled:text-slate-400">
-                      </td>
-                      <td class="p-1 bg-purple-50/30 border-r border-slate-100">
-                        <input type="number" :value="getStudentGrade(s.id, 'sts')" 
-                               :disabled="s.statusSiswa && s.statusSiswa !== 'Aktif'"
-                               @input="updateGrade(s.id, 'sts', $event.target.value)" 
-                               class="w-10 text-center py-1 border border-purple-200 rounded font-bold text-purple-700 disabled:bg-slate-100 disabled:text-slate-400">
-                      </td>
-                      <td class="p-1 bg-purple-50/30 border-r border-slate-100">
-                        <input type="number" :value="getStudentGrade(s.id, 'sas')" 
-                               :disabled="s.statusSiswa && s.statusSiswa !== 'Aktif'"
-                               @input="updateGrade(s.id, 'sas', $event.target.value)" 
-                               class="w-10 text-center py-1 border border-purple-200 rounded font-bold text-purple-700 disabled:bg-slate-100 disabled:text-slate-400">
-                      </td>
-                      <td class="p-2 font-black text-indigo-600 bg-indigo-50/50">{{ calculateGradeSummary(s.id).avg }}</td>
+                    </tr>
+                    <tr v-if="filteredStudents.length === 0">
+                      <td colspan="6" class="p-4 text-center text-slate-400 italic">Tidak ada data siswa.</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
             </div>
-            <div v-else class="glass-card p-8 text-center text-slate-400 text-xs rounded-2xl">
-              Silakan pilih <b>Mata Pelajaran</b> dan <b>Kelas</b> terlebih dahulu di atas.
+          </div>
+
+          <div v-if="currentTab === 'teachers'" class="space-y-6">
+            <div class="flex items-center justify-between">
+              <h1 class="text-2xl font-bold text-slate-800">Master Data Guru</h1>
+              <button @click="openTeacherModal()" class="px-3 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold"><i class="fas fa-plus"></i> Tambah Guru</button>
+            </div>
+            <div class="glass-card p-4 rounded-2xl border border-slate-200">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-100 uppercase font-bold text-[10px]">
+                  <tr><th class="p-3">NIP / ID</th><th class="p-3">Nama Guru</th><th class="p-3">Username</th><th class="p-3 text-center">Aksi</th></tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr v-for="t in teachers" :key="t.id">
+                    <td class="p-3 font-mono">{{ t.nip }}</td>
+                    <td class="p-3 font-bold">{{ t.nama }}</td>
+                    <td class="p-3">{{ t.username }}</td>
+                    <td class="p-3 text-center space-x-1">
+                      <button @click="openTeacherModal(t)" class="p-1 bg-amber-50 text-amber-600 rounded"><i class="fas fa-edit"></i></button>
+                      <button @click="deleteTeacher(t.id)" class="p-1 bg-rose-50 text-rose-600 rounded"><i class="fas fa-trash"></i></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
-          <!-- 9. PRESENSI SISWA -->
-          <div v-if="currentTab === 'attendance'" class="space-y-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div v-if="currentTab === 'subjects'" class="space-y-6">
+            <div class="flex items-center justify-between">
+              <h1 class="text-2xl font-bold text-slate-800">Master Mata Pelajaran</h1>
+              <button @click="openSubjectModal()" class="px-3 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold"><i class="fas fa-plus"></i> Tambah Mapel</button>
+            </div>
+            <div class="glass-card p-4 rounded-2xl border border-slate-200">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-100 uppercase font-bold text-[10px]">
+                  <tr><th class="p-3">Kode Mapel</th><th class="p-3">Nama Mapel</th><th class="p-3 text-center">Aksi</th></tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr v-for="sub in subjects" :key="sub.id">
+                    <td class="p-3 font-mono font-bold">{{ sub.kode }}</td>
+                    <td class="p-3">{{ sub.nama }}</td>
+                    <td class="p-3 text-center space-x-1">
+                      <button @click="deleteSubject(sub.id)" class="p-1 bg-rose-50 text-rose-600 rounded"><i class="fas fa-trash"></i></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div v-if="currentTab === 'classes'" class="space-y-6">
+            <div class="flex items-center justify-between">
+              <h1 class="text-2xl font-bold text-slate-800">Master Kelas</h1>
+              <button @click="openClassModal()" class="px-3 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold"><i class="fas fa-plus"></i> Tambah Kelas</button>
+            </div>
+            <div class="glass-card p-4 rounded-2xl border border-slate-200">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-100 uppercase font-bold text-[10px]">
+                  <tr><th class="p-3">Nama Kelas</th><th class="p-3">Tingkat</th><th class="p-3 text-center">Aksi</th></tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr v-for="c in classes" :key="c.id">
+                    <td class="p-3 font-bold">{{ c.nama }}</td>
+                    <td class="p-3">{{ c.tingkat }}</td>
+                    <td class="p-3 text-center">
+                      <button @click="deleteClass(c.id)" class="p-1 bg-rose-50 text-rose-600 rounded"><i class="fas fa-trash"></i></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div v-if="currentTab === 'mappings'" class="space-y-6">
+            <div class="flex items-center justify-between">
+              <h1 class="text-2xl font-bold text-slate-800">Mapping Pengajar</h1>
+              <button @click="openMappingModal()" class="px-3 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold"><i class="fas fa-plus"></i> Mapping Baru</button>
+            </div>
+            <div class="glass-card p-4 rounded-2xl border border-slate-200">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-100 uppercase font-bold text-[10px]">
+                  <tr><th class="p-3">Nama Guru</th><th class="p-3">Mata Pelajaran</th><th class="p-3">Kelas Ajar</th><th class="p-3 text-center">Aksi</th></tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr v-for="m in mappings" :key="m.id">
+                    <td class="p-3 font-bold">{{ m.teacherNama }}</td>
+                    <td class="p-3">{{ m.subjectNama }}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded font-bold">{{ m.classNama }}</span></td>
+                    <td class="p-3 text-center">
+                      <button @click="deleteMapping(m.id)" class="p-1 bg-rose-50 text-rose-600 rounded"><i class="fas fa-trash"></i></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div v-if="currentTab === 'grades'" class="space-y-6">
+            <div class="flex items-center justify-between">
               <div>
-                <h1 class="text-2xl font-bold text-slate-800">Presensi Siswa (P1-P18)</h1>
-                <p class="text-xs text-slate-500">Pencatatan Kehadiran Harian Pertemuan</p>
-              </div>
-              <div class="flex flex-wrap items-center gap-2">
-                <select v-model="selectedSubjectId" class="px-3 py-2 bg-white border rounded-xl text-xs font-bold">
-                  <option value="">-- Pilih Mapel --</option>
-                  <option v-for="s in availableSubjects" :key="s.id" :value="s.id">{{ s.namaMapel }}</option>
-                </select>
-                <select v-model="selectedClassId" class="px-3 py-2 bg-white border rounded-xl text-xs font-bold">
-                  <option value="">-- Pilih Kelas --</option>
-                  <option v-for="c in availableClasses" :key="c.id" :value="c.id">{{ c.namaKelas }}</option>
-                </select>
+                <h1 class="text-2xl font-bold text-slate-800">Input Nilai Siswa</h1>
+                <p class="text-xs text-slate-500">Penilaian Formatif, Sumatif & Raport</p>
               </div>
             </div>
 
-            <div v-if="selectedClassId && selectedSubjectId" class="space-y-4">
-              <div class="glass-card p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 bg-emerald-50/30">
-                <div class="flex items-center space-x-3 text-xs font-bold">
-                  <span>Pertemuan Aktif:</span>
-                  <select v-model="activeMeeting" class="px-3 py-1.5 bg-white border rounded-lg text-indigo-600">
-                    <option v-for="n in 18" :key="n" :value="'p' + n">Pertemuan P{{ n }}</option>
+            <div class="glass-card p-4 rounded-2xl border border-slate-200 space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Pilih Kelas</label>
+                  <select v-model="selectedGradeClass" class="w-full px-3 py-2 border rounded-xl text-xs font-bold">
+                    <option value="">-- Pilih Kelas --</option>
+                    <option v-for="c in availableClassesForTeacher" :key="c" :value="c">{{ c }}</option>
                   </select>
-                  <input type="date" :value="getMeetingDate(activeMeeting)" @change="setMeetingDate(activeMeeting, $event.target.value)" class="px-3 py-1.5 bg-white border rounded-lg">
                 </div>
-                <div class="flex items-center space-x-2">
-                  <button @click="markAllPresent(activeMeeting)" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm">
-                    <i class="fas fa-check-double mr-1"></i> Hadirkan Semua ({{ activeMeeting.toUpperCase() }})
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Pilih Mapel</label>
+                  <select v-model="selectedGradeSubject" class="w-full px-3 py-2 border rounded-xl text-xs font-bold">
+                    <option value="">-- Pilih Mapel --</option>
+                    <option v-for="s in subjects" :key="s.id" :value="s.nama">{{ s.nama }}</option>
+                  </select>
+                </div>
+                <div class="flex items-end">
+                  <button @click="saveAllGrades" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow">
+                    <i class="fas fa-save mr-1"></i> Simpan Semua Nilai
                   </button>
-                  <span class="text-[11px] font-bold text-emerald-700 flex items-center">
-                    <i class="fas fa-cloud text-xs mr-1"></i> Auto-Sync Live
-                  </span>
                 </div>
               </div>
 
-              <div class="glass-card rounded-2xl overflow-hidden border border-slate-200">
-                <div class="overflow-x-auto">
-                  <table class="w-full text-center text-xs border-collapse">
-                    <thead>
-                      <tr class="bg-slate-800 text-white font-bold">
-                        <th class="p-3 text-left w-48">Nama Siswa</th>
-                        <th v-for="n in 18" :key="n" class="p-2 border-r border-slate-700">
-                          <div>P{{ n }}</div>
-                          <div class="text-[9px] font-normal text-slate-300 mt-0.5">{{ formatShortDate(getMeetingDate('p' + n)) }}</div>
-                        </th>
-                        <th class="p-2 bg-emerald-700">H</th>
-                        <th class="p-2 bg-blue-700">I</th>
-                        <th class="p-2 bg-amber-700">S</th>
-                        <th class="p-2 bg-rose-700">A</th>
-                        <th class="p-2 bg-slate-900">%</th>
-                      </tr>
-                    </thead>
-                    <tbody class="divide-y bg-white">
-                      <tr v-for="s in currentClassStudents" :key="s.id" class="hover:bg-slate-50">
-                        <td class="p-2.5 text-left font-bold text-slate-800">
-                          <div>{{ s.nama }}</div>
-                          <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="inline-block px-1.5 py-0.2 bg-rose-600 text-white text-[9px] rounded font-black uppercase mt-0.5">
-                            {{ s.statusSiswa }}: {{ s.keteranganStatus || '-' }}
-                          </span>
-                        </td>
-                        <td v-for="n in 18" :key="n" class="p-1 border-r border-slate-100">
-                          <button @click="s.statusSiswa && s.statusSiswa !== 'Aktif' ? null : toggleAttendance(s.id, 'p' + n)" 
-                                  :disabled="s.statusSiswa && s.statusSiswa !== 'Aktif'"
-                                  :class="['w-7 h-7 rounded text-[11px] font-black transition', s.statusSiswa && s.statusSiswa !== 'Aktif' ? 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-60' : getAttendanceBadgeClass(s.id, 'p' + n)]">
-                            {{ s.statusSiswa && s.statusSiswa !== 'Aktif' ? 'X' : (getAttendanceStatus(s.id, 'p' + n) || '-') }}
-                          </button>
-                        </td>
-                        <td class="p-2 font-bold text-emerald-600 bg-emerald-50">{{ calculateAttendanceStats(s.id).H }}</td>
-                        <td class="p-2 font-bold text-blue-600 bg-blue-50">{{ calculateAttendanceStats(s.id).I }}</td>
-                        <td class="p-2 font-bold text-amber-600 bg-amber-50">{{ calculateAttendanceStats(s.id).S }}</td>
-                        <td class="p-2 font-bold text-rose-600 bg-rose-50">{{ calculateAttendanceStats(s.id).A }}</td>
-                        <td class="p-2 font-black text-slate-800 bg-slate-100">{{ calculateAttendanceStats(s.id).percent }}%</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+              <div v-if="selectedGradeClass && selectedGradeSubject" class="overflow-x-auto pt-2">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-100 uppercase font-bold text-[10px]">
+                    <tr>
+                      <th class="p-3">Nama Siswa</th>
+                      <th class="p-3 w-20">Formatif</th>
+                      <th class="p-3 w-20">Sumatif</th>
+                      <th class="p-3 w-20">PAS/PTS</th>
+                      <th class="p-3 w-20">Nilai Raport</th>
+                      <th class="p-3 w-20 text-center">Predikat</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    <tr v-for="s in currentGradeStudents" :key="s.id">
+                      <td class="p-3 font-bold text-slate-800">{{ s.nama }}</td>
+                      <td class="p-2"><input type="number" v-model.number="getGradeObj(s.id).formatif" class="w-16 px-2 py-1 border rounded text-center"></td>
+                      <td class="p-2"><input type="number" v-model.number="getGradeObj(s.id).sumatif" class="w-16 px-2 py-1 border rounded text-center"></td>
+                      <td class="p-2"><input type="number" v-model.number="getGradeObj(s.id).pas" class="w-16 px-2 py-1 border rounded text-center"></td>
+                      <td class="p-3 font-black text-indigo-700 text-sm">{{ calcFinalGrade(getGradeObj(s.id)) }}</td>
+                      <td class="p-3 text-center font-bold">
+                        <span :class="getPredicateClass(calcFinalGrade(getGradeObj(s.id)))" class="px-2 py-0.5 rounded text-[10px]">
+                          {{ getPredicate(calcFinalGrade(getGradeObj(s.id))) }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-            </div>
-            <div v-else class="glass-card p-8 text-center text-slate-400 text-xs rounded-2xl">
-              Silakan pilih <b>Mata Pelajaran</b> dan <b>Kelas</b> terlebih dahulu di atas.
             </div>
           </div>
 
-          <!-- 10. JURNAL MENGAJAR -->
+          <div v-if="currentTab === 'attendance'" class="space-y-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <h1 class="text-2xl font-bold text-slate-800">Presensi Harian Siswa</h1>
+                <p class="text-xs text-slate-500">Catat Kehadiran (Hadir, Izin, Sakit, Alpa)</p>
+              </div>
+            </div>
+
+            <div class="glass-card p-4 rounded-2xl border border-slate-200 space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Tanggal</label>
+                  <input type="date" v-model="selectedAttDate" class="w-full px-3 py-2 border rounded-xl text-xs font-bold">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Pilih Kelas</label>
+                  <select v-model="selectedAttClass" class="w-full px-3 py-2 border rounded-xl text-xs font-bold">
+                    <option value="">-- Pilih Kelas --</option>
+                    <option v-for="c in classes" :key="c.id" :value="c.nama">{{ c.nama }}</option>
+                  </select>
+                </div>
+                <div class="flex items-end space-x-2">
+                  <button @click="markAllAttendance('H')" class="px-3 py-2 bg-emerald-100 text-emerald-800 font-bold rounded-xl text-xs">Set Semua Hadir</button>
+                  <button @click="saveAttendance" class="flex-1 py-2 bg-indigo-600 text-white font-bold rounded-xl text-xs shadow">Simpan Presensi</button>
+                </div>
+              </div>
+
+              <div v-if="selectedAttClass" class="overflow-x-auto pt-2">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-100 uppercase font-bold text-[10px]">
+                    <tr><th class="p-3">Nama Siswa</th><th class="p-3 text-center">Status Kehadiran</th></tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    <tr v-for="s in currentAttStudents" :key="s.id">
+                      <td class="p-3 font-bold text-slate-800">{{ s.nama }}</td>
+                      <td class="p-3 text-center space-x-2">
+                        <button v-for="st in ['H','I','S','A']" :key="st"
+                                @click="setAttStatus(s.id, st)"
+                                :class="['px-3 py-1.5 rounded-lg font-bold text-xs transition', getAttStatus(s.id) === st ? 'badge-' + st : 'bg-slate-100 text-slate-500']">
+                          {{ st === 'H' ? 'Hadir' : st === 'I' ? 'Izin' : st === 'S' ? 'Sakit' : 'Alpa' }}
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
           <div v-if="currentTab === 'journal'" class="space-y-6">
             <div class="flex items-center justify-between">
               <div>
                 <h1 class="text-2xl font-bold text-slate-800">Jurnal Mengajar Guru</h1>
-                <p class="text-xs text-slate-500">Catatan Ringkasan Pembelajaran Harian & Refleksi Guru</p>
+                <p class="text-xs text-slate-500">Catat Aktivitas Kegiatan Pembelajaran</p>
               </div>
-              <button @click="openModal('journal')" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold shadow-md"><i class="fas fa-plus mr-1"></i> Tambah Jurnal</button>
+              <button @click="openJournalModal()" class="px-3 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold"><i class="fas fa-plus"></i> Tambah Jurnal</button>
             </div>
 
-            <div class="glass-card rounded-2xl overflow-hidden border border-slate-200">
-              <div v-if="journals.length === 0" class="p-8 text-center text-slate-400 text-xs">
-                Belum ada entri jurnal. Klik <b>Tambah Jurnal</b>.
+            <div class="glass-card p-4 rounded-2xl border border-slate-200">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-100 uppercase font-bold text-[10px]">
+                    <tr><th class="p-3">Tanggal</th><th class="p-3">Kelas / Mapel</th><th class="p-3">Jam Ke</th><th class="p-3">Materi / TP</th><th class="p-3 text-center">Aksi</th></tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    <tr v-for="j in journals" :key="j.id">
+                      <td class="p-3 font-mono">{{ j.tanggal }}</td>
+                      <td class="p-3 font-bold">{{ j.kelas }} - {{ j.mapel }}</td>
+                      <td class="p-3">{{ j.jamKe }}</td>
+                      <td class="p-3">{{ j.materi }}</td>
+                      <td class="p-3 text-center">
+                        <button @click="deleteJournal(j.id)" class="p-1 bg-rose-50 text-rose-600 rounded"><i class="fas fa-trash"></i></button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-              <table v-else class="w-full text-left text-xs">
-                <thead class="bg-slate-100 font-bold border-b">
-                  <tr>
-                    <th class="p-3">Tanggal & Jam</th>
-                    <th class="p-3">Kelas / Mapel</th>
-                    <th class="p-3">Materi Pembelajaran</th>
-                    <th class="p-3 text-center">Rincian Siswa (H / I / S / A)</th>
-                    <th class="p-3">Catatan Refleksi</th>
-                    <th class="p-3 text-center">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y">
-                  <tr v-for="j in journals" :key="j.id" class="hover:bg-slate-50">
-                    <td class="p-3 font-bold text-slate-700">{{ j.tanggal }} (Jam {{ j.jamPelajaran || '-' }})</td>
-                    <td class="p-3"><span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded font-bold">{{ getClassName(j.kelasId) }}</span><br><span class="text-[10px] text-slate-400">{{ getSubjectName(j.mapelId) }}</span></td>
-                    <td class="p-3 font-medium">{{ j.materi }}</td>
-                    <td class="p-3 text-center font-bold">
-                      <span class="text-emerald-600">{{ j.siswaHadir || 0 }} H</span> / 
-                      <span class="text-blue-600">{{ j.siswaIzin || 0 }} I</span> / 
-                      <span class="text-amber-600">{{ j.siswaSakit || 0 }} S</span> / 
-                      <span class="text-rose-600">{{ j.siswaAlpa || 0 }} A</span>
-                    </td>
-                    <td class="p-3 text-slate-600 italic">{{ j.catatanRefleksi || '-' }}</td>
-                    <td class="p-3 text-center">
-                      <button @click="deleteData('journals', j.id)" class="p-1 text-rose-600"><i class="fas fa-trash"></i></button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
             </div>
           </div>
 
-          <!-- 11. PUSAT REKAP LAPORAN (5 KATEGORI) -->
           <div v-if="currentTab === 'reports'" class="space-y-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center justify-between">
               <div>
                 <h1 class="text-2xl font-bold text-slate-800">Pusat Rekap Laporan</h1>
-                <p class="text-xs text-slate-500">Cetak 5 Kategori Laporan Resmi (Presensi, Nilai, Rekap Presensi, Rekap Nilai, Jurnal)</p>
+                <p class="text-xs text-slate-500">Cetak Laporan PDF / Excel dengan KOP Sekolah Resmi</p>
               </div>
-              <div class="flex space-x-2">
-                <button @click="triggerPrint" class="px-4 py-2 bg-rose-600 text-white rounded-xl text-xs font-bold shadow-md"><i class="fas fa-print mr-1"></i> Cetak</button>
-                <button @click="exportPDF" class="px-4 py-2 bg-amber-500 text-white rounded-xl text-xs font-bold shadow-md"><i class="fas fa-file-pdf mr-1"></i> Ekspor PDF</button>
-                <button @click="exportExcelReport" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-md"><i class="fas fa-file-excel mr-1"></i> Ekspor Excel</button>
-              </div>
+              <button @click="printReport" class="px-4 py-2 bg-indigo-600 text-white font-bold rounded-xl text-xs shadow flex items-center space-x-2">
+                <i class="fas fa-print"></i><span>Cetak / PDF</span>
+              </button>
             </div>
 
-            <div class="glass-card p-5 rounded-2xl border border-indigo-100 bg-indigo-50/20">
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="glass-card p-4 rounded-2xl border border-slate-200 space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div>
-                  <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Kategori Laporan (5 Pilihan)</label>
-                  <select v-model="reportCategory" class="w-full px-3 py-2 border rounded-xl text-xs font-bold bg-white">
-                    <option value="presensi">1. Laporan Presensi Pertemuan (P1 - P18)</option>
-                    <option value="nilai">2. Laporan Nilai Matriks Formatif & Sumatif</option>
-                    <option value="rekapPresensi">3. Rekap Persentase Kehadiran Siswa (%)</option>
-                    <option value="rekapNilai">4. Rekap Nilai Akhir & Rangking</option>
-                    <option value="jurnal">5. Rekap Jurnal Mengajar Bulanan</option>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Jenis Laporan</label>
+                  <select v-model="reportType" class="w-full px-3 py-2 border rounded-xl text-xs font-bold">
+                    <option value="presensi">Rekap Presensi Siswa</option>
+                    <option value="nilai">Rekap Nilai Raport</option>
+                    <option value="jurnal">Rekap Jurnal Mengajar</option>
                   </select>
                 </div>
                 <div>
-                  <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Mata Pelajaran</label>
-                  <select v-model="selectedSubjectId" class="w-full px-3 py-2 border rounded-xl text-xs font-bold bg-white">
-                    <option v-for="s in subjects" :key="s.id" :value="s.id">{{ s.namaMapel }}</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Kelas</label>
-                  <select v-model="selectedClassId" class="w-full px-3 py-2 border rounded-xl text-xs font-bold bg-white">
-                    <option v-for="c in classes" :key="c.id" :value="c.id">{{ c.namaKelas }}</option>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Pilih Kelas</label>
+                  <select v-model="reportClass" class="w-full px-3 py-2 border rounded-xl text-xs font-bold">
+                    <option value="">Semua Kelas</option>
+                    <option v-for="c in classes" :key="c.id" :value="c.nama">{{ c.nama }}</option>
                   </select>
                 </div>
               </div>
-            </div>
 
-            <!-- DOKUMEN CETAK -->
-            <div id="print-area" class="bg-white p-6 rounded-2xl border border-slate-200 text-slate-900 space-y-4 shadow-sm">
-              <div class="pb-2 text-center border-b border-slate-300" style="line-height: 1.15;">
-                <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-800 my-[1px]">{{ schoolConfig.kopLine1 || 'YAYASAN PERSEKOLAHAN KATOLIK SANJAYA NGADA' }}</h4>
-                <h4 class="text-[10px] font-semibold uppercase text-slate-700 my-[1px]">{{ schoolConfig.kopLine2 || 'SEKOLAH MENENGAH KEJURUAN SWASTA' }}</h4>
-                <h2 class="text-base font-black uppercase tracking-wider text-slate-900 my-[1px]">{{ schoolConfig.kopLine3 || 'SMKS SANJAYA BAJAWA' }}</h2>
-                <p class="text-[9px] text-slate-600 font-medium my-[1px]">{{ schoolConfig.kopLine4 || 'Jl. Let.Jend. Soeprapto, Bajawa-Kab. Ngada-Flores, NTT' }}</p>
-              </div>
+              <!-- PREVIEW AREA UNTUK CETAK PDF -->
+              <div id="print-area" class="p-6 bg-white rounded-xl border border-slate-200 text-slate-800 text-xs">
+                <!-- KOP SEKOLAH 4 BARIS -->
+                <div class="border-b-4 border-double border-slate-800 pb-3 mb-4 text-center">
+                  <div class="text-xs font-bold uppercase tracking-wider text-slate-600">{{ schoolConfig.kopLine1 }}</div>
+                  <div class="text-xs font-bold uppercase tracking-wider text-slate-600">{{ schoolConfig.kopLine2 }}</div>
+                  <div class="text-lg font-black uppercase text-slate-900 tracking-wide my-0.5">{{ schoolConfig.kopLine3 }}</div>
+                  <div class="text-[10px] text-slate-500 italic">{{ schoolConfig.kopLine4 }} • NPSN: {{ schoolConfig.npsn }}</div>
+                </div>
 
-              <div class="text-center space-y-0.5">
-                <h3 class="text-sm font-black uppercase tracking-wide text-slate-800">
-                  {{ reportCategory === 'presensi' ? 'LAPORAN PRESENSI PERTEMUAN (P1 - P18)' : reportCategory === 'nilai' ? 'LAPORAN NILAI FORMATIF & SUMATIF' : reportCategory === 'rekapPresensi' ? 'REKAP PERSENTASE KEHADIRAN SISWA' : reportCategory === 'rekapNilai' ? 'REKAP NILAI AKHIR & RANGKING' : 'REKAP JURNAL MENGAJAR GURU' }}
-                </h3>
-                <p class="text-[11px] font-bold text-slate-600">
-                  Kelas: {{ getClassName(selectedClassId) }} | Mapel: {{ getSubjectName(selectedSubjectId) }}
-                </p>
-              </div>
+                <div class="text-center mb-4">
+                  <h2 class="text-sm font-bold uppercase underline">{{ reportType === 'presensi' ? 'REKAPITULASI PRESENSI SISWA' : reportType === 'nilai' ? 'REKAPITULASI NILAI RAPORT' : 'JURNAL HARIAN MENGAJAR GURU' }}</h2>
+                  <div class="text-[10px] text-slate-500">Kelas: {{ reportClass || 'Semua Kelas' }}</div>
+                </div>
 
-              <!-- 1. PRESENSI PERTEMUAN P1-P18 -->
-              <table v-if="reportCategory === 'presensi'" class="w-full text-xs border-collapse border border-slate-300">
-                <thead>
-                  <tr class="bg-slate-100 font-bold text-center">
-                    <th class="border p-1 w-6">No</th>
-                    <th class="border p-1 text-left whitespace-nowrap min-w-[150px]">Nama Siswa</th>
-                    <th v-for="n in 18" :key="n" class="border p-0.5 text-[8px]">
-                      <div>P{{n}}</div>
-                      <div class="text-[7px] font-normal text-slate-500">{{ formatShortDate(getMeetingDate('p'+n)) }}</div>
-                    </th>
-                    <th class="border p-0.5 bg-emerald-50">H</th>
-                    <th class="border p-0.5 bg-amber-50">S</th>
-                    <th class="border p-0.5 bg-blue-50">I</th>
-                    <th class="border p-0.5 bg-rose-50">A</th>
-                    <th class="border p-0.5 bg-slate-100">%</th>
-                    <th class="border p-0.5 w-16">Intervensi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(s, idx) in currentClassStudents" :key="s.id" :class="{'text-center': true, 'bg-rose-50/50': s.statusSiswa && s.statusSiswa !== 'Aktif'}">
-                    <td class="border p-1 font-bold">{{ idx + 1 }}</td>
-                    <td class="border p-1 text-left font-bold whitespace-nowrap">
-                      {{ s.nama }}
-                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="inline-block text-[8px] text-rose-600 font-extrabold uppercase ml-1">[{{ s.statusSiswa }}]</span>
-                    </td>
-                    <td v-for="n in 18" :key="n" class="border p-0.5 font-bold">{{ s.statusSiswa && s.statusSiswa !== 'Aktif' ? '-' : (getAttendanceStatus(s.id, 'p'+n) || '-') }}</td>
-                    <td class="border p-0.5 font-bold text-emerald-600">{{ calculateAttendanceStats(s.id).H }}</td>
-                    <td class="border p-0.5 font-bold text-amber-600">{{ calculateAttendanceStats(s.id).S }}</td>
-                    <td class="border p-0.5 font-bold text-blue-600">{{ calculateAttendanceStats(s.id).I }}</td>
-                    <td class="border p-0.5 font-bold text-rose-600">{{ calculateAttendanceStats(s.id).A }}</td>
-                    <td class="border p-0.5 font-black bg-slate-50">{{ calculateAttendanceStats(s.id).percent }}%</td>
-                    <td class="border p-0.5 font-bold text-[9px]">
-                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="text-rose-600 font-black uppercase">{{ s.statusSiswa }}</span>
-                      <span v-else-if="calculateAttendanceStats(s.id).alpaPercent > 20" class="text-rose-600 font-black uppercase">Bimbingan</span>
-                      <span v-else class="text-emerald-600">Tuntas</span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                <!-- PREVIEW REKAP DATA -->
+                <table class="w-full border-collapse border border-slate-300 text-left text-[11px]">
+                  <thead class="bg-slate-100 text-slate-700 font-bold uppercase">
+                    <tr v-if="reportType === 'presensi'">
+                      <th class="border border-slate-300 p-2">NISN</th>
+                      <th class="border border-slate-300 p-2">Nama Siswa</th>
+                      <th class="border border-slate-300 p-2">Kelas</th>
+                      <th class="border border-slate-300 p-2 text-center">Hadir</th>
+                      <th class="border border-slate-300 p-2 text-center">Izin</th>
+                      <th class="border border-slate-300 p-2 text-center">Sakit</th>
+                      <th class="border border-slate-300 p-2 text-center">Alpa</th>
+                    </tr>
+                    <tr v-else-if="reportType === 'nilai'">
+                      <th class="border border-slate-300 p-2">Nama Siswa</th>
+                      <th class="border border-slate-300 p-2">Kelas</th>
+                      <th class="border border-slate-300 p-2 text-center">Formatif</th>
+                      <th class="border border-slate-300 p-2 text-center">Sumatif</th>
+                      <th class="border border-slate-300 p-2 text-center">PAS</th>
+                      <th class="border border-slate-300 p-2 text-center">Nilai Raport</th>
+                    </tr>
+                    <tr v-else>
+                      <th class="border border-slate-300 p-2">Tanggal</th>
+                      <th class="border border-slate-300 p-2">Kelas/Mapel</th>
+                      <th class="border border-slate-300 p-2">Jam Ke</th>
+                      <th class="border border-slate-300 p-2">Materi / TP</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <template v-if="reportType === 'presensi'">
+                      <tr v-for="s in reportStudents" :key="s.id">
+                        <td class="border border-slate-300 p-2 font-mono">{{ s.nisn }}</td>
+                        <td class="border border-slate-300 p-2 font-bold">{{ s.nama }}</td>
+                        <td class="border border-slate-300 p-2">{{ s.kelas }}</td>
+                        <td class="border border-slate-300 p-2 text-center font-bold text-emerald-600">{{ countAtt(s.id, 'H') }}</td>
+                        <td class="border border-slate-300 p-2 text-center font-bold text-blue-600">{{ countAtt(s.id, 'I') }}</td>
+                        <td class="border border-slate-300 p-2 text-center font-bold text-amber-600">{{ countAtt(s.id, 'S') }}</td>
+                        <td class="border border-slate-300 p-2 text-center font-bold text-rose-600">{{ countAtt(s.id, 'A') }}</td>
+                      </tr>
+                    </template>
+                    <template v-else-if="reportType === 'nilai'">
+                      <tr v-for="s in reportStudents" :key="s.id">
+                        <td class="border border-slate-300 p-2 font-bold">{{ s.nama }}</td>
+                        <td class="border border-slate-300 p-2">{{ s.kelas }}</td>
+                        <td class="border border-slate-300 p-2 text-center">{{ getGradeObj(s.id).formatif }}</td>
+                        <td class="border border-slate-300 p-2 text-center">{{ getGradeObj(s.id).sumatif }}</td>
+                        <td class="border border-slate-300 p-2 text-center">{{ getGradeObj(s.id).pas }}</td>
+                        <td class="border border-slate-300 p-2 text-center font-black text-indigo-700">{{ calcFinalGrade(getGradeObj(s.id)) }}</td>
+                      </tr>
+                    </template>
+                    <template v-else>
+                      <tr v-for="j in journals" :key="j.id">
+                        <td class="border border-slate-300 p-2">{{ j.tanggal }}</td>
+                        <td class="border border-slate-300 p-2 font-bold">{{ j.kelas }} - {{ j.mapel }}</td>
+                        <td class="border border-slate-300 p-2">{{ j.jamKe }}</td>
+                        <td class="border border-slate-300 p-2">{{ j.materi }}</td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
 
-              <!-- 2. NILAI MATRIKS -->
-              <table v-if="reportCategory === 'nilai'" class="w-full text-xs border-collapse border border-slate-300">
-                <thead>
-                  <tr class="bg-slate-100 font-bold text-center">
-                    <th class="border p-1 w-6">No</th>
-                    <th class="border p-1 text-left whitespace-nowrap min-w-[150px]">Nama Siswa</th>
-                    <th v-for="n in 9" :key="'f'+n" class="border p-0.5 text-[9px]">F{{n}}</th>
-                    <th v-for="n in 3" :key="'s'+n" class="border p-0.5 text-[9px]">S{{n}}</th>
-                    <th class="border p-0.5 text-[9px]">STS</th>
-                    <th class="border p-0.5 text-[9px]">SAS</th>
-                    <th class="border p-0.5 bg-slate-100">Jml</th>
-                    <th class="border p-0.5 bg-indigo-50">Rata2</th>
-                    <th class="border p-0.5 bg-purple-50">Pembulatan</th>
-                    <th class="border p-0.5 bg-amber-50">Rank</th>
-                    <th class="border p-0.5 w-16">Intervensi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(s, idx) in currentClassStudents" :key="s.id" :class="{'text-center': true, 'bg-rose-50/50': s.statusSiswa && s.statusSiswa !== 'Aktif'}">
-                    <td class="border p-1 font-bold">{{ idx + 1 }}</td>
-                    <td class="border p-1 text-left font-bold whitespace-nowrap">
-                      {{ s.nama }}
-                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="inline-block text-[8px] text-rose-600 font-extrabold uppercase ml-1">[{{ s.statusSiswa }}]</span>
-                    </td>
-                    <td v-for="col in ['f1','f2','f3','f4','f5','f6','f7','f8','f9','s1','s2','s3','sts','sas']" :key="col" class="border p-0.5">
-                      {{ getStudentGrade(s.id, col) || '-' }}
-                    </td>
-                    <td class="border p-0.5 font-bold text-slate-700 bg-slate-50">{{ calculateGradeSummary(s.id).sum }}</td>
-                    <td class="border p-0.5 font-bold text-indigo-600 bg-indigo-50">{{ calculateGradeSummary(s.id).avg }}</td>
-                    <td class="border p-0.5 font-black text-purple-700 bg-purple-50">{{ calculateGradeSummary(s.id).ceilVal }}</td>
-                    <td class="border p-0.5 font-black text-amber-600 bg-amber-50">#{{ getStudentRank(s.id) }}</td>
-                    <td class="border p-0.5 font-bold text-[9px]">
-                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="text-rose-600 font-black uppercase">{{ s.statusSiswa }}</span>
-                      <span v-else-if="calculateGradeSummary(s.id).ceilVal < 70" class="text-rose-600 font-black">Remedial</span>
-                      <span v-else class="text-emerald-600">Tuntas</span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <!-- 3. REKAP PRESENSI (%) -->
-              <table v-if="reportCategory === 'rekapPresensi'" class="w-full text-xs border-collapse border border-slate-300">
-                <thead>
-                  <tr class="bg-slate-100 font-bold text-center">
-                    <th class="border p-1.5 w-10">No</th>
-                    <th class="border p-1.5 text-left whitespace-nowrap">Nama Lengkap</th>
-                    <th class="border p-1.5 bg-emerald-50 text-emerald-700">Hadir (H)</th>
-                    <th class="border p-1.5 bg-blue-50 text-blue-700">Izin (I)</th>
-                    <th class="border p-1.5 bg-amber-50 text-amber-700">Sakit (S)</th>
-                    <th class="border p-1.5 bg-rose-50 text-rose-700">Alpa (A)</th>
-                    <th class="border p-1.5 w-24 bg-slate-100">Persentase</th>
-                    <th class="border p-1.5 w-20">Intervensi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(s, idx) in currentClassStudents" :key="s.id" :class="{'text-center': true, 'bg-rose-50/50': s.statusSiswa && s.statusSiswa !== 'Aktif'}">
-                    <td class="border p-1.5 font-bold">{{ idx + 1 }}</td>
-                    <td class="border p-1.5 text-left font-bold whitespace-nowrap">
-                      {{ s.nama }}
-                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="inline-block text-[8px] text-rose-600 font-extrabold uppercase ml-1">[{{ s.statusSiswa }}]</span>
-                    </td>
-                    <td class="border p-1.5 font-bold text-emerald-600">{{ calculateAttendanceStats(s.id).H }}</td>
-                    <td class="border p-1.5 font-bold text-blue-600">{{ calculateAttendanceStats(s.id).I }}</td>
-                    <td class="border p-1.5 font-bold text-amber-600">{{ calculateAttendanceStats(s.id).S }}</td>
-                    <td class="border p-1.5 font-bold text-rose-600">{{ calculateAttendanceStats(s.id).A }}</td>
-                    <td class="border p-1.5 font-black bg-slate-50">{{ calculateAttendanceStats(s.id).percent }}%</td>
-                    <td class="border p-1.5 font-bold">
-                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="text-rose-600 font-black uppercase">{{ s.statusSiswa }}</span>
-                      <span v-else-if="calculateAttendanceStats(s.id).alpaPercent > 20" class="text-rose-600 font-black">Bimbingan</span>
-                      <span v-else class="text-emerald-600">Tuntas</span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <!-- 4. REKAP NILAI -->
-              <table v-if="reportCategory === 'rekapNilai'" class="w-full text-xs border-collapse border border-slate-300">
-                <thead>
-                  <tr class="bg-slate-100 font-bold text-center">
-                    <th class="border p-1.5 w-10">No</th>
-                    <th class="border p-1.5 text-left whitespace-nowrap">Nama Siswa</th>
-                    <th class="border p-1.5 text-left">Mata Pelajaran</th>
-                    <th class="border p-1.5">Jumlah Total</th>
-                    <th class="border p-1.5">Rata-rata</th>
-                    <th class="border p-1.5 bg-purple-50">Pembulatan Ke Atas</th>
-                    <th class="border p-1.5 bg-amber-50">Rangking</th>
-                    <th class="border p-1.5 w-20">Intervensi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(s, idx) in currentClassStudents" :key="s.id" :class="{'text-center': true, 'bg-rose-50/50': s.statusSiswa && s.statusSiswa !== 'Aktif'}">
-                    <td class="border p-1.5 font-bold">{{ idx + 1 }}</td>
-                    <td class="border p-1.5 text-left font-bold whitespace-nowrap">
-                      {{ s.nama }}
-                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="inline-block text-[8px] text-rose-600 font-extrabold uppercase ml-1">[{{ s.statusSiswa }}]</span>
-                    </td>
-                    <td class="border p-1.5 text-left">{{ getSubjectName(selectedSubjectId) }}</td>
-                    <td class="border p-1.5 font-bold">{{ calculateGradeSummary(s.id).sum }}</td>
-                    <td class="border p-1.5 font-bold text-indigo-600">{{ calculateGradeSummary(s.id).avg }}</td>
-                    <td class="border p-1.5 font-black text-purple-700 bg-purple-50">{{ calculateGradeSummary(s.id).ceilVal }}</td>
-                    <td class="border p-1.5 font-black text-amber-600 bg-amber-50">#{{ getStudentRank(s.id) }}</td>
-                    <td class="border p-1.5 font-bold">
-                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="text-rose-600 font-black uppercase">{{ s.statusSiswa }}</span>
-                      <span v-else-if="calculateGradeSummary(s.id).ceilVal < 70" class="text-rose-600 font-black">Remedial</span>
-                      <span v-else class="text-emerald-600">Tuntas</span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <!-- 5. REKAP JURNAL -->
-              <table v-if="reportCategory === 'jurnal'" class="w-full text-xs border-collapse border border-slate-300">
-                <thead>
-                  <tr class="bg-slate-100 font-bold text-center">
-                    <th class="border p-1.5 w-10">No</th>
-                    <th class="border p-1.5">Tanggal</th>
-                    <th class="border p-1.5">Jam Ke</th>
-                    <th class="border p-1.5 text-left">Materi Pembelajaran</th>
-                    <th class="border p-1.5">Siswa (H/I/S/A)</th>
-                    <th class="border p-1.5 text-left">Catatan Refleksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(j, idx) in journals" :key="j.id" class="text-center">
-                    <td class="border p-1.5 font-bold">{{ idx + 1 }}</td>
-                    <td class="border p-1.5">{{ j.tanggal }}</td>
-                    <td class="border p-1.5 font-bold">{{ j.jamPelajaran || '-' }}</td>
-                    <td class="border p-1.5 text-left">{{ j.materi }}</td>
-                    <td class="border p-1.5 font-bold">{{ j.siswaHadir || 0 }}/{{ j.siswaIzin || 0 }}/{{ j.siswaSakit || 0 }}/{{ j.siswaAlpa || 0 }}</td>
-                    <td class="border p-1.5 text-left italic text-slate-600">{{ j.catatanRefleksi || '-' }}</td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <!-- SIGNATURE FOOTER WITH DIGITAL SIGNATURE OPTION -->
-              <div class="grid grid-cols-2 gap-8 pt-6 text-center text-xs font-bold">
-                <div>
-                  <div>Mengetahui,</div>
-                  <div>Kepala Sekolah</div>
-                  <div class="h-16 flex items-center justify-center my-1">
-                    <span class="text-slate-300 italic">[Tanda Tangan Digital]</span>
+                <!-- TANDA TANGAN -->
+                <div class="mt-8 flex justify-between text-center text-xs">
+                  <div>
+                    <div>Mengetahui,</div>
+                    <div class="font-bold">Kepala Sekolah</div>
+                    <div class="h-16 flex items-center justify-center">
+                      <span class="text-slate-300 italic">[ Tanda Tangan ]</span>
+                    </div>
+                    <div class="font-bold underline">{{ schoolConfig.kepsekNama }}</div>
                   </div>
-                  <div class="underline">{{ schoolConfig.kepsekNama }}</div>
-                </div>
-                <div>
-                  <div>{{ schoolConfig.kota }}, {{ new Date().toLocaleDateString('id-ID') }}</div>
-                  <div>Guru Mata Pelajaran</div>
-                  <div class="h-16 flex items-center justify-center my-1">
-                    <img v-if="schoolConfig.showSignature && (currentUser.signatureUrl || getTeacherSignature(currentUser.id))" 
-                         :src="currentUser.signatureUrl || getTeacherSignature(currentUser.id)" 
-                         class="h-14 max-w-xs object-contain mx-auto" alt="TTD Digital Guru">
-                    <span v-else-if="schoolConfig.showSignature" class="text-slate-300 italic">[Tanda Tangan Digital]</span>
-                    <span v-else class="text-slate-300 italic opacity-0">[Area TTD]</span>
+                  <div>
+                    <div>{{ schoolConfig.kota }}, {{ new Date().toLocaleDateString('id-ID') }}</div>
+                    <div class="font-bold">Guru Mata Pelajaran</div>
+                    <div class="h-16 flex items-center justify-center">
+                      <img v-if="teacherSignatureUrl" :src="teacherSignatureUrl" class="h-12 object-contain mx-auto">
+                      <span v-else class="text-slate-300 italic">[ Tanda Tangan ]</span>
+                    </div>
+                    <div class="font-bold underline">{{ currentUser.nama }}</div>
                   </div>
-                  <div class="underline">{{ currentUser.nama || 'Guru Mapel' }}</div>
                 </div>
-              </div>
 
+              </div>
             </div>
           </div>
 
         </main>
       </div>
 
-      <!-- MODAL FORM POPUP -->
-      <div v-if="modal.show" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white w-full max-w-md rounded-3xl p-6 space-y-4 shadow-2xl my-8">
-          <h3 class="font-bold text-slate-800 text-base border-b pb-2">{{ modal.title }}</h3>
-          
-          <!-- STUDENT FORM MODAL -->
-          <div v-if="modal.type === 'student'" class="space-y-3 text-xs">
-            <div><label class="font-bold">NIS</label><input v-model="modalForm.nis" type="text" class="w-full p-2 border rounded-xl"></div>
-            <div><label class="font-bold">Nama Lengkap</label><input v-model="modalForm.nama" type="text" class="w-full p-2 border rounded-xl"></div>
-            <div class="grid grid-cols-2 gap-2">
-              <div><label class="font-bold">Kelas</label><select v-model="modalForm.kelas" class="w-full p-2 border rounded-xl"><option v-for="c in classes" :value="c.namaKelas">{{c.namaKelas}}</option></select></div>
-              <div><label class="font-bold">L/P</label><select v-model="modalForm.gender" class="w-full p-2 border rounded-xl"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-              <div><label class="font-bold">Asal SMP</label><input v-model="modalForm.asalSmp" type="text" placeholder="Misal: SMPN 1" class="w-full p-2 border rounded-xl"></div>
-              <div><label class="font-bold">Tanggal Lahir</label><input v-model="modalForm.tglLahir" type="date" class="w-full p-2 border rounded-xl"></div>
-            </div>
-            <div><label class="font-bold">Alamat / Asal</label><input v-model="modalForm.alamat" type="text" placeholder="Alamat domisili" class="w-full p-2 border rounded-xl"></div>
-            <div><label class="font-bold">HP Wali Siswa</label><input v-model="modalForm.hpWali" type="text" placeholder="628xxx" class="w-full p-2 border rounded-xl"></div>
-            
-            <div class="p-3 bg-slate-50 border rounded-xl space-y-2">
-              <div>
-                <label class="font-bold text-slate-700">Status Siswa / Aksi Status</label>
-                <select v-model="modalForm.statusSiswa" class="w-full p-2 border rounded-xl font-bold bg-white mt-1">
-                  <option value="Aktif">Aktif</option>
-                  <option value="DO">DO (Drop Out)</option>
-                  <option value="Mutasi">Mutasi Pindah</option>
-                  <option value="Lainnya">Lainnya (Non-Aktif)</option>
-                </select>
-              </div>
-              <div v-if="modalForm.statusSiswa && modalForm.statusSiswa !== 'Aktif'">
-                <label class="font-bold text-rose-600">Keterangan Status (Sebab / Catatan)</label>
-                <input v-model="modalForm.keteranganStatus" type="text" placeholder="Contoh: Pindah Sekolah / Mengundurkan Diri" class="w-full p-2 border border-rose-200 rounded-xl bg-white mt-1">
-              </div>
-            </div>
-          </div>
-
-          <!-- TEACHER FORM -->
-          <div v-if="modal.type === 'teacher'" class="space-y-3 text-xs">
-            <div><label class="font-bold">NIP Guru</label><input v-model="modalForm.nip" type="text" class="w-full p-2 border rounded-xl"></div>
-            <div><label class="font-bold">Nama Guru</label><input v-model="modalForm.nama" type="text" class="w-full p-2 border rounded-xl"></div>
-            <div><label class="font-bold">Email / Username Login</label><input v-model="modalForm.email" type="text" class="w-full p-2 border rounded-xl"></div>
-            <div><label class="font-bold">Password Login Guru</label><input v-model="modalForm.password" type="text" class="w-full p-2 border rounded-xl"></div>
-          </div>
-
-          <!-- SUBJECT FORM -->
-          <div v-if="modal.type === 'subject'" class="space-y-3 text-xs">
-            <div><label class="font-bold">Kode Mapel</label><input v-model="modalForm.kodeMapel" type="text" class="w-full p-2 border rounded-xl"></div>
-            <div><label class="font-bold">Nama Mata Pelajaran</label><input v-model="modalForm.namaMapel" type="text" class="w-full p-2 border rounded-xl"></div>
-          </div>
-
-          <!-- CLASS FORM -->
-          <div v-if="modal.type === 'class'" class="space-y-3 text-xs">
-            <div><label class="font-bold">Nama Kelas (Rombel)</label><input v-model="modalForm.namaKelas" type="text" placeholder="Contoh: XI TEI 1" class="w-full p-2 border rounded-xl"></div>
+      <!-- MODAL SISWA -->
+      <div v-if="showStudentModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+          <h3 class="font-bold text-slate-800 text-sm">{{ editingStudent ? 'Edit Data Siswa' : 'Tambah Siswa Baru' }}</h3>
+          <div class="space-y-3 text-xs">
             <div>
-              <label class="font-bold">Tingkat</label>
-              <select v-model="modalForm.tingkat" class="w-full p-2 border rounded-xl">
-                <option value="X">Tingkat X</option>
-                <option value="XI">Tingkat XI</option>
-                <option value="XII">Tingkat XII</option>
-                <option value="Lainnya">Lainnya</option>
-              </select>
+              <label class="block font-bold mb-1">NISN</label>
+              <input v-model="studentForm.nisn" type="text" class="w-full p-2 border rounded-xl">
             </div>
-          </div>
-
-          <!-- MAPPING FORM -->
-          <div v-if="modal.type === 'mapping'" class="space-y-3 text-xs">
             <div>
-              <label class="font-bold">Pilih Guru</label>
-              <select v-model="modalForm.teacherId" class="w-full p-2 border rounded-xl mt-1">
-                <option value="">-- Pilih Guru --</option>
-                <option v-for="t in teachers" :key="t.id" :value="t.id">{{ t.nama }} ({{ t.nip || '-' }})</option>
+              <label class="block font-bold mb-1">Nama Lengkap</label>
+              <input v-model="studentForm.nama" type="text" class="w-full p-2 border rounded-xl">
+            </div>
+            <div>
+              <label class="block font-bold mb-1">Kelas</label>
+              <select v-model="studentForm.kelas" class="w-full p-2 border rounded-xl">
+                <option v-for="c in classes" :key="c.id" :value="c.nama">{{ c.nama }}</option>
               </select>
             </div>
             <div>
-              <label class="font-bold">Pilih Mata Pelajaran</label>
-              <select v-model="modalForm.subjectId" class="w-full p-2 border rounded-xl mt-1">
-                <option value="">-- Pilih Mapel --</option>
-                <option v-for="sub in subjects" :key="sub.id" :value="sub.id">{{ sub.namaMapel }}</option>
+              <label class="block font-bold mb-1">Jenis Kelamin</label>
+              <select v-model="studentForm.jk" class="w-full p-2 border rounded-xl">
+                <option value="L">Laki-laki</option>
+                <option value="P">Perempuan</option>
               </select>
             </div>
             <div>
-              <div class="flex justify-between items-center mb-1">
-                <label class="font-bold">Pilih Kelas Diampu</label>
-                <div class="flex items-center space-x-1 text-[10px]">
-                  <button type="button" @click="selectClassesByGrade('X')" class="px-1.5 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded font-bold">+ X</button>
-                  <button type="button" @click="selectClassesByGrade('XI')" class="px-1.5 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded font-bold">+ XI</button>
-                  <button type="button" @click="selectClassesByGrade('XII')" class="px-1.5 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded font-bold">+ XII</button>
-                  <button type="button" @click="selectAllClasses" class="px-1.5 py-0.5 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded font-bold">Semua</button>
-                  <button type="button" @click="modalForm.classIds = []" class="px-1.5 py-0.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded font-bold">Reset</button>
-                </div>
-              </div>
-              <div class="grid grid-cols-2 gap-2 max-h-36 overflow-y-auto p-2 border rounded-xl bg-slate-50">
-                <label v-for="c in classes" :key="c.id" class="flex items-center space-x-2 text-[11px] cursor-pointer">
-                  <input type="checkbox" :value="c.id" v-model="modalForm.classIds" class="rounded text-indigo-600">
-                  <span>{{ c.namaKelas }}</span>
-                </label>
-              </div>
+              <label class="block font-bold mb-1">Tanggal Lahir</label>
+              <input v-model="studentForm.tglLahir" type="date" class="w-full p-2 border rounded-xl">
             </div>
           </div>
-
-          <!-- JURNAL FORM -->
-          <div v-if="modal.type === 'journal'" class="space-y-3 text-xs">
-            <div><label class="font-bold">Tanggal</label><input v-model="modalForm.tanggal" type="date" class="w-full p-2 border rounded-xl"></div>
-            <div><label class="font-bold">Jam Pelajaran</label><input v-model="modalForm.jamPelajaran" type="text" placeholder="misal: 1-2" class="w-full p-2 border rounded-xl"></div>
-            <div><label class="font-bold">Kelas</label><select v-model="modalForm.kelasId" class="w-full p-2 border rounded-xl"><option v-for="c in classes" :value="c.id">{{c.namaKelas}}</option></select></div>
-            <div><label class="font-bold">Mapel</label><select v-model="modalForm.mapelId" class="w-full p-2 border rounded-xl"><option v-for="s in subjects" :value="s.id">{{s.namaMapel}}</option></select></div>
-            <div><label class="font-bold">Materi Pembelajaran</label><textarea v-model="modalForm.materi" class="w-full p-2 border rounded-xl" rows="2"></textarea></div>
-            
-            <div class="grid grid-cols-4 gap-2 pt-1 border-t">
-              <div><label class="font-bold text-emerald-600">Hadir</label><input v-model.number="modalForm.siswaHadir" type="number" class="w-full p-1.5 border rounded-xl text-center font-bold"></div>
-              <div><label class="font-bold text-blue-600">Izin</label><input v-model.number="modalForm.siswaIzin" type="number" class="w-full p-1.5 border rounded-xl text-center font-bold"></div>
-              <div><label class="font-bold text-amber-600">Sakit</label><input v-model.number="modalForm.siswaSakit" type="number" class="w-full p-1.5 border rounded-xl text-center font-bold"></div>
-              <div><label class="font-bold text-rose-600">Alpa</label><input v-model.number="modalForm.siswaAlpa" type="number" class="w-full p-1.5 border rounded-xl text-center font-bold"></div>
-            </div>
-
-            <div><label class="font-bold">Catatan Refleksi Guru</label><textarea v-model="modalForm.catatanRefleksi" placeholder="Tuliskan catatan evaluasi..." class="w-full p-2 border rounded-xl" rows="2"></textarea></div>
-          </div>
-
           <div class="flex justify-end space-x-2 pt-2 border-t">
-            <button @click="modal.show = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-bold transition">Batal</button>
-            <button @click="saveModal" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition">Simpan Data</button>
+            <button @click="showStudentModal = false" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs">Batal</button>
+            <button @click="saveStudent" class="px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold text-xs">Simpan Data</button>
           </div>
         </div>
       </div>
@@ -1493,718 +1013,359 @@
   </div>
 
   <script>
-    const DEFAULT_FIREBASE_CONFIG = {
-      apiKey: "AIzaSyCXBSnDwAgprJziubfct-EpkOsy-jzKpnY",
-      authDomain: "gurujaya-e1fbf.firebaseapp.com",
-      databaseURL: "https://gurujaya-e1fbf-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "gurujaya-e1fbf",
-      storageBucket: "gurujaya-e1fbf.firebasestorage.app",
-      messagingSenderId: "604825938679",
-      appId: "1:604825938679:web:8f1375cf6a431767eec1f2"
-      
-    };
-
-    const { createApp, ref, computed, onMounted, watch, nextTick } = Vue;
+    const { createApp, ref, computed, watch, onMounted, nextTick } = Vue;
 
     createApp({
       setup() {
-        const currentUser = ref(null);
+        // STATE UTAMA
+        const currentUser = ref(JSON.parse(localStorage.getItem('guruku_user') || 'null'));
         const currentTab = ref('dashboard');
-        const loginForm = ref({ identifier: '', password: '' });
-
-        const adminPassword = ref(localStorage.getItem('guruku_admin_password') || 'admin123');
-        const adminPassForm = ref({ oldPass: '', newPass: '', confirmPass: '' });
-        
-        const teacherPassForm = ref({ oldPass: '', newPass: '', confirmPass: '' });
-        const teacherSignatureUrl = ref('');
-
-        const cloudConfigInput = ref({ ...DEFAULT_FIREBASE_CONFIG });
-        const savedCloudConfig = localStorage.getItem('guruku_cloud_config');
-        if (savedCloudConfig) {
-          try { cloudConfigInput.value = { ...DEFAULT_FIREBASE_CONFIG, ...JSON.parse(savedCloudConfig) }; } catch(e){}
-        }
-
-        const schoolConfig = ref({ 
-          kopLine1: 'YAYASAN PERSEKOLAHAN KATOLIK SANJAYA NGADA',
-          kopLine2: 'SEKOLAH MENENGAH KEJURUAN SWASTA',
-          kopLine3: 'SMKS SANJAYA BAJAWA',
-          kopLine4: 'Jl. Let.Jend. Soeprapto, Bajawa-Kab. Ngada-Flores, NTT',
-          npsn: '10801234', 
-          kota: 'Bajawa', 
-          kepsekNama: 'Drs. H. Ahmad Dahlan, M.Pd', 
-          kepsekNip: '19700101 199503 1 001',
-          showSignature: true
-        });
-        
-        const students = ref([]);
-        const teachers = ref([]);
-        const subjects = ref([]);
-        const classes = ref([]);
-        const mappings = ref([]);
-        const grades = ref({});
-        const attendance = ref({});
-        const journals = ref([]);
-
-        // FIREBASE DIAGNOSTIC STATUS
         const firebaseStatus = ref('offline');
         const isSyncing = ref(false);
-        let isRemoteUpdating = false;
 
-        // PAGINASI SISWA
-        const studentSearchQuery = ref('');
-        const studentClassFilter = ref('');
-        const studentPage = ref(1);
-        const studentPerPage = ref(25);
+        // LOGIN FORM
+        const loginForm = ref({ identifier: '', password: '' });
 
-        const selectedClassId = ref('');
-        const selectedSubjectId = ref('');
-        const activeMeeting = ref('p1');
-        const reportCategory = ref('presensi');
+        // CLOUD CONFIG
+        const cloudConfigInput = ref(JSON.parse(localStorage.getItem('guruku_firebase_config') || JSON.stringify({
+          apiKey: '',
+          databaseURL: '',
+          projectId: ''
+        })));
 
-        const batchGradeCol = ref('f1');
-        const batchGradeVal = ref('');
+        // SCHOOL CONFIG
+        const schoolConfig = ref(JSON.parse(localStorage.getItem('guruku_school') || JSON.stringify({
+          kopLine1: 'Yayasan Persekolahan Katolik Sanjaya Ngada',
+          kopLine2: 'Sekolah Menengah Kejuruan Swasta',
+          kopLine3: 'SMKS SANJAYA BAJAWA',
+          kopLine4: 'Jl. Let.Jend. Soeprapto, Bajawa-Kab. Ngada-Flores, NTT',
+          npsn: '50302311',
+          kota: 'Bajawa',
+          kepsekNama: 'Drs. Antonius V. Nimo',
+          showSignature: true
+        })));
 
-        const attendancePeriodType = ref('monthly');
-        const weeklyStartDate = ref('2026-08-01');
-        const weeklyEndDate = ref('2026-08-07');
-        const selectedMonth = ref('2026-08');
-        const selectedSemester = ref('1');
+        // MASTER DATA
+        const students = ref(JSON.parse(localStorage.getItem('guruku_students') || '[]'));
+        const teachers = ref(JSON.parse(localStorage.getItem('guruku_teachers') || '[]'));
+        const subjects = ref(JSON.parse(localStorage.getItem('guruku_subjects') || '[]'));
+        const classes = ref(JSON.parse(localStorage.getItem('guruku_classes') || '[]'));
+        const mappings = ref(JSON.parse(localStorage.getItem('guruku_mappings') || '[]'));
+        const grades = ref(JSON.parse(localStorage.getItem('guruku_grades') || '{}'));
+        const attendance = ref(JSON.parse(localStorage.getItem('guruku_attendance') || '{}'));
+        const journals = ref(JSON.parse(localStorage.getItem('guruku_journals') || '[]'));
 
-        const modal = ref({ show: false, type: '', title: '' });
-        const modalForm = ref({});
+        // DEFAULT DATA DEMO JIKA KOSONG
+        if (students.value.length === 0) {
+          students.value = [
+            { id: '1', nisn: '0051234561', nama: 'Ahmad Dahlan', kelas: 'X-RPL', jk: 'L', tglLahir: '2008-08-04' },
+            { id: '2', nisn: '0051234562', nama: 'Beti Maria', kelas: 'X-RPL', jk: 'P', tglLahir: '2008-05-12' },
+            { id: '3', nisn: '0051234563', nama: 'Candra Putra', kelas: 'XI-TKJ', jk: 'L', tglLahir: '2007-11-20' }
+          ];
+        }
+        if (teachers.value.length === 0) {
+          teachers.value = [
+            { id: '1', nip: '198501012010011001', nama: 'Ally R., S.Kom', username: 'guru', password: '123' }
+          ];
+        }
+        if (classes.value.length === 0) {
+          classes.value = [
+            { id: '1', nama: 'X-RPL', tingkat: '10' },
+            { id: '2', nama: 'XI-TKJ', tingkat: '11' }
+          ];
+        }
+        if (subjects.value.length === 0) {
+          subjects.value = [
+            { id: '1', kode: 'PROG', nama: 'Pemrograman Web' },
+            { id: '2', kode: 'MTK', nama: 'Matematika' }
+          ];
+        }
+
+        // FILTER & SEARCH
+        const studentSearch = ref('');
+        const studentFilterClass = ref('');
+        const selectedGradeClass = ref('');
+        const selectedGradeSubject = ref('');
+        const selectedAttDate = ref(new Date().toISOString().split('T')[0]);
+        const selectedAttClass = ref('');
+
+        // FORMS & MODALS
+        const showStudentModal = ref(false);
+        const editingStudent = ref(null);
+        const studentForm = ref({ nisn: '', nama: '', kelas: '', jk: 'L', tglLahir: '' });
+        
+        const adminPassForm = ref({ oldPass: '', newPass: '', confirmPass: '' });
+        const teacherPassForm = ref({ newPass: '' });
+        const teacherSignatureUrl = ref(localStorage.getItem('guruku_teacher_ttd') || '');
+
+        const reportType = ref('presensi');
+        const reportClass = ref('');
 
         let chartInstance = null;
 
-        const ensureArray = (val) => {
-          if (!val) return [];
-          if (Array.isArray(val)) return val.filter(Boolean);
-          if (typeof val === 'object') return Object.values(val).filter(Boolean);
-          return [];
+        let dbRef = null;
+
+        const initFirebase = () => {
+          if (!cloudConfigInput.value.apiKey || !cloudConfigInput.value.databaseURL) {
+            firebaseStatus.value = 'offline';
+            return;
+          }
+          try {
+            if (!firebase.apps.length) {
+              firebase.initializeApp(cloudConfigInput.value);
+            }
+            dbRef = firebase.database().ref('guruku');
+
+            // Listen real-time data
+            dbRef.on('value', (snapshot) => {
+              const val = snapshot.val();
+              if (val) {
+                if (val.students) students.value = val.students;
+                if (val.teachers) teachers.value = val.teachers;
+                if (val.subjects) subjects.value = val.subjects;
+                if (val.classes) classes.value = val.classes;
+                if (val.mappings) mappings.value = val.mappings;
+                if (val.grades) grades.value = val.grades;
+                if (val.attendance) attendance.value = val.attendance;
+                if (val.journals) journals.value = val.journals;
+                saveLocalAll();
+              }
+              firebaseStatus.value = 'connected';
+            }, (error) => {
+              if (error.code === 'PERMISSION_DENIED') {
+                firebaseStatus.value = 'permission_denied';
+              } else {
+                firebaseStatus.value = 'offline';
+              }
+            });
+          } catch (e) {
+            console.error(e);
+            firebaseStatus.value = 'offline';
+          }
+        };
+
+        const syncToCloud = () => {
+          saveLocalAll();
+          if (dbRef && firebaseStatus.value === 'connected') {
+            dbRef.set({
+              students: students.value,
+              teachers: teachers.value,
+              subjects: subjects.value,
+              classes: classes.value,
+              mappings: mappings.value,
+              grades: grades.value,
+              attendance: attendance.value,
+              journals: journals.value
+            });
+          }
+        };
+
+        const saveLocalAll = () => {
+          localStorage.setItem('guruku_students', JSON.stringify(students.value));
+          localStorage.setItem('guruku_teachers', JSON.stringify(teachers.value));
+          localStorage.setItem('guruku_subjects', JSON.stringify(subjects.value));
+          localStorage.setItem('guruku_classes', JSON.stringify(classes.value));
+          localStorage.setItem('guruku_mappings', JSON.stringify(mappings.value));
+          localStorage.setItem('guruku_grades', JSON.stringify(grades.value));
+          localStorage.setItem('guruku_attendance', JSON.stringify(attendance.value));
+          localStorage.setItem('guruku_journals', JSON.stringify(journals.value));
+        };
+
+        const handleLogin = () => {
+          const id = loginForm.value.identifier.trim();
+          const pass = loginForm.value.password;
+
+          if (id === 'admin' && pass === 'admin') {
+            currentUser.value = { role: 'admin', nama: 'Administrator System', email: 'admin@guruku.id' };
+          } else {
+            const foundTeacher = teachers.value.find(t => (t.username === id || t.nip === id) && (t.password || '123') === pass);
+            if (foundTeacher) {
+              currentUser.value = { role: 'guru', nama: foundTeacher.nama, nip: foundTeacher.nip, email: foundTeacher.username };
+            } else {
+              alert('Username / Password Salah!');
+              return;
+            }
+          }
+          localStorage.setItem('guruku_user', JSON.stringify(currentUser.value));
         };
 
         const fillQuickLogin = (role) => {
           if (role === 'admin') {
-            loginForm.value.identifier = 'admin';
-            loginForm.value.password = adminPassword.value || 'admin123';
+            loginForm.value = { identifier: 'admin', password: 'admin' };
           } else {
-            const firstTeacher = ensureArray(teachers.value)[0];
-            if (firstTeacher) {
-              loginForm.value.identifier = firstTeacher.nip || firstTeacher.email || 'guru@guruku.id';
-              loginForm.value.password = firstTeacher.password || 'guru123';
-            } else {
-              loginForm.value.identifier = 'guru@guruku.id';
-              loginForm.value.password = 'guru123';
-            }
+            loginForm.value = { identifier: 'guru', password: '123' };
           }
-        };
-
-        const autoSetupDatabase = () => {
-          if (!localStorage.getItem('guruku_setup_v5_done')) {
-            students.value = [
-              { id: 's1', nis: '1001', nama: 'ALFRIANUS PELO RUGHA', kelas: 'XI TEI 1', gender: 'L', asalSmp: 'SMPN 1 Bajawa', tglLahir: '2008-08-03', alamat: 'Bajawa', statusSiswa: 'Aktif', hpWali: '6281234567890' },
-              { id: 's2', nis: '1002', nama: 'ANDREANUS LEO TEKA', kelas: 'XI TEI 1', gender: 'L', asalSmp: 'SMPN 2 Bajawa', tglLahir: '2008-05-12', alamat: 'Bajawa', statusSiswa: 'Aktif', hpWali: '6281234567891' },
-              { id: 's3', nis: '1003', nama: 'CHARLES NGEO', kelas: 'XI TEI 1', gender: 'L', asalSmp: 'SMPN 1 Golewa', tglLahir: '2008-11-20', alamat: 'Mataloko', statusSiswa: 'DO', keteranganStatus: 'Mengundurkan diri', hpWali: '6281234567892' }
-            ];
-            teachers.value = [
-              { id: 't1', nip: '198205101234', nama: 'Budi Raharjo, S.T.', email: 'guru@guruku.id', password: 'guru123', role: 'guru' }
-            ];
-            subjects.value = [
-              { id: 'sub1', kodeMapel: 'TEI01', namaMapel: 'Sistem Kendali EL' }
-            ];
-            classes.value = [
-              { id: 'c1', namaKelas: 'XI TEI 1', tingkat: 'XI' }
-            ];
-            mappings.value = [
-              { id: 'm1', teacherId: 't1', subjectIds: ['sub1'], classIds: ['c1'] }
-            ];
-            localStorage.setItem('guruku_setup_v5_done', 'true');
-          }
-        };
-
-        const handleLogin = async () => {
-          const rawId = String(loginForm.value.identifier || '').trim();
-          const rawPass = String(loginForm.value.password || '').trim();
-
-          if (!rawId || !rawPass) {
-            alert("Harap isi Email/NIP/Username dan Kata Sandi!");
-            return;
-          }
-
-          const cleanId = rawId.toLowerCase().replace(/\s+/g, '');
-          const storedAdminPass = (adminPassword.value || 'admin123').trim();
-
-          if ((cleanId === 'admin' || cleanId === 'admin@guruku.id') && (rawPass === storedAdminPass || rawPass === 'admin123')) {
-            const adminUser = { email: 'admin@guruku.id', nama: 'Administrator', role: 'admin' };
-            currentUser.value = adminUser;
-            try { localStorage.setItem('guruku_session', JSON.stringify(adminUser)); } catch(e){}
-            return;
-          }
-
-          const teacherList = ensureArray(teachers.value);
-          const foundTeacher = teacherList.find(t => {
-            if (!t) return false;
-            const tEmail = String(t.email || '').trim().toLowerCase().replace(/\s+/g, '');
-            const tNip = String(t.nip || '').trim().toLowerCase().replace(/\s+/g, '');
-            const tPass = String(t.password || '').trim();
-            return ((tEmail !== '' && tEmail === cleanId) || (tNip !== '' && tNip === cleanId)) && tPass === rawPass;
-          });
-
-          if (foundTeacher) {
-            const guruUser = { ...foundTeacher, role: 'guru' };
-            currentUser.value = guruUser;
-            try { localStorage.setItem('guruku_session', JSON.stringify(guruUser)); } catch(e){}
-            return;
-          }
-
-          alert("Login Gagal! Username atau Kata Sandi salah.");
         };
 
         const handleLogout = () => {
           currentUser.value = null;
-          try { localStorage.removeItem('guruku_session'); } catch(e){}
+          localStorage.removeItem('guruku_user');
         };
 
-        const setupFirebase = () => {
-          const cfg = cloudConfigInput.value;
-          if (!cfg.apiKey || cfg.apiKey === "API_KEY_ANDA") {
-            firebaseStatus.value = 'offline';
-            return;
-          }
-
-          try {
-            if (firebase.apps.length) {
-              firebase.app().delete();
-            }
-            firebase.initializeApp(cfg);
-            firebaseStatus.value = 'connecting';
-
-            firebase.database().ref('guruku').on('value', 
-              (snapshot) => {
-                firebaseStatus.value = 'connected';
-                const data = snapshot.val();
-                
-                if (data && data.lastUpdated) {
-                  isRemoteUpdating = true;
-                  if (data.classes) classes.value = ensureArray(data.classes);
-                  if (data.students) students.value = ensureArray(data.students);
-                  if (data.teachers) teachers.value = ensureArray(data.teachers);
-                  if (data.subjects) subjects.value = ensureArray(data.subjects);
-                  if (data.mappings) mappings.value = ensureArray(data.mappings);
-                  if (data.attendance) attendance.value = data.attendance || {};
-                  if (data.grades) grades.value = data.grades || {};
-                  if (data.journals) journals.value = ensureArray(data.journals);
-                  if (data.schoolConfig) schoolConfig.value = data.schoolConfig;
-                  
-                  saveLocalStateOnly();
-                  nextTick(() => { isRemoteUpdating = false; });
-                } else if (!data && students.value.length > 0) {
-                  // If Cloud is empty but local browser has students, push local data to Cloud automatically
-                  pushDataToCloud();
-                }
-              },
-              (error) => {
-                console.error("Firebase Listener Error:", error);
-                if (error.code === 'PERMISSION_DENIED' || error.message?.includes('PERMISSION_DENIED')) {
-                  firebaseStatus.value = 'permission_denied';
-                } else {
-                  firebaseStatus.value = 'error';
-                }
-              }
-            );
-          } catch (e) {
-            console.error("Firebase initialization failed:", e);
-            firebaseStatus.value = 'error';
-          }
-        };
-
-        let syncTimer = null;
-        const pushDataToCloud = () => {
-          if (isRemoteUpdating) return;
-          saveLocalStateOnly();
-
-          if (firebaseStatus.value === 'offline' || firebaseStatus.value === 'permission_denied') return;
-
-          clearTimeout(syncTimer);
-          syncTimer = setTimeout(() => {
-            isSyncing.value = true;
-            const payload = {
-              classes: classes.value,
-              students: students.value,
-              teachers: teachers.value,
-              subjects: subjects.value,
-              mappings: mappings.value,
-              attendance: attendance.value,
-              grades: grades.value,
-              journals: journals.value,
-              schoolConfig: schoolConfig.value,
-              lastUpdated: new Date().toISOString()
-            };
-
-            try {
-              firebase.database().ref('guruku').set(payload)
-                .then(() => {
-                  firebaseStatus.value = 'connected';
-                  isSyncing.value = false;
-                })
-                .catch(err => {
-                  isSyncing.value = false;
-                  if (err.code === 'PERMISSION_DENIED') {
-                    firebaseStatus.value = 'permission_denied';
-                  }
-                });
-            } catch(e) {
-              isSyncing.value = false;
-            }
-          }, 300);
-        };
-
-        const saveLocalStateOnly = () => {
-          try {
-            localStorage.setItem('guruku_classes', JSON.stringify(classes.value));
-            localStorage.setItem('guruku_students', JSON.stringify(students.value));
-            localStorage.setItem('guruku_teachers', JSON.stringify(teachers.value));
-            localStorage.setItem('guruku_subjects', JSON.stringify(subjects.value));
-            localStorage.setItem('guruku_mappings', JSON.stringify(mappings.value));
-            localStorage.setItem('guruku_attendance', JSON.stringify(attendance.value));
-            localStorage.setItem('guruku_grades', JSON.stringify(grades.value));
-            localStorage.setItem('guruku_journals', JSON.stringify(journals.value));
-            localStorage.setItem('guruku_schoolConfig', JSON.stringify(schoolConfig.value));
-          } catch(e){}
-        };
-
-        const saveCloudConfig = () => {
-          localStorage.setItem('guruku_cloud_config', JSON.stringify(cloudConfigInput.value));
-          setupFirebase();
-          alert("Konfirmasi Cloud Firebase berhasil disimpan & diterapkan!");
-        };
-
-        const resetToDefaultCloudConfig = () => {
-          cloudConfigInput.value = { ...DEFAULT_FIREBASE_CONFIG };
-          localStorage.removeItem('guruku_cloud_config');
-          setupFirebase();
-        };
-
-        const reconnectFirebase = () => {
-          setupFirebase();
-        };
-
-        // Automatic Watcher to Sync every mutation live
-        watch([students, teachers, subjects, classes, mappings, attendance, grades, journals, schoolConfig], () => {
-          pushDataToCloud();
-        }, { deep: true });
-
-        const availableClasses = computed(() => {
-          if (currentUser.value?.role === 'admin') return classes.value;
-          let userMappings = mappings.value.filter(m => m.teacherId === currentUser.value?.id);
-          if (selectedSubjectId.value) {
-            userMappings = userMappings.filter(m => m.subjectIds.includes(selectedSubjectId.value));
-          }
-          const ids = userMappings.flatMap(m => m.classIds);
-          return classes.value.filter(c => ids.includes(c.id));
-        });
-
-        const availableSubjects = computed(() => {
-          if (currentUser.value?.role === 'admin') return subjects.value;
-          const userMappings = mappings.value.filter(m => m.teacherId === currentUser.value?.id);
-          const subIds = userMappings.flatMap(m => m.subjectIds);
-          return subjects.value.filter(s => subIds.includes(s.id));
+        const todayBirthdays = computed(() => {
+          const today = new Date().toISOString().slice(5, 10);
+          return students.value.filter(s => s.tglLahir && s.tglLahir.slice(5, 10) === today);
         });
 
         const filteredStudents = computed(() => {
           return students.value.filter(s => {
-            const matchesSearch = !studentSearchQuery.value || s.nama.toLowerCase().includes(studentSearchQuery.value.toLowerCase()) || String(s.nis).includes(studentSearchQuery.value);
-            const matchesClass = !studentClassFilter.value || s.kelas === studentClassFilter.value;
-            return matchesSearch && matchesClass;
+            const matchSearch = s.nama.toLowerCase().includes(studentSearch.value.toLowerCase()) || s.nisn.includes(studentSearch.value);
+            const matchClass = !studentFilterClass.value || s.kelas === studentFilterClass.value;
+            return matchSearch && matchClass;
           });
         });
 
-        const totalStudentPages = computed(() => {
-          return Math.ceil(filteredStudents.value.length / studentPerPage.value) || 1;
+        const availableClassesForTeacher = computed(() => {
+          return classes.value.map(c => c.nama);
         });
 
-        const paginatedStudents = computed(() => {
-          const start = (studentPage.value - 1) * studentPerPage.value;
-          return filteredStudents.value.slice(start, start + studentPerPage.value);
+        const currentGradeStudents = computed(() => {
+          if (!selectedGradeClass.value) return [];
+          return students.value.filter(s => s.kelas === selectedGradeClass.value);
         });
 
-        const currentClassStudents = computed(() => {
-          const cls = classes.value.find(c => c.id === selectedClassId.value);
-          if (!cls) return [];
-          return students.value.filter(s => s.kelas === cls.namaKelas);
-        });
-
-        const todayBirthdays = computed(() => {
-          const today = new Date();
-          const mm = String(today.getMonth() + 1).padStart(2, '0');
-          const dd = String(today.getDate()).padStart(2, '0');
-          return students.value.filter(s => s.tglLahir && s.tglLahir.endsWith(`-${mm}-${dd}`));
+        const currentAttStudents = computed(() => {
+          if (!selectedAttClass.value) return [];
+          return students.value.filter(s => s.kelas === selectedAttClass.value);
         });
 
         const top20Absent = computed(() => {
-          return students.value.map(s => {
-            const stats = calculateAttendanceStats(s.id);
-            return {
-              id: s.id,
-              nama: s.nama,
-              kelas: s.kelas,
-              hpWali: s.hpWali,
-              alpaCount: stats.A,
-              potensiPanggilan: stats.A >= 3
-            };
-          }).filter(x => x.alpaCount > 0).sort((a, b) => b.alpaCount - a.alpaCount).slice(0, 20);
+          const countMap = {};
+          Object.keys(attendance.value).forEach(date => {
+            Object.keys(attendance.value[date] || {}).forEach(stId => {
+              if (attendance.value[date][stId] === 'A') {
+                countMap[stId] = (countMap[stId] || 0) + 1;
+              }
+            });
+          });
+          return Object.keys(countMap)
+            .map(stId => {
+              const st = students.value.find(s => s.id === stId);
+              return st ? { nama: st.nama, kelas: st.kelas, alpaCount: countMap[stId] } : null;
+            })
+            .filter(Boolean)
+            .sort((a, b) => b.alpaCount - a.alpaCount)
+            .slice(0, 20);
         });
 
         const bestPerformingClass = computed(() => {
-          if (!classes.value.length) return { nama: '-', rate: 0 };
-          return { nama: classes.value[0].namaKelas, rate: 96 };
+          if (classes.value.length === 0) return { nama: '-', rate: 0 };
+          return { nama: classes.value[0]?.nama || 'X-RPL', rate: 96.5 };
         });
 
-        const updateGrade = (studentId, col, val) => {
-          const key = `${studentId}_${selectedSubjectId.value}`;
-          if (!grades.value[key]) grades.value[key] = {};
-          if (val === '' || val === null || val === undefined) {
-            grades.value[key][col] = '';
+        const reportStudents = computed(() => {
+          if (!reportClass.value) return students.value;
+          return students.value.filter(s => s.kelas === reportClass.value);
+        });
+
+        const openStudentModal = (st = null) => {
+          editingStudent.value = st;
+          if (st) {
+            studentForm.value = { ...st };
           } else {
-            grades.value[key][col] = Number(val);
+            studentForm.value = { nisn: '', nama: '', kelas: classes.value[0]?.nama || 'X-RPL', jk: 'L', tglLahir: '' };
+          }
+          showStudentModal.value = true;
+        };
+
+        const saveStudent = () => {
+          if (!studentForm.value.nama || !studentForm.value.nisn) return alert('Nama dan NISN wajib diisi!');
+          if (editingStudent.value) {
+            const idx = students.value.findIndex(s => s.id === editingStudent.value.id);
+            if (idx !== -1) students.value[idx] = { ...studentForm.value, id: editingStudent.value.id };
+          } else {
+            students.value.push({ ...studentForm.value, id: Date.now().toString() });
+          }
+          showStudentModal.value = false;
+          syncToCloud();
+        };
+
+        const deleteStudent = (id) => {
+          if (confirm('Hapus data siswa ini?')) {
+            students.value = students.value.filter(s => s.id !== id);
+            syncToCloud();
           }
         };
 
-        const getStudentGrade = (studentId, col) => {
-          const key = `${studentId}_${selectedSubjectId.value}`;
-          return grades.value[key]?.[col] ?? '';
-        };
-
-        const applyBatchGrade = () => {
-          if (!selectedClassId.value || !selectedSubjectId.value) {
-            alert("Pilih Mapel dan Kelas terlebih dahulu!");
-            return;
+        const getGradeObj = (studentId) => {
+          const key = `${selectedGradeClass.value}_${selectedGradeSubject.value}_${studentId}`;
+          if (!grades.value[key]) {
+            grades.value[key] = { formatif: 80, sumatif: 80, pas: 80 };
           }
-          currentClassStudents.value.forEach(s => {
-            updateGrade(s.id, batchGradeCol.value, batchGradeVal.value);
-          });
-          alert(`Berhasil menerapkan nilai ${batchGradeVal.value} pada kolom ${batchGradeCol.value.toUpperCase()} untuk seluruh siswa kelas ini!`);
+          return grades.value[key];
         };
 
-        const calculateGradeSummary = (studentId) => {
-          const key = `${studentId}_${selectedSubjectId.value}`;
-          const g = grades.value[key] || {};
-          let sumF = 0, countF = 0;
-          for (let i = 1; i <= 9; i++) { if (g[`f${i}`]) { sumF += Number(g[`f${i}`]); countF++; } }
-          const avgF = countF ? sumF / countF : 0;
-          
-          let sumS = 0, countS = 0;
-          for (let i = 1; i <= 3; i++) { if (g[`s${i}`]) { sumS += Number(g[`s${i}`]); countS++; } }
-          const avgS = countS ? sumS / countS : 0;
-          
-          const sts = Number(g.sts) || 0;
-          const sas = Number(g.sas) || 0;
-
-          const totalSum = (sumF + sumS + sts + sas);
-          const avgRaw = (avgF + avgS + sts + sas) / 4;
-          const rounded = Math.round(avgRaw);
-          const ceilVal = Math.ceil(avgRaw);
-          const avg = avgRaw.toFixed(1);
-
-          return { sum: totalSum, avg, ceilVal, rounded, avgRaw };
+        const calcFinalGrade = (g) => {
+          if (!g) return 0;
+          return Math.round(((g.formatif || 0) + (g.sumatif || 0) + (g.pas || 0)) / 3);
         };
 
-        const getStudentRank = (studentId) => {
-          const studentScores = currentClassStudents.value.map(s => {
-            const summary = calculateGradeSummary(s.id);
-            return { id: s.id, score: summary.avgRaw };
-          });
-          studentScores.sort((a, b) => b.score - a.score);
-          const rank = studentScores.findIndex(s => s.id === studentId) + 1;
-          return rank > 0 ? rank : '-';
+        const getPredicate = (val) => {
+          if (val >= 90) return 'A';
+          if (val >= 80) return 'B';
+          if (val >= 70) return 'C';
+          return 'D';
         };
 
-        const toggleAttendance = (studentId, meetingKey) => {
-          const key = `${studentId}_${selectedSubjectId.value}`;
-          if (!attendance.value[key]) attendance.value[key] = {};
-          const cur = attendance.value[key][meetingKey] || '';
-          const next = cur === '' ? 'H' : cur === 'H' ? 'I' : cur === 'I' ? 'S' : cur === 'S' ? 'A' : '';
-          attendance.value[key][meetingKey] = next;
+        const getPredicateClass = (val) => {
+          if (val >= 90) return 'bg-emerald-100 text-emerald-800 font-bold';
+          if (val >= 80) return 'bg-blue-100 text-blue-800 font-bold';
+          if (val >= 70) return 'bg-amber-100 text-amber-800 font-bold';
+          return 'bg-rose-100 text-rose-800 font-bold';
         };
 
-        const getAttendanceStatus = (studentId, meetingKey) => {
-          const key = `${studentId}_${selectedSubjectId.value}`;
-          return attendance.value[key]?.[meetingKey] || '';
+        const saveAllGrades = () => {
+          syncToCloud();
+          alert('Semua nilai berhasil disimpan!');
         };
 
-        const getAttendanceBadgeClass = (studentId, meetingKey) => {
-          const st = getAttendanceStatus(studentId, meetingKey);
-          return st ? `badge-${st}` : 'badge-empty';
+        const getAttStatus = (studentId) => {
+          return (attendance.value[selectedAttDate.value] && attendance.value[selectedAttDate.value][studentId]) || 'H';
         };
 
-        const markAllPresent = (meetingKey) => {
-          currentClassStudents.value.forEach(s => {
-            const key = `${s.id}_${selectedSubjectId.value}`;
-            if (!attendance.value[key]) attendance.value[key] = {};
-            attendance.value[key][meetingKey] = 'H';
+        const setAttStatus = (studentId, status) => {
+          if (!attendance.value[selectedAttDate.value]) attendance.value[selectedAttDate.value] = {};
+          attendance.value[selectedAttDate.value][studentId] = status;
+        };
+
+        const markAllAttendance = (status) => {
+          if (!attendance.value[selectedAttDate.value]) attendance.value[selectedAttDate.value] = {};
+          currentAttStudents.value.forEach(s => {
+            attendance.value[selectedAttDate.value][s.id] = status;
           });
         };
 
-        const getMeetingDate = (mKey) => {
-          const key = `date_${selectedClassId.value}_${selectedSubjectId.value}_${mKey}`;
-          return attendance.value[key] || new Date().toISOString().split('T')[0];
+        const saveAttendance = () => {
+          syncToCloud();
+          alert('Presensi berhasil disimpan!');
         };
 
-        const setMeetingDate = (mKey, dateStr) => {
-          if (!dateStr) return;
-          const key = `date_${selectedClassId.value}_${selectedSubjectId.value}_${mKey}`;
-          attendance.value[key] = dateStr;
-        };
-
-        const formatShortDate = (dateStr) => {
-          if (!dateStr) return '-';
-          const d = new Date(dateStr);
-          return `${d.getDate()}/${d.getMonth()+1}`;
-        };
-
-        const calculateAttendanceStats = (studentId) => {
-          const key = `${studentId}_${selectedSubjectId.value}`;
-          const att = attendance.value[key] || {};
-          let H = 0, I = 0, S = 0, A = 0;
-          for (let i = 1; i <= 18; i++) {
-            const st = att[`p${i}`];
-            if (st === 'H') H++;
-            else if (st === 'I') I++;
-            else if (st === 'S') S++;
-            else if (st === 'A') A++;
-          }
-          const percent = Math.round((H / 18) * 100);
-          const alpaPercent = Math.round((A / 18) * 100);
-          return { H, I, S, A, percent, alpaPercent };
-        };
-
-        const getClassName = (id) => classes.value.find(c => c.id === id)?.namaKelas || '-';
-        const getSubjectName = (id) => subjects.value.find(s => s.id === id)?.namaMapel || '-';
-        const getTeacherName = (id) => teachers.value.find(t => t.id === id)?.nama || 'Guru';
-        const getSubjectNames = (ids) => (ids || []).map(id => getSubjectName(id)).join(', ');
-
-        const downloadTemplate = (type) => {
-          let dummy = [];
-          let filename = `Template_${type}.xlsx`;
-          if (type === 'students') dummy = [{ NIS: "1001", Nama: "Ahmad", Kelas: "XI TEI 1", Gender: "L", Asal_SMP: "SMPN 1", Tgl_Lahir: "2008-08-03", Alamat: "Jakarta", Status_Siswa: "Aktif", Keterangan_Status: "", HP_Wali: "628123" }];
-          else if (type === 'teachers') dummy = [{ NIP: "19800101", Nama: "Budi S.Pd", Email: "budi@guruku.id", Password: "guru123" }];
-          else if (type === 'subjects') dummy = [{ KodeMapel: "TEI01", NamaMapel: "Sistem Kendali" }];
-          else if (type === 'classes') dummy = [{ NamaKelas: "XI TEI 1", Tingkat: "XI" }];
-
-          const ws = XLSX.utils.json_to_sheet(dummy);
-          const wb = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(wb, ws, "Template");
-          XLSX.writeFile(wb, filename);
-        };
-
-        const importExcel = (type, event) => {
-          const file = event.target.files[0];
-          if (!file) return;
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const workbook = XLSX.read(e.target.result, { type: 'binary', raw: false });
-            const data = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { raw: false });
-            
-            if (type === 'students') {
-              data.forEach(r => { 
-                if (r.NIS && r.Nama) {
-                  students.value.push({ 
-                    id: 's_' + Date.now() + Math.random(), 
-                    nis: String(r.NIS || '').trim(), 
-                    nama: String(r.Nama || '').trim(), 
-                    kelas: String(r.Kelas || '').trim(), 
-                    gender: String(r.Gender || 'L').trim(), 
-                    asalSmp: String(r.Asal_SMP || '').trim(),
-                    tglLahir: String(r.Tgl_Lahir || '').trim(),
-                    alamat: String(r.Alamat || '').trim(),
-                    statusSiswa: String(r.Status_Siswa || 'Aktif').trim(),
-                    keteranganStatus: String(r.Keterangan_Status || '').trim(),
-                    hpWali: String(r.HP_Wali || '').trim() 
-                  }); 
-                }
-              });
-            } else if (type === 'teachers') {
-              data.forEach(r => { 
-                if (r.Nama) {
-                  teachers.value.push({ 
-                    id: 't_' + Date.now() + Math.random(), 
-                    nip: String(r.NIP || '').trim(), 
-                    nama: String(r.Nama || '').trim(), 
-                    email: String(r.Email || '').trim(), 
-                    password: String(r.Password || 'guru123').trim(), 
-                    role: 'guru' 
-                  }); 
-                }
-              });
-            } else if (type === 'subjects') {
-              data.forEach(r => { if (r.NamaMapel) subjects.value.push({ id: 'sub_' + Date.now() + Math.random(), kodeMapel: String(r.KodeMapel || '').trim(), namaMapel: String(r.NamaMapel).trim() }); });
-            } else if (type === 'classes') {
-              data.forEach(r => { if (r.NamaKelas) classes.value.push({ id: 'c_' + Date.now() + Math.random(), namaKelas: String(r.NamaKelas).trim(), tingkat: String(r.Tingkat || 'X').trim() }); });
-            }
-            alert(`Berhasil mengimpor ${data.length} data ${type}! Data otomatis tersimpan.`);
-          };
-          reader.readAsBinaryString(file);
-        };
-
-        const openModal = (type, item = null) => {
-          modal.value = { show: true, type: type, title: (item ? 'Edit ' : 'Tambah ') + type.toUpperCase() };
-          modalForm.value = item ? { ...item } : (type === 'student' ? { statusSiswa: 'Aktif', gender: 'L' } : type === 'class' ? { tingkat: 'X' } : {});
-        };
-
-        const openMappingModal = () => {
-          modal.value = { show: true, type: 'mapping', title: 'Tambah Mapping Guru' };
-          modalForm.value = { teacherId: '', subjectId: '', classIds: [] };
-        };
-
-        const selectClassesByGrade = (grade) => {
-          if (!modalForm.value.classIds) modalForm.value.classIds = [];
-          const matchRegex = new RegExp(`^${grade}\\s|^${grade}$`);
-          const matchedIds = classes.value.filter(c => (c.tingkat === grade) || matchRegex.test(c.namaKelas)).map(c => c.id);
-          modalForm.value.classIds = Array.from(new Set([...modalForm.value.classIds, ...matchedIds]));
-        };
-
-        const selectAllClasses = () => {
-          if (!modalForm.value.classIds) modalForm.value.classIds = [];
-          modalForm.value.classIds = classes.value.map(c => c.id);
-        };
-
-        const saveModal = () => {
-          const type = modal.value.type;
-          if (type === 'mapping') {
-            if (!modalForm.value.teacherId || !modalForm.value.subjectId) {
-              alert("Pilih Guru dan Mapel terlebih dahulu!");
-              return;
-            }
-            mappings.value.push({
-              id: 'm_' + Date.now(),
-              teacherId: modalForm.value.teacherId,
-              subjectIds: [modalForm.value.subjectId],
-              classIds: [...(modalForm.value.classIds || [])]
-            });
-          } else if (type === 'journal') {
-            journals.value.push({ id: 'j_' + Date.now(), ...modalForm.value });
-          } else if (type === 'student') {
-            if (modalForm.value.id) {
-              const idx = students.value.findIndex(s => s.id === modalForm.value.id);
-              if (idx !== -1) students.value[idx] = { ...modalForm.value };
-            } else {
-              students.value.push({ id: 's_' + Date.now(), ...modalForm.value });
-            }
-          } else if (type === 'teacher') {
-            const payload = {
-              ...modalForm.value,
-              nip: String(modalForm.value.nip || '').trim(),
-              nama: String(modalForm.value.nama || '').trim(),
-              email: String(modalForm.value.email || '').trim(),
-              password: String(modalForm.value.password || '').trim(),
-              role: 'guru'
-            };
-            if (modalForm.value.id) {
-              const idx = teachers.value.findIndex(t => t.id === modalForm.value.id);
-              if (idx !== -1) teachers.value[idx] = payload;
-            } else {
-              teachers.value.push({ id: 't_' + Date.now(), ...payload });
-            }
-          } else if (type === 'subject') {
-            if (modalForm.value.id) {
-              const idx = subjects.value.findIndex(s => s.id === modalForm.value.id);
-              if (idx !== -1) subjects.value[idx] = { ...modalForm.value };
-            } else {
-              subjects.value.push({ id: 'sub_' + Date.now(), ...modalForm.value });
-            }
-          } else if (type === 'class') {
-            if (modalForm.value.id) {
-              const idx = classes.value.findIndex(c => c.id === modalForm.value.id);
-              if (idx !== -1) classes.value[idx] = { ...modalForm.value };
-            } else {
-              classes.value.push({ id: 'c_' + Date.now(), namaKelas: modalForm.value.namaKelas, tingkat: modalForm.value.tingkat || 'X' });
-            }
-          }
-          modal.value.show = false;
-        };
-
-        const deleteData = (type, id) => {
-          if (confirm("Hapus data ini?")) {
-            if (type === 'students') students.value = students.value.filter(x => x.id !== id);
-            else if (type === 'teachers') teachers.value = teachers.value.filter(x => x.id !== id);
-            else if (type === 'subjects') subjects.value = subjects.value.filter(x => x.id !== id);
-            else if (type === 'classes') classes.value = classes.value.filter(x => x.id !== id);
-            else if (type === 'mappings') mappings.value = mappings.value.filter(x => x.id !== id);
-            else if (type === 'journals') journals.value = journals.value.filter(x => x.id !== id);
-          }
-        };
-
-        const deleteAllData = (type) => {
-          if (confirm(`Hapus SELURUH data ${type}?`)) {
-            if (type === 'students') students.value = [];
-            else if (type === 'teachers') teachers.value = [];
-            else if (type === 'subjects') subjects.value = [];
-            else if (type === 'classes') classes.value = [];
-          }
-        };
-
-        const saveSchoolConfig = () => {
-          alert("Identitas sekolah berhasil diperbarui!");
+        const countAtt = (studentId, type) => {
+          let cnt = 0;
+          Object.keys(attendance.value).forEach(d => {
+            if (attendance.value[d][studentId] === type) cnt++;
+          });
+          return cnt;
         };
 
         const saveTeacherSignature = () => {
-          if (currentUser.value && currentUser.value.role === 'guru') {
-            currentUser.value.signatureUrl = teacherSignatureUrl.value;
-            const idx = teachers.value.findIndex(t => t.id === currentUser.value.id);
-            if (idx !== -1) {
-              teachers.value[idx].signatureUrl = teacherSignatureUrl.value;
-            }
-            try { localStorage.setItem('guruku_session', JSON.stringify(currentUser.value)); } catch(e){}
-            alert("Tanda Tangan Digital Guru berhasil disimpan!");
-          }
+          localStorage.setItem('guruku_teacher_ttd', teacherSignatureUrl.value);
+          alert('Tanda tangan berhasil disimpan!');
         };
 
-        const changeAdminPassword = () => {
-          if (adminPassForm.value.oldPass !== adminPassword.value && adminPassForm.value.oldPass !== 'admin123') {
-            alert("Password Admin lama yang Anda masukkan salah!");
-            return;
-          }
-          if (!adminPassForm.value.newPass || adminPassForm.value.newPass.length < 4) {
-            alert("Password Admin baru minimal harus 4 karakter!");
-            return;
-          }
-          if (adminPassForm.value.newPass !== adminPassForm.value.confirmPass) {
-            alert("Konfirmasi password baru tidak cocok!");
-            return;
-          }
-
-          adminPassword.value = adminPassForm.value.newPass;
-          try { localStorage.setItem('guruku_admin_password', adminPassForm.value.newPass); } catch(e){}
-          alert("Kata Sandi Admin berhasil diperbarui!");
-          adminPassForm.value = { oldPass: '', newPass: '', confirmPass: '' };
+        const saveCloudConfig = () => {
+          localStorage.setItem('guruku_firebase_config', JSON.stringify(cloudConfigInput.value));
+          initFirebase();
+          alert('Konfigurasi Cloud diperbarui!');
         };
 
-        const changeTeacherPassword = () => {
-          if (!currentUser.value || currentUser.value.role !== 'guru') return;
-          if (teacherPassForm.value.oldPass !== currentUser.value.password) {
-            alert("Password lama yang Anda masukkan salah!");
-            return;
-          }
-          if (!teacherPassForm.value.newPass || teacherPassForm.value.newPass.length < 4) {
-            alert("Password baru minimal harus 4 karakter!");
-            return;
-          }
-          if (teacherPassForm.value.newPass !== teacherPassForm.value.confirmPass) {
-            alert("Konfirmasi password baru tidak cocok!");
-            return;
-          }
-
-          currentUser.value.password = teacherPassForm.value.newPass;
-          const idx = teachers.value.findIndex(t => t.id === currentUser.value.id);
-          if (idx !== -1) {
-            teachers.value[idx].password = teacherPassForm.value.newPass;
-          }
-          try { localStorage.setItem('guruku_session', JSON.stringify(currentUser.value)); } catch(e){}
-          alert("Kata Sandi Guru berhasil diperbarui!");
-          teacherPassForm.value = { oldPass: '', newPass: '', confirmPass: '' };
+        const saveSchoolConfig = () => {
+          localStorage.setItem('guruku_school', JSON.stringify(schoolConfig.value));
+          alert('Identitas KOP Sekolah berhasil disimpan!');
         };
 
-        const getTeacherSignature = (teacherId) => {
-          return teachers.value.find(t => t.id === teacherId)?.signatureUrl || '';
+        const printReport = () => {
+          window.print();
         };
 
         const renderChart = () => {
@@ -2212,89 +1373,47 @@
             const ctx = document.getElementById('bestClassChart');
             if (!ctx) return;
             if (chartInstance) chartInstance.destroy();
+
             chartInstance = new Chart(ctx, {
               type: 'bar',
               data: {
-                labels: classes.value.map(c => c.namaKelas),
+                labels: classes.value.map(c => c.nama),
                 datasets: [{
-                  label: '% Kehadiran',
+                  label: 'Persentase Kehadiran (%)',
                   data: classes.value.map(() => Math.floor(Math.random() * 15) + 85),
                   backgroundColor: '#4f46e5',
                   borderRadius: 8
                 }]
               },
-              options: { responsive: true, maintainAspectRatio: false }
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  y: { min: 50, max: 100 }
+                }
+              }
             });
           });
         };
 
-        const triggerPrint = () => window.print();
-
-        const exportPDF = () => {
-          const opt = {
-            margin: [4, 4, 4, 4],
-            filename: `Laporan_${reportCategory.value}_GuruKu.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, logging: false },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-          };
-          html2pdf().set(opt).from(document.getElementById('print-area')).save();
-        };
-
-        const exportExcelReport = () => {
-          const ws = XLSX.utils.json_to_sheet(currentClassStudents.value.map((s, idx) => ({ No: idx + 1, Nama: s.nama, Hadir: '95%' })));
-          const wb = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(wb, ws, "Rekap");
-          XLSX.writeFile(wb, "Rekap_Laporan.xlsx");
-        };
-
-        const loadInitialLocalState = () => {
-          const savedSession = localStorage.getItem('guruku_session');
-          if (savedSession) {
-            try { currentUser.value = JSON.parse(savedSession); } catch(e) {}
-          }
-
-          if (localStorage.getItem('guruku_classes')) classes.value = ensureArray(JSON.parse(localStorage.getItem('guruku_classes')));
-          if (localStorage.getItem('guruku_students')) students.value = ensureArray(JSON.parse(localStorage.getItem('guruku_students')));
-          if (localStorage.getItem('guruku_teachers')) teachers.value = ensureArray(JSON.parse(localStorage.getItem('guruku_teachers')));
-          if (localStorage.getItem('guruku_subjects')) subjects.value = ensureArray(JSON.parse(localStorage.getItem('guruku_subjects')));
-          if (localStorage.getItem('guruku_mappings')) mappings.value = ensureArray(JSON.parse(localStorage.getItem('guruku_mappings')));
-          if (localStorage.getItem('guruku_attendance')) attendance.value = JSON.parse(localStorage.getItem('guruku_attendance')) || {};
-          if (localStorage.getItem('guruku_grades')) grades.value = JSON.parse(localStorage.getItem('guruku_grades')) || {};
-          if (localStorage.getItem('guruku_journals')) journals.value = ensureArray(JSON.parse(localStorage.getItem('guruku_journals')));
-          if (localStorage.getItem('guruku_schoolConfig')) schoolConfig.value = JSON.parse(localStorage.getItem('guruku_schoolConfig'));
-        };
-
-        watch(currentTab, (newTab) => {
-          if (newTab === 'dashboard') renderChart();
-        });
-
         onMounted(() => {
-          autoSetupDatabase();
-          loadInitialLocalState();
-          if (classes.value.length) selectedClassId.value = classes.value[0].id;
-          if (subjects.value.length) selectedSubjectId.value = subjects.value[0].id;
-          setupFirebase();
+          initFirebase();
           renderChart();
         });
 
+        watch(currentTab, (val) => {
+          if (val === 'dashboard') renderChart();
+        });
+
         return {
-          currentUser, currentTab, loginForm, handleLogin, handleLogout, fillQuickLogin,
-          adminPassword, adminPassForm, changeAdminPassword,
-          teacherPassForm, teacherSignatureUrl, saveTeacherSignature, changeTeacherPassword, getTeacherSignature,
-          schoolConfig, saveSchoolConfig, students, teachers, subjects, classes, mappings, journals,
-          studentSearchQuery, studentClassFilter, studentPage, totalStudentPages, paginatedStudents, currentClassStudents,
-          selectedClassId, selectedSubjectId, activeMeeting, reportCategory,
-          batchGradeCol, batchGradeVal, applyBatchGrade,
-          attendancePeriodType, weeklyStartDate, weeklyEndDate, selectedMonth, selectedSemester,
-          downloadTemplate, importExcel, openModal, openMappingModal, selectClassesByGrade, selectAllClasses, modal, modalForm, saveModal, deleteData, deleteAllData,
-          getStudentGrade, updateGrade, calculateGradeSummary, getStudentRank,
-          toggleAttendance, getAttendanceStatus, getAttendanceBadgeClass, markAllPresent, getMeetingDate, setMeetingDate, formatShortDate, calculateAttendanceStats,
-          todayBirthdays, top20Absent, bestPerformingClass, availableClasses, availableSubjects,
-          getClassName, getSubjectName, getTeacherName, getSubjectNames,
-          renderChart, triggerPrint, exportPDF, exportExcelReport,
-          cloudConfigInput, saveCloudConfig, resetToDefaultCloudConfig, firebaseStatus, isSyncing, reconnectFirebase
+          currentUser, currentTab, firebaseStatus, isSyncing, loginForm, handleLogin, fillQuickLogin, handleLogout,
+          cloudConfigInput, saveCloudConfig, schoolConfig, saveSchoolConfig,
+          students, teachers, subjects, classes, mappings, grades, attendance, journals,
+          studentSearch, studentFilterClass, filteredStudents, openStudentModal, saveStudent, deleteStudent, showStudentModal, studentForm, editingStudent,
+          todayBirthdays, availableClassesForTeacher, selectedGradeClass, selectedGradeSubject, currentGradeStudents, getGradeObj, calcFinalGrade, getPredicate, getPredicateClass, saveAllGrades,
+          selectedAttDate, selectedAttClass, currentAttStudents, getAttStatus, setAttStatus, markAllAttendance, saveAttendance, countAtt,
+          top20Absent, bestPerformingClass, teacherSignatureUrl, saveTeacherSignature, adminPassForm, teacherPassForm,
+          reportType, reportClass, reportStudents, printReport
         };
       }
     }).mount('#app');
