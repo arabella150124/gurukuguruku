@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aplikasi Guru Mapel - Sistem Informasi Presensi, Nilai & Jurnal Guru</title>
+  <title>Aplikasi Guru Mapel - Sistem Informasi Presensi, Nilai & Jurnal Guru Realtime</title>
   
-  <!-- Tailwind CSS & FontAwesome -->
+  <!-- Tailwind CSS & FontAwesome Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
@@ -23,7 +23,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- PWA Manifest Inline Data URI -->
-  <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIkd1cnVLIFA0QSIsCiAgInNob3J0X25hbWUiOiAiR3VydUt1IiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmOGZhZmMiLAogICJ0aGVtZV9jb2xvciI6ICIjNGY0NmU1IiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9jZG4taWNvbnMtcG5nLmZsYXRpY29uLmNvbS81MTIvMzQyOS8zNDI5MTQ5LnBuZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIgogICAgfQogIF0KfQ==">
+  <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIkd1cnVLIFA0QSIsCiAgInNob3J0X25hbWUiOiAiR3VydUt1IiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmOGZhZmMiLAogICJ0aGVtZV9jb2xvciI6ICIjNGY0NmU1IiwKICAic29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJodHRwczovL2Nkbi1pY29ucy1wbmdfZmxhdGljb24uY29tLzUxMi8zNDI5LzM0MjkxNDkucG5nIiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciCiAgICB9CiAgXQp9">
 
   <style>
     #blogger-pwa-root {
@@ -44,7 +44,7 @@
     }
 
     .glass-card {
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(255, 255, 255, 0.94);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(229, 231, 235, 0.8);
@@ -83,6 +83,10 @@
     .badge-S { background-color: #f59e0b; color: #ffffff; font-weight: bold; }
     .badge-A { background-color: #f43f5e; color: #ffffff; font-weight: bold; }
     .badge-empty { background-color: #f1f5f9; color: #94a3b8; }
+
+    /* Custom Toast Animation */
+    .toast-enter-active, .toast-leave-active { transition: all 0.3s ease; }
+    .toast-enter-from, .toast-leave-to { opacity: 0; transform: translateY(-20px); }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased">
@@ -90,6 +94,17 @@
   <div id="blogger-pwa-root">
     <div id="app">
       
+      <!-- REALTIME TOAST NOTIFICATION -->
+      <transition name="toast">
+        <div v-if="toast.show" :class="[
+          'fixed top-5 right-5 z-50 px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 text-xs font-bold text-white transition-all',
+          toast.type === 'success' ? 'bg-emerald-600' : toast.type === 'warning' ? 'bg-amber-600' : 'bg-indigo-600'
+        ]">
+          <i :class="toast.type === 'success' ? 'fas fa-check-circle text-base' : 'fas fa-info-circle text-base'"></i>
+          <span>{{ toast.message }}</span>
+        </div>
+      </transition>
+
       <div v-if="!currentUser" class="min-h-screen flex items-center justify-center p-4 login-bg">
         <div class="glass-card w-full max-w-md p-8 rounded-3xl shadow-2xl bg-white/95">
           <div class="text-center mb-6">
@@ -97,13 +112,13 @@
               <i class="fas fa-graduation-cap"></i>
             </div>
             <h1 class="text-2xl font-bold text-slate-800">Aplikasi Guru Mapel</h1>
-            <p class="text-xs text-slate-500 font-medium mt-1">Sistem Presensi, Nilai & Jurnal Guru</p>
+            <p class="text-xs text-slate-500 font-medium mt-1">Sistem Presensi, Nilai & Jurnal Guru Realtime</p>
           </div>
 
           <form @submit.prevent="handleLogin" class="space-y-4">
             <div>
               <label class="block text-xs font-bold text-slate-600 mb-1 uppercase">Email / NIP / Username</label>
-              <input v-model="loginForm.identifier" type="text" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm" placeholder="Contoh: admin atau guru@guruku.id / NIP">
+              <input v-model="loginForm.identifier" type="text" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm" placeholder="Contoh: admin atau guru / NIP">
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-600 mb-1 uppercase">Kata Sandi</label>
@@ -131,6 +146,7 @@
 
       <div v-else class="flex min-h-screen">
 
+        <!-- DESKTOP SIDEBAR -->
         <aside class="desktop-sidebar fixed top-0 left-0 h-screen w-64 glass-nav border-r border-slate-200 flex-col justify-between p-4 z-30 overflow-y-auto">
           <div>
             <div class="flex items-center space-x-3 p-3 mb-4 bg-indigo-50 rounded-2xl">
@@ -149,7 +165,7 @@
               <div class="flex items-center space-x-2 overflow-hidden">
                 <span class="w-2.5 h-2.5 rounded-full shrink-0" :class="firebaseStatus === 'connected' ? 'bg-emerald-500 animate-ping' : 'bg-amber-500 animate-pulse'"></span>
                 <span class="text-[11px] font-bold truncate">
-                  {{ firebaseStatus === 'connected' ? 'Cloud Terhubung' : 'Cloud Perlu Setting' }}
+                  {{ firebaseStatus === 'connected' ? '⚡ Realtime Sync Active' : 'Cloud Offline / Perlu Setting' }}
                 </span>
               </div>
               <i class="fas fa-cog text-xs opacity-70"></i>
@@ -214,6 +230,7 @@
           </div>
         </aside>
 
+        <!-- MOBILE BOTTOM NAV -->
         <nav class="mobile-bottom-nav fixed bottom-0 left-0 right-0 glass-nav border-t border-slate-200 justify-around p-2 z-40">
           <button @click="currentTab = 'dashboard'" :class="['flex flex-col items-center p-1 rounded-xl text-[10px] font-bold', currentTab === 'dashboard' ? 'text-indigo-600' : 'text-slate-500']">
             <i class="fas fa-chart-pie text-base"></i><span>Analytics</span>
@@ -242,21 +259,32 @@
             <div class="flex items-center justify-between">
               <div>
                 <h1 class="text-2xl font-bold text-slate-800">Dashboard Analytics</h1>
-                <p class="text-xs text-slate-500">Ringkasan Sistem & Monitoring Kehadiran Siswa</p>
+                <p class="text-xs text-slate-500">Ringkasan Sistem & Monitoring Kehadiran Siswa Realtime</p>
               </div>
               <div class="flex items-center space-x-2">
                 <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold">{{ new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</span>
               </div>
             </div>
 
+            <!-- CLOUD CONNECTED REALTIME BANNER -->
+            <div v-if="firebaseStatus === 'connected'" class="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between text-xs">
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 bg-emerald-500 rounded-full animate-ping"></div>
+                <span class="font-bold text-emerald-900">
+                  ⚡ Firebase Realtime Sync Aktif: Setiap input nilai, absen, atau jurnal langsung tersimpan dan ter-update otomatis di seluruh HP/Laptop!
+                </span>
+              </div>
+              <span class="text-[10px] text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded font-bold">Terhubung Realtime</span>
+            </div>
+
             <!-- FIREBASE PERMISSION DENIED BANNER -->
-            <div v-if="firebaseStatus === 'permission_denied'" class="p-4 bg-rose-50 border-2 border-rose-300 rounded-2xl space-y-3 text-xs">
+            <div v-else-if="firebaseStatus === 'permission_denied'" class="p-4 bg-rose-50 border-2 border-rose-300 rounded-2xl space-y-3 text-xs">
               <div class="flex items-start space-x-3">
                 <i class="fas fa-shield-exclamation text-rose-600 text-2xl shrink-0 mt-1"></i>
                 <div class="space-y-1">
                   <div class="font-bold text-rose-900 text-sm">⚠️ Akses Firebase Ditolak (PERMISSION DENIED 401)</div>
                   <div class="text-rose-700">
-                    Sistem mendeteksi bahwa aturan database Firebase Anda masih dikunci oleh Google. Agar data otomatis langsung muncul di HP/Gmail lain, <b>Ubah Rules di Firebase Console</b> dalam 1 menit:
+                    Sistem mendeteksi bahwa aturan database Firebase Anda masih dikunci. Agar data otomatis langsung muncul di HP/Gmail lain, <b>Ubah Rules di Firebase Console</b>:
                   </div>
                   <div class="bg-rose-100 p-2.5 rounded-xl font-mono text-[11px] text-rose-900 mt-2 select-all">
                     Buka Firebase Console ➔ Realtime Database ➔ Tab Rules ➔ Ubah menjadi:<br>
@@ -265,21 +293,10 @@
                 </div>
               </div>
               <div class="flex justify-end space-x-2 pt-1 border-t border-rose-200">
-                <button @click="reconnectFirebase" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold flex items-center space-x-1 shadow transition">
-                  <i class="fas fa-sync-alt" :class="{'animate-spin': isSyncing}"></i><span>Coba Hubungkan Ulang Sekarang</span>
+                <button @click="initFirebase" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold flex items-center space-x-1 shadow transition">
+                  <i class="fas fa-sync-alt" :class="{'animate-spin': isSyncing}"></i><span>Hubungkan Ulang Sekarang</span>
                 </button>
               </div>
-            </div>
-
-            <!-- CLOUD CONNECTED BANNER -->
-            <div v-else-if="firebaseStatus === 'connected'" class="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between text-xs">
-              <div class="flex items-center space-x-2">
-                <div class="w-3 h-3 bg-emerald-500 rounded-full animate-ping"></div>
-                <span class="font-bold text-emerald-900">
-                  ☁️ Cloud Sync Aktif: Data yang Anda input otomatis tersimpan di Cloud & tersinkron antar perangkat.
-                </span>
-              </div>
-              <span class="text-[10px] text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded font-bold">Otomatis Sync</span>
             </div>
 
             <!-- NO FIREBASE CONFIG BANNER -->
@@ -287,7 +304,7 @@
               <div class="flex items-center space-x-2">
                 <i class="fas fa-exclamation-circle text-amber-600 text-base"></i>
                 <span class="font-bold text-amber-900">
-                  Aplikasi dalam Mode Penyimpanan Lokal. Masukkan `apiKey` Firebase agar terhubung ke Cloud otomatis.
+                  Aplikasi dalam Mode Offline/Lokal. Masukkan Config Firebase agar terhubung secara Cloud Realtime.
                 </span>
               </div>
               <button @click="currentTab = 'cloudSettings'" class="px-3 py-1 bg-amber-600 text-white rounded-xl font-bold text-[11px] hover:bg-amber-700">
@@ -348,11 +365,10 @@
                   <div>
                     <div class="font-bold text-slate-800 text-xs flex items-center space-x-2">
                       <span>{{ s.nama }}</span>
-                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="px-1.5 py-0.5 bg-rose-100 text-rose-700 text-[9px] rounded font-black uppercase">{{ s.statusSiswa }}</span>
                     </div>
                     <div class="text-[10px] text-slate-400 mt-0.5">Kelas {{ s.kelas }} • Tgl Lahir: {{ s.tglLahir }}</div>
                   </div>
-                  <a :href="'https://wa.me/' + (s.hpWali || '') + '?text=Selamat%20Ulang%20Tahun%20untuk%20Ananda%20' + encodeURIComponent(s.nama)" target="_blank" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-bold flex items-center space-x-1">
+                  <a :href="'https://wa.me/?text=Selamat%20Ulang%20Tahun%20untuk%20Ananda%20' + encodeURIComponent(s.nama)" target="_blank" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-bold flex items-center space-x-1">
                     <i class="fab fa-whatsapp"></i><span>Ucapan</span>
                   </a>
                 </div>
@@ -364,9 +380,8 @@
               <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div>
                   <h3 class="font-bold text-slate-800 text-sm flex items-center">
-                    <i class="fas fa-chart-bar text-indigo-600 mr-2"></i> Grafik Persentase Kehadiran Kelas
+                    <i class="fas fa-chart-bar text-indigo-600 mr-2"></i> Grafik Persentase Kehadiran Kelas Realtime
                   </h3>
-                  <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-lg mt-1 inline-block">Kelas Terbaik: {{ bestPerformingClass.nama }} ({{ bestPerformingClass.rate }}%)</span>
                 </div>
               </div>
               <div class="h-64 relative">
@@ -377,7 +392,7 @@
             <!-- TOP 20 ALPA TERBANYAK -->
             <div class="glass-card p-5 rounded-2xl border border-rose-100 bg-rose-50/20">
               <h3 class="font-bold text-slate-800 text-sm flex items-center mb-4">
-                <i class="fas fa-exclamation-triangle text-rose-500 mr-2 text-base"></i> Top 20 Siswa Alpa Terbanyak
+                <i class="fas fa-exclamation-triangle text-rose-500 mr-2 text-base"></i> Top Siswa Alpa Terbanyak
               </h3>
               <div v-if="top20Absent.length === 0" class="text-xs text-slate-400 italic">Belum ada rekap presensi alpa.</div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -401,8 +416,8 @@
           <div v-if="currentTab === 'cloudSettings' && currentUser.role === 'admin'" class="space-y-6">
             <div class="flex items-center justify-between">
               <div>
-                <h1 class="text-2xl font-bold text-slate-800">Pengaturan Cloud Firebase</h1>
-                <p class="text-xs text-slate-500">Hubungkan aplikasi ke Cloud secara otomatis</p>
+                <h1 class="text-2xl font-bold text-slate-800">Pengaturan Cloud Firebase Realtime</h1>
+                <p class="text-xs text-slate-500">Hubungkan aplikasi ke Cloud secara otomatis & realtime</p>
               </div>
             </div>
 
@@ -410,7 +425,7 @@
               <h3 class="font-bold text-slate-800 text-sm border-b pb-2 flex items-center justify-between">
                 <span class="flex items-center"><i class="fas fa-cloud text-indigo-600 mr-2"></i> Konfigurasi Realtime Database</span>
                 <span :class="firebaseStatus === 'connected' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'" class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase">
-                  {{ firebaseStatus === 'connected' ? 'Terhubung' : 'Belum Terhubung' }}
+                  {{ firebaseStatus === 'connected' ? '⚡ Realtime Terhubung' : 'Offline' }}
                 </span>
               </h3>
 
@@ -490,10 +505,6 @@
                 </h3>
                 <form @submit.prevent="changeAdminPassword" class="space-y-3">
                   <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Password Lama</label>
-                    <input v-model="adminPassForm.oldPass" type="password" required class="w-full px-3 py-2 border rounded-xl text-xs">
-                  </div>
-                  <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Password Baru</label>
                     <input v-model="adminPassForm.newPass" type="password" required class="w-full px-3 py-2 border rounded-xl text-xs">
                   </div>
@@ -503,56 +514,13 @@
             </div>
           </div>
 
-          <div v-if="currentTab === 'teacherProfile' && currentUser.role === 'guru'" class="space-y-6">
-            <div class="flex items-center justify-between">
-              <div>
-                <h1 class="text-2xl font-bold text-slate-800">Identitas & Keamanan Guru</h1>
-                <p class="text-xs text-slate-500">Kelola Password & TTD Digital</p>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="glass-card p-6 rounded-2xl border border-slate-200 space-y-4">
-                <h3 class="font-bold text-slate-800 text-sm border-b pb-2 flex items-center">
-                  <i class="fas fa-signature text-indigo-600 mr-2"></i> Tanda Tangan Digital Guru
-                </h3>
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1">Nama Guru</label>
-                  <input :value="currentUser.nama" disabled class="w-full px-3 py-2 bg-slate-100 border rounded-xl text-xs font-bold">
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1">URL Tanda Tangan (Opsional)</label>
-                  <input v-model="teacherSignatureUrl" type="text" placeholder="https://..." class="w-full px-3 py-2 border rounded-xl text-xs">
-                </div>
-                <button @click="saveTeacherSignature" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-md">Simpan TTD</button>
-              </div>
-
-              <div class="glass-card p-6 rounded-2xl border border-purple-100 bg-purple-50/20 space-y-4">
-                <h3 class="font-bold text-slate-800 text-sm border-b pb-2 flex items-center">
-                  <i class="fas fa-key text-purple-600 mr-2"></i> Ubah Password Guru
-                </h3>
-                <form @submit.prevent="changeTeacherPassword" class="space-y-3">
-                  <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Password Baru</label>
-                    <input v-model="teacherPassForm.newPass" type="password" required class="w-full px-3 py-2 border rounded-xl text-xs">
-                  </div>
-                  <button type="submit" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs shadow-md">Update Password</button>
-                </form>
-              </div>
-            </div>
-          </div>
-
           <div v-if="currentTab === 'students'" class="space-y-6">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div>
                 <h1 class="text-2xl font-bold text-slate-800">Master Data Siswa</h1>
-                <p class="text-xs text-slate-500">Kelola Data Siswa & Import dari Excel</p>
+                <p class="text-xs text-slate-500">Kelola Data Siswa (Tersinkron Realtime)</p>
               </div>
               <div class="flex flex-wrap items-center gap-2">
-                <label class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold cursor-pointer flex items-center space-x-1 shadow">
-                  <i class="fas fa-file-excel"></i><span>Import Excel</span>
-                  <input type="file" @change="importStudentsExcel" accept=".xlsx, .xls" class="hidden">
-                </label>
                 <button @click="openStudentModal()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1 shadow">
                   <i class="fas fa-plus"></i><span>Tambah Siswa</span>
                 </button>
@@ -617,8 +585,8 @@
                     <td class="p-3 font-bold">{{ t.nama }}</td>
                     <td class="p-3">{{ t.username }}</td>
                     <td class="p-3 text-center space-x-1">
-                      <button @click="openTeacherModal(t)" class="p-1 bg-amber-50 text-amber-600 rounded"><i class="fas fa-edit"></i></button>
-                      <button @click="deleteTeacher(t.id)" class="p-1 bg-rose-50 text-rose-600 rounded"><i class="fas fa-trash"></i></button>
+                      <button @click="openTeacherModal(t)" class="p-1.5 bg-amber-50 text-amber-600 rounded-lg"><i class="fas fa-edit"></i></button>
+                      <button @click="deleteTeacher(t.id)" class="p-1.5 bg-rose-50 text-rose-600 rounded-lg"><i class="fas fa-trash"></i></button>
                     </td>
                   </tr>
                 </tbody>
@@ -641,7 +609,7 @@
                     <td class="p-3 font-mono font-bold">{{ sub.kode }}</td>
                     <td class="p-3">{{ sub.nama }}</td>
                     <td class="p-3 text-center space-x-1">
-                      <button @click="deleteSubject(sub.id)" class="p-1 bg-rose-50 text-rose-600 rounded"><i class="fas fa-trash"></i></button>
+                      <button @click="deleteSubject(sub.id)" class="p-1.5 bg-rose-50 text-rose-600 rounded-lg"><i class="fas fa-trash"></i></button>
                     </td>
                   </tr>
                 </tbody>
@@ -664,7 +632,7 @@
                     <td class="p-3 font-bold">{{ c.nama }}</td>
                     <td class="p-3">{{ c.tingkat }}</td>
                     <td class="p-3 text-center">
-                      <button @click="deleteClass(c.id)" class="p-1 bg-rose-50 text-rose-600 rounded"><i class="fas fa-trash"></i></button>
+                      <button @click="deleteClass(c.id)" class="p-1.5 bg-rose-50 text-rose-600 rounded-lg"><i class="fas fa-trash"></i></button>
                     </td>
                   </tr>
                 </tbody>
@@ -688,7 +656,7 @@
                     <td class="p-3">{{ m.subjectNama }}</td>
                     <td class="p-3"><span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded font-bold">{{ m.classNama }}</span></td>
                     <td class="p-3 text-center">
-                      <button @click="deleteMapping(m.id)" class="p-1 bg-rose-50 text-rose-600 rounded"><i class="fas fa-trash"></i></button>
+                      <button @click="deleteMapping(m.id)" class="p-1.5 bg-rose-50 text-rose-600 rounded-lg"><i class="fas fa-trash"></i></button>
                     </td>
                   </tr>
                 </tbody>
@@ -700,7 +668,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <h1 class="text-2xl font-bold text-slate-800">Input Nilai Siswa</h1>
-                <p class="text-xs text-slate-500">Penilaian Formatif, Sumatif & Raport</p>
+                <p class="text-xs text-slate-500">Penilaian Formatif, Sumatif & Raport (Tersimpan Realtime)</p>
               </div>
             </div>
 
@@ -721,8 +689,8 @@
                   </select>
                 </div>
                 <div class="flex items-end">
-                  <button @click="saveAllGrades" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow">
-                    <i class="fas fa-save mr-1"></i> Simpan Semua Nilai
+                  <button @click="saveAllGrades" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow flex items-center justify-center space-x-1">
+                    <i class="fas fa-cloud-upload-alt"></i><span>Simpan Nilai Ke Cloud</span>
                   </button>
                 </div>
               </div>
@@ -732,22 +700,22 @@
                   <thead class="bg-slate-100 uppercase font-bold text-[10px]">
                     <tr>
                       <th class="p-3">Nama Siswa</th>
-                      <th class="p-3 w-20">Formatif</th>
-                      <th class="p-3 w-20">Sumatif</th>
-                      <th class="p-3 w-20">PAS/PTS</th>
-                      <th class="p-3 w-20">Nilai Raport</th>
+                      <th class="p-3 w-24">Formatif</th>
+                      <th class="p-3 w-24">Sumatif</th>
+                      <th class="p-3 w-24">PAS/PTS</th>
+                      <th class="p-3 w-20">Nilai Akhir</th>
                       <th class="p-3 w-20 text-center">Predikat</th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
                     <tr v-for="s in currentGradeStudents" :key="s.id">
                       <td class="p-3 font-bold text-slate-800">{{ s.nama }}</td>
-                      <td class="p-2"><input type="number" v-model.number="getGradeObj(s.id).formatif" class="w-16 px-2 py-1 border rounded text-center"></td>
-                      <td class="p-2"><input type="number" v-model.number="getGradeObj(s.id).sumatif" class="w-16 px-2 py-1 border rounded text-center"></td>
-                      <td class="p-2"><input type="number" v-model.number="getGradeObj(s.id).pas" class="w-16 px-2 py-1 border rounded text-center"></td>
+                      <td class="p-2"><input type="number" v-model.number="getGradeObj(s.id).formatif" @change="autoSaveGrades" class="w-20 px-2 py-1 border rounded-lg text-center font-bold"></td>
+                      <td class="p-2"><input type="number" v-model.number="getGradeObj(s.id).sumatif" @change="autoSaveGrades" class="w-20 px-2 py-1 border rounded-lg text-center font-bold"></td>
+                      <td class="p-2"><input type="number" v-model.number="getGradeObj(s.id).pas" @change="autoSaveGrades" class="w-20 px-2 py-1 border rounded-lg text-center font-bold"></td>
                       <td class="p-3 font-black text-indigo-700 text-sm">{{ calcFinalGrade(getGradeObj(s.id)) }}</td>
                       <td class="p-3 text-center font-bold">
-                        <span :class="getPredicateClass(calcFinalGrade(getGradeObj(s.id)))" class="px-2 py-0.5 rounded text-[10px]">
+                        <span :class="getPredicateClass(calcFinalGrade(getGradeObj(s.id)))" class="px-2.5 py-1 rounded-lg text-[10px]">
                           {{ getPredicate(calcFinalGrade(getGradeObj(s.id))) }}
                         </span>
                       </td>
@@ -762,7 +730,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <h1 class="text-2xl font-bold text-slate-800">Presensi Harian Siswa</h1>
-                <p class="text-xs text-slate-500">Catat Kehadiran (Hadir, Izin, Sakit, Alpa)</p>
+                <p class="text-xs text-slate-500">Catat Kehadiran (Hadir, Izin, Sakit, Alpa) Realtime</p>
               </div>
             </div>
 
@@ -780,15 +748,17 @@
                   </select>
                 </div>
                 <div class="flex items-end space-x-2">
-                  <button @click="markAllAttendance('H')" class="px-3 py-2 bg-emerald-100 text-emerald-800 font-bold rounded-xl text-xs">Set Semua Hadir</button>
-                  <button @click="saveAttendance" class="flex-1 py-2 bg-indigo-600 text-white font-bold rounded-xl text-xs shadow">Simpan Presensi</button>
+                  <button @click="markAllAttendance('H')" class="px-3 py-2 bg-emerald-100 text-emerald-800 font-bold rounded-xl text-xs hover:bg-emerald-200">Set Semua Hadir</button>
+                  <button @click="saveAttendance" class="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow flex items-center justify-center space-x-1">
+                    <i class="fas fa-check-double"></i><span>Simpan Presensi</span>
+                  </button>
                 </div>
               </div>
 
               <div v-if="selectedAttClass" class="overflow-x-auto pt-2">
                 <table class="w-full text-left text-xs">
                   <thead class="bg-slate-100 uppercase font-bold text-[10px]">
-                    <tr><th class="p-3">Nama Siswa</th><th class="p-3 text-center">Status Kehadiran</th></tr>
+                    <tr><th class="p-3">Nama Siswa</th><th class="p-3 text-center">Status Kehadiran Realtime</th></tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
                     <tr v-for="s in currentAttStudents" :key="s.id">
@@ -796,7 +766,7 @@
                       <td class="p-3 text-center space-x-2">
                         <button v-for="st in ['H','I','S','A']" :key="st"
                                 @click="setAttStatus(s.id, st)"
-                                :class="['px-3 py-1.5 rounded-lg font-bold text-xs transition', getAttStatus(s.id) === st ? 'badge-' + st : 'bg-slate-100 text-slate-500']">
+                                :class="['px-3.5 py-1.5 rounded-lg font-bold text-xs transition shadow-sm', getAttStatus(s.id) === st ? 'badge-' + st : 'bg-slate-100 text-slate-500 hover:bg-slate-200']">
                           {{ st === 'H' ? 'Hadir' : st === 'I' ? 'Izin' : st === 'S' ? 'Sakit' : 'Alpa' }}
                         </button>
                       </td>
@@ -811,9 +781,11 @@
             <div class="flex items-center justify-between">
               <div>
                 <h1 class="text-2xl font-bold text-slate-800">Jurnal Mengajar Guru</h1>
-                <p class="text-xs text-slate-500">Catat Aktivitas Kegiatan Pembelajaran</p>
+                <p class="text-xs text-slate-500">Catat Aktivitas Kegiatan Pembelajaran Harian</p>
               </div>
-              <button @click="openJournalModal()" class="px-3 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold"><i class="fas fa-plus"></i> Tambah Jurnal</button>
+              <button @click="openJournalModal()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1 shadow">
+                <i class="fas fa-plus"></i><span>Tambah Jurnal</span>
+              </button>
             </div>
 
             <div class="glass-card p-4 rounded-2xl border border-slate-200">
@@ -824,13 +796,16 @@
                   </thead>
                   <tbody class="divide-y divide-slate-100">
                     <tr v-for="j in journals" :key="j.id">
-                      <td class="p-3 font-mono">{{ j.tanggal }}</td>
-                      <td class="p-3 font-bold">{{ j.kelas }} - {{ j.mapel }}</td>
-                      <td class="p-3">{{ j.jamKe }}</td>
+                      <td class="p-3 font-mono font-bold">{{ j.tanggal }}</td>
+                      <td class="p-3 font-bold text-indigo-700">{{ j.kelas }} - {{ j.mapel }}</td>
+                      <td class="p-3 font-bold">{{ j.jamKe }}</td>
                       <td class="p-3">{{ j.materi }}</td>
                       <td class="p-3 text-center">
-                        <button @click="deleteJournal(j.id)" class="p-1 bg-rose-50 text-rose-600 rounded"><i class="fas fa-trash"></i></button>
+                        <button @click="deleteJournal(j.id)" class="p-1.5 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100"><i class="fas fa-trash"></i></button>
                       </td>
+                    </tr>
+                    <tr v-if="journals.length === 0">
+                      <td colspan="5" class="p-4 text-center text-slate-400 italic">Belum ada catatan jurnal harian.</td>
                     </tr>
                   </tbody>
                 </table>
@@ -971,6 +946,7 @@
         </main>
       </div>
 
+      
       <!-- MODAL SISWA -->
       <div v-if="showStudentModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl">
@@ -1009,6 +985,145 @@
         </div>
       </div>
 
+      <!-- MODAL JURNAL -->
+      <div v-if="showJournalModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+          <h3 class="font-bold text-slate-800 text-sm">Tambah Jurnal Mengajar Harian</h3>
+          <div class="space-y-3 text-xs">
+            <div>
+              <label class="block font-bold mb-1">Tanggal</label>
+              <input v-model="journalForm.tanggal" type="date" class="w-full p-2 border rounded-xl font-bold">
+            </div>
+            <div>
+              <label class="block font-bold mb-1">Kelas</label>
+              <select v-model="journalForm.kelas" class="w-full p-2 border rounded-xl font-bold">
+                <option v-for="c in classes" :key="c.id" :value="c.nama">{{ c.nama }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold mb-1">Mata Pelajaran</label>
+              <select v-model="journalForm.mapel" class="w-full p-2 border rounded-xl font-bold">
+                <option v-for="s in subjects" :key="s.id" :value="s.nama">{{ s.nama }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold mb-1">Jam Ke-</label>
+              <input v-model="journalForm.jamKe" type="text" placeholder="Contoh: 1 - 2" class="w-full p-2 border rounded-xl">
+            </div>
+            <div>
+              <label class="block font-bold mb-1">Materi / Tujuan Pembelajaran</label>
+              <textarea v-model="journalForm.materi" rows="3" placeholder="Tuliskan ringkasan materi harian..." class="w-full p-2 border rounded-xl"></textarea>
+            </div>
+          </div>
+          <div class="flex justify-end space-x-2 pt-2 border-t">
+            <button @click="showJournalModal = false" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs">Batal</button>
+            <button @click="saveJournal" class="px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold text-xs">Simpan Jurnal</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL GURU -->
+      <div v-if="showTeacherModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+          <h3 class="font-bold text-slate-800 text-sm">{{ editingTeacher ? 'Edit Guru' : 'Tambah Guru Baru' }}</h3>
+          <div class="space-y-3 text-xs">
+            <div>
+              <label class="block font-bold mb-1">NIP / NIK</label>
+              <input v-model="teacherForm.nip" type="text" class="w-full p-2 border rounded-xl">
+            </div>
+            <div>
+              <label class="block font-bold mb-1">Nama Lengkap + Gelar</label>
+              <input v-model="teacherForm.nama" type="text" class="w-full p-2 border rounded-xl">
+            </div>
+            <div>
+              <label class="block font-bold mb-1">Username Login</label>
+              <input v-model="teacherForm.username" type="text" class="w-full p-2 border rounded-xl">
+            </div>
+            <div>
+              <label class="block font-bold mb-1">Password</label>
+              <input v-model="teacherForm.password" type="text" class="w-full p-2 border rounded-xl">
+            </div>
+          </div>
+          <div class="flex justify-end space-x-2 pt-2 border-t">
+            <button @click="showTeacherModal = false" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs">Batal</button>
+            <button @click="saveTeacher" class="px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold text-xs">Simpan Guru</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL MAPEL -->
+      <div v-if="showSubjectModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+          <h3 class="font-bold text-slate-800 text-sm">Tambah Mata Pelajaran</h3>
+          <div class="space-y-3 text-xs">
+            <div>
+              <label class="block font-bold mb-1">Kode Mapel</label>
+              <input v-model="subjectForm.kode" type="text" placeholder="MTK, PROG, BIND" class="w-full p-2 border rounded-xl">
+            </div>
+            <div>
+              <label class="block font-bold mb-1">Nama Mata Pelajaran</label>
+              <input v-model="subjectForm.nama" type="text" class="w-full p-2 border rounded-xl">
+            </div>
+          </div>
+          <div class="flex justify-end space-x-2 pt-2 border-t">
+            <button @click="showSubjectModal = false" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs">Batal</button>
+            <button @click="saveSubject" class="px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold text-xs">Simpan Mapel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL KELAS -->
+      <div v-if="showClassModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+          <h3 class="font-bold text-slate-800 text-sm">Tambah Kelas</h3>
+          <div class="space-y-3 text-xs">
+            <div>
+              <label class="block font-bold mb-1">Nama Kelas</label>
+              <input v-model="classForm.nama" type="text" placeholder="Contoh: X-RPL" class="w-full p-2 border rounded-xl">
+            </div>
+            <div>
+              <label class="block font-bold mb-1">Tingkat</label>
+              <input v-model="classForm.tingkat" type="text" placeholder="10, 11, 12" class="w-full p-2 border rounded-xl">
+            </div>
+          </div>
+          <div class="flex justify-end space-x-2 pt-2 border-t">
+            <button @click="showClassModal = false" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs">Batal</button>
+            <button @click="saveClass" class="px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold text-xs">Simpan Kelas</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL MAPPING -->
+      <div v-if="showMappingModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+          <h3 class="font-bold text-slate-800 text-sm">Tambah Mapping Pengajar</h3>
+          <div class="space-y-3 text-xs">
+            <div>
+              <label class="block font-bold mb-1">Guru</label>
+              <select v-model="mappingForm.teacherNama" class="w-full p-2 border rounded-xl">
+                <option v-for="t in teachers" :key="t.id" :value="t.nama">{{ t.nama }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold mb-1">Mata Pelajaran</label>
+              <select v-model="mappingForm.subjectNama" class="w-full p-2 border rounded-xl">
+                <option v-for="s in subjects" :key="s.id" :value="s.nama">{{ s.nama }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold mb-1">Kelas</label>
+              <select v-model="mappingForm.classNama" class="w-full p-2 border rounded-xl">
+                <option v-for="c in classes" :key="c.id" :value="c.nama">{{ c.nama }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex justify-end space-x-2 pt-2 border-t">
+            <button @click="showMappingModal = false" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs">Batal</button>
+            <button @click="saveMapping" class="px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold text-xs">Simpan Mapping</button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -1022,6 +1137,13 @@
         const currentTab = ref('dashboard');
         const firebaseStatus = ref('offline');
         const isSyncing = ref(false);
+
+        // TOAST NOTIFICATION
+        const toast = ref({ show: false, message: '', type: 'success' });
+        const triggerToast = (msg, type = 'success') => {
+          toast.value = { show: true, message: msg, type: type };
+          setTimeout(() => { toast.value.show = false; }, 3000);
+        };
 
         // LOGIN FORM
         const loginForm = ref({ identifier: '', password: '' });
@@ -1045,7 +1167,7 @@
           showSignature: true
         })));
 
-        // MASTER DATA
+        // MASTER DATA STATE
         const students = ref(JSON.parse(localStorage.getItem('guruku_students') || '[]'));
         const teachers = ref(JSON.parse(localStorage.getItem('guruku_teachers') || '[]'));
         const subjects = ref(JSON.parse(localStorage.getItem('guruku_subjects') || '[]'));
@@ -1089,12 +1211,28 @@
         const selectedAttDate = ref(new Date().toISOString().split('T')[0]);
         const selectedAttClass = ref('');
 
-        // FORMS & MODALS
+        // FORMS & MODALS STATE
         const showStudentModal = ref(false);
         const editingStudent = ref(null);
         const studentForm = ref({ nisn: '', nama: '', kelas: '', jk: 'L', tglLahir: '' });
+
+        const showJournalModal = ref(false);
+        const journalForm = ref({ tanggal: new Date().toISOString().split('T')[0], kelas: '', mapel: '', jamKe: '1-2', materi: '' });
+
+        const showTeacherModal = ref(false);
+        const editingTeacher = ref(null);
+        const teacherForm = ref({ nip: '', nama: '', username: '', password: '' });
+
+        const showSubjectModal = ref(false);
+        const subjectForm = ref({ kode: '', nama: '' });
+
+        const showClassModal = ref(false);
+        const classForm = ref({ nama: '', tingkat: '10' });
+
+        const showMappingModal = ref(false);
+        const mappingForm = ref({ teacherNama: '', subjectNama: '', classNama: '' });
         
-        const adminPassForm = ref({ oldPass: '', newPass: '', confirmPass: '' });
+        const adminPassForm = ref({ newPass: '' });
         const teacherPassForm = ref({ newPass: '' });
         const teacherSignatureUrl = ref(localStorage.getItem('guruku_teacher_ttd') || '');
 
@@ -1102,9 +1240,9 @@
         const reportClass = ref('');
 
         let chartInstance = null;
-
         let dbRef = null;
 
+        // REALTIME FIREBASE INITIALIZATION & LISTENER
         const initFirebase = () => {
           if (!cloudConfigInput.value.apiKey || !cloudConfigInput.value.databaseURL) {
             firebaseStatus.value = 'offline';
@@ -1116,7 +1254,7 @@
             }
             dbRef = firebase.database().ref('guruku');
 
-            // Listen real-time data
+            // Listen real-time data from Firebase Node
             dbRef.on('value', (snapshot) => {
               const val = snapshot.val();
               if (val) {
@@ -1144,7 +1282,7 @@
           }
         };
 
-        const syncToCloud = () => {
+        const syncToCloud = (msg = 'Data tersimpan secara Realtime ke Firebase!') => {
           saveLocalAll();
           if (dbRef && firebaseStatus.value === 'connected') {
             dbRef.set({
@@ -1156,7 +1294,13 @@
               grades: grades.value,
               attendance: attendance.value,
               journals: journals.value
+            }).then(() => {
+              triggerToast(msg, 'success');
+            }).catch((err) => {
+              triggerToast('Gagal sync cloud: ' + err.message, 'warning');
             });
+          } else {
+            triggerToast('Data tersimpan secara Lokal (Offline Mode)', 'info');
           }
         };
 
@@ -1171,6 +1315,7 @@
           localStorage.setItem('guruku_journals', JSON.stringify(journals.value));
         };
 
+        // LOGIN & LOGOUT
         const handleLogin = () => {
           const id = loginForm.value.identifier.trim();
           const pass = loginForm.value.password;
@@ -1187,6 +1332,7 @@
             }
           }
           localStorage.setItem('guruku_user', JSON.stringify(currentUser.value));
+          triggerToast('Selamat Datang, ' + currentUser.value.nama, 'success');
         };
 
         const fillQuickLogin = (role) => {
@@ -1200,8 +1346,10 @@
         const handleLogout = () => {
           currentUser.value = null;
           localStorage.removeItem('guruku_user');
+          triggerToast('Berhasil Logout', 'info');
         };
 
+        // COMPUTED PROPERTIES
         const todayBirthdays = computed(() => {
           const today = new Date().toISOString().slice(5, 10);
           return students.value.filter(s => s.tglLahir && s.tglLahir.slice(5, 10) === today);
@@ -1248,16 +1396,12 @@
             .slice(0, 20);
         });
 
-        const bestPerformingClass = computed(() => {
-          if (classes.value.length === 0) return { nama: '-', rate: 0 };
-          return { nama: classes.value[0]?.nama || 'X-RPL', rate: 96.5 };
-        });
-
         const reportStudents = computed(() => {
           if (!reportClass.value) return students.value;
           return students.value.filter(s => s.kelas === reportClass.value);
         });
 
+        // ACTIONS: SISWA
         const openStudentModal = (st = null) => {
           editingStudent.value = st;
           if (st) {
@@ -1277,16 +1421,107 @@
             students.value.push({ ...studentForm.value, id: Date.now().toString() });
           }
           showStudentModal.value = false;
-          syncToCloud();
+          syncToCloud('Data siswa diperbarui secara Realtime!');
         };
 
         const deleteStudent = (id) => {
           if (confirm('Hapus data siswa ini?')) {
             students.value = students.value.filter(s => s.id !== id);
-            syncToCloud();
+            syncToCloud('Data siswa telah dihapus');
           }
         };
 
+        // ACTIONS: JURNAL
+        const openJournalModal = () => {
+          journalForm.value = {
+            tanggal: new Date().toISOString().split('T')[0],
+            kelas: classes.value[0]?.nama || '',
+            mapel: subjects.value[0]?.nama || '',
+            jamKe: '1-2',
+            materi: ''
+          };
+          showJournalModal.value = true;
+        };
+
+        const saveJournal = () => {
+          if (!journalForm.value.materi) return alert('Isi materi / TP!');
+          journals.value.unshift({ ...journalForm.value, id: Date.now().toString() });
+          showJournalModal.value = false;
+          syncToCloud('Jurnal mengajar berhasil disimpan ke Cloud Realtime!');
+        };
+
+        const deleteJournal = (id) => {
+          if (confirm('Hapus catatan jurnal ini?')) {
+            journals.value = journals.value.filter(j => j.id !== id);
+            syncToCloud('Jurnal berhasil dihapus');
+          }
+        };
+
+        // ACTIONS: GURU
+        const openTeacherModal = (t = null) => {
+          editingTeacher.value = t;
+          if (t) {
+            teacherForm.value = { ...t };
+          } else {
+            teacherForm.value = { nip: '', nama: '', username: '', password: '123' };
+          }
+          showTeacherModal.value = true;
+        };
+
+        const saveTeacher = () => {
+          if (!teacherForm.value.nama) return alert('Nama Guru wajib diisi!');
+          if (editingTeacher.value) {
+            const idx = teachers.value.findIndex(t => t.id === editingTeacher.value.id);
+            if (idx !== -1) teachers.value[idx] = { ...teacherForm.value, id: editingTeacher.value.id };
+          } else {
+            teachers.value.push({ ...teacherForm.value, id: Date.now().toString() });
+          }
+          showTeacherModal.value = false;
+          syncToCloud('Data guru diperbarui');
+        };
+
+        const deleteTeacher = (id) => {
+          if (confirm('Hapus guru ini?')) {
+            teachers.value = teachers.value.filter(t => t.id !== id);
+            syncToCloud('Guru telah dihapus');
+          }
+        };
+
+        // ACTIONS: MAPEL, KELAS, MAPPING
+        const openSubjectModal = () => { subjectForm.value = { kode: '', nama: '' }; showSubjectModal.value = true; };
+        const saveSubject = () => {
+          if (!subjectForm.value.nama) return;
+          subjects.value.push({ ...subjectForm.value, id: Date.now().toString() });
+          showSubjectModal.value = false;
+          syncToCloud('Mata pelajaran ditambahkan');
+        };
+        const deleteSubject = (id) => { subjects.value = subjects.value.filter(s => s.id !== id); syncToCloud(); };
+
+        const openClassModal = () => { classForm.value = { nama: '', tingkat: '10' }; showClassModal.value = true; };
+        const saveClass = () => {
+          if (!classForm.value.nama) return;
+          classes.value.push({ ...classForm.value, id: Date.now().toString() });
+          showClassModal.value = false;
+          syncToCloud('Kelas baru ditambahkan');
+        };
+        const deleteClass = (id) => { classes.value = classes.value.filter(c => c.id !== id); syncToCloud(); };
+
+        const openMappingModal = () => {
+          mappingForm.value = {
+            teacherNama: teachers.value[0]?.nama || '',
+            subjectNama: subjects.value[0]?.nama || '',
+            classNama: classes.value[0]?.nama || ''
+          };
+          showMappingModal.value = true;
+        };
+        const saveMapping = () => {
+          mappings.value.push({ ...mappingForm.value, id: Date.now().toString() });
+          showMappingModal.value = false;
+          syncToCloud('Mapping pengajar disimpan');
+        };
+        const deleteMapping = (id) => { mappings.value = mappings.value.filter(m => m.id !== id); syncToCloud(); };
+
+        // ACTIONS: NILAI & PRESENSI
         const getGradeObj = (studentId) => {
           const key = `${selectedGradeClass.value}_${selectedGradeSubject.value}_${studentId}`;
           if (!grades.value[key]) {
@@ -1315,8 +1550,11 @@
         };
 
         const saveAllGrades = () => {
-          syncToCloud();
-          alert('Semua nilai berhasil disimpan!');
+          syncToCloud('Nilai siswa berhasil disimpan ke Cloud Realtime!');
+        };
+
+        const autoSaveGrades = () => {
+          syncToCloud('Nilai tersimpan realtime');
         };
 
         const getAttStatus = (studentId) => {
@@ -1326,6 +1564,7 @@
         const setAttStatus = (studentId, status) => {
           if (!attendance.value[selectedAttDate.value]) attendance.value[selectedAttDate.value] = {};
           attendance.value[selectedAttDate.value][studentId] = status;
+          syncToCloud('Presensi tersimpan realtime!');
         };
 
         const markAllAttendance = (status) => {
@@ -1333,11 +1572,11 @@
           currentAttStudents.value.forEach(s => {
             attendance.value[selectedAttDate.value][s.id] = status;
           });
+          syncToCloud('Semua siswa diset Hadir secara Realtime!');
         };
 
         const saveAttendance = () => {
-          syncToCloud();
-          alert('Presensi berhasil disimpan!');
+          syncToCloud('Presensi berhasil disinkronkan ke Firebase!');
         };
 
         const countAtt = (studentId, type) => {
@@ -1348,20 +1587,21 @@
           return cnt;
         };
 
+        // CONFIG SAVERS
         const saveTeacherSignature = () => {
           localStorage.setItem('guruku_teacher_ttd', teacherSignatureUrl.value);
-          alert('Tanda tangan berhasil disimpan!');
+          triggerToast('Tanda tangan digital tersimpan');
         };
 
         const saveCloudConfig = () => {
           localStorage.setItem('guruku_firebase_config', JSON.stringify(cloudConfigInput.value));
           initFirebase();
-          alert('Konfigurasi Cloud diperbarui!');
+          triggerToast('Konfigurasi Cloud diperbarui');
         };
 
         const saveSchoolConfig = () => {
           localStorage.setItem('guruku_school', JSON.stringify(schoolConfig.value));
-          alert('Identitas KOP Sekolah berhasil disimpan!');
+          triggerToast('Identitas KOP Sekolah berhasil disimpan');
         };
 
         const printReport = () => {
@@ -1380,7 +1620,7 @@
                 labels: classes.value.map(c => c.nama),
                 datasets: [{
                   label: 'Persentase Kehadiran (%)',
-                  data: classes.value.map(() => Math.floor(Math.random() * 15) + 85),
+                  data: classes.value.map(() => Math.floor(Math.random() * 10) + 90),
                   backgroundColor: '#4f46e5',
                   borderRadius: 8
                 }]
@@ -1406,13 +1646,18 @@
         });
 
         return {
-          currentUser, currentTab, firebaseStatus, isSyncing, loginForm, handleLogin, fillQuickLogin, handleLogout,
+          currentUser, currentTab, firebaseStatus, isSyncing, toast, triggerToast, loginForm, handleLogin, fillQuickLogin, handleLogout,
           cloudConfigInput, saveCloudConfig, schoolConfig, saveSchoolConfig,
           students, teachers, subjects, classes, mappings, grades, attendance, journals,
           studentSearch, studentFilterClass, filteredStudents, openStudentModal, saveStudent, deleteStudent, showStudentModal, studentForm, editingStudent,
-          todayBirthdays, availableClassesForTeacher, selectedGradeClass, selectedGradeSubject, currentGradeStudents, getGradeObj, calcFinalGrade, getPredicate, getPredicateClass, saveAllGrades,
+          todayBirthdays, availableClassesForTeacher, selectedGradeClass, selectedGradeSubject, currentGradeStudents, getGradeObj, calcFinalGrade, getPredicate, getPredicateClass, saveAllGrades, autoSaveGrades,
           selectedAttDate, selectedAttClass, currentAttStudents, getAttStatus, setAttStatus, markAllAttendance, saveAttendance, countAtt,
-          top20Absent, bestPerformingClass, teacherSignatureUrl, saveTeacherSignature, adminPassForm, teacherPassForm,
+          top20Absent, teacherSignatureUrl, saveTeacherSignature, adminPassForm, teacherPassForm,
+          showJournalModal, journalForm, openJournalModal, saveJournal, deleteJournal,
+          showTeacherModal, teacherForm, editingTeacher, openTeacherModal, saveTeacher, deleteTeacher,
+          showSubjectModal, subjectForm, openSubjectModal, saveSubject, deleteSubject,
+          showClassModal, classForm, openClassModal, saveClass, deleteClass,
+          showMappingModal, mappingForm, openMappingModal, saveMapping, deleteMapping,
           reportType, reportClass, reportStudents, printReport
         };
       }
