@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aplikasi - Guru Mata Pelajaran</title>
+  <title>GuruKu PWA - Sistem Informasi Presensi, Nilai & Jurnal Guru</title>
   
   <!-- Tailwind CSS & FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -23,7 +23,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- PWA Manifest Inline Data URI -->
-  <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIkd1cnVLIFA0QSIsCiAgInNob3J0X25hbWUiOiAiR3VydUt1IiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmOGZhZmMiLAogICJ0aGVtZV9jb2xvciI6ICIjNGY0NmU1IiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9jZG4taWNvbnMtcG5nLmZsYXRpY29uLmNvbS81MTIvMzQyOS8zNDI5MTQ5LnBuZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIgogICAgfQogIF0KfQ==">
+  <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIkd1cnVLIFA0QSIsCiAgInNob3J0X25hbWUiOiAiR3VydUt1IiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmOGZhZmMiLAogICJ0aGVtZV9jb2xvciI6ICIjNGY0NmU1IiwKICAic3RhcnRfdXJsIjogIi4iLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJodHRwczovL2Nkbi1pY29ucy1wbmdmbGF0aWNvbi5jb20vNTEyLzM0MjkvMzQyOTE0OS5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIKICAgIH0KICBdCn0=">
 
   <style>
     #blogger-pwa-root {
@@ -67,31 +67,15 @@
     }
 
     @media print {
-      body * {
-        visibility: hidden;
-      }
-      #blogger-pwa-root, .main-content {
-        position: static !important;
-        overflow: visible !important;
-      }
-      #print-area, #print-area * {
-        visibility: visible;
-      }
+      body * { visibility: hidden; }
+      #blogger-pwa-root, .main-content { position: static !important; overflow: visible !important; }
+      #print-area, #print-area * { visibility: visible; }
       #print-area {
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 4mm !important;
-        box-shadow: none !important;
-        border: none !important;
-        background: white !important;
+        position: absolute !important; left: 0 !important; top: 0 !important;
+        width: 100% !important; margin: 0 !important; padding: 4mm !important;
+        box-shadow: none !important; border: none !important; background: white !important;
       }
-      @page {
-        size: A4 portrait;
-        margin: 4mm;
-      }
+      @page { size: A4 portrait; margin: 4mm; }
     }
 
     .badge-H { background-color: #10b981; color: #ffffff; font-weight: bold; }
@@ -106,20 +90,19 @@
   <div id="blogger-pwa-root">
     <div id="app">
       
-      <!-- HALAMAN LOGIN -->
       <div v-if="!currentUser" class="min-h-screen flex items-center justify-center p-4 login-bg">
         <div class="glass-card w-full max-w-md p-8 rounded-3xl shadow-2xl bg-white/95">
           <div class="text-center mb-6">
             <div class="w-20 h-20 mx-auto bg-indigo-600 rounded-2xl flex items-center justify-center text-white text-3xl font-bold shadow-lg mb-3">
               <i class="fas fa-graduation-cap"></i>
             </div>
-            <h1 class="text-2xl font-bold text-slate-800">Aplikasi Guru Mapel</h1>
-            <p class="text-xs text-slate-500 font-medium mt-1">Sistem Presensi, Nilai & Jurnal KBM</p>
+            <h1 class="text-2xl font-bold text-slate-800">GuruKu PWA</h1>
+            <p class="text-xs text-slate-500 font-medium mt-1">Sistem Presensi, Nilai & Analytics Guru</p>
           </div>
 
           <form @submit.prevent="handleLogin" class="space-y-4">
             <div>
-              <label class="block text-xs font-bold text-slate-600 mb-1 uppercase">Email</label>
+              <label class="block text-xs font-bold text-slate-600 mb-1 uppercase">Email / NIP / Username</label>
               <input v-model="loginForm.identifier" type="text" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm" placeholder="Contoh: admin atau guru@guruku.id / NIP">
             </div>
             <div>
@@ -127,21 +110,21 @@
               <input v-model="loginForm.password" type="password" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm" placeholder="••••••••">
             </div>
             <button type="submit" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 transition text-sm flex items-center justify-center space-x-2">
-              <i class="fas fa-sign-in-alt"></i><span>Login Aplikasi</span>
+              <i class="fas fa-sign-in-alt"></i><span>Masuk Aplikasi</span>
             </button>
           </form>
 
-          <!--<div class="mt-4 pt-4 border-t border-slate-100 flex justify-center space-x-2 text-[11px]">
+          <div class="mt-4 pt-4 border-t border-slate-100 flex justify-center space-x-2 text-[11px]">
             <button @click="fillQuickLogin('admin')" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg font-bold hover:bg-indigo-100 transition">
               <i class="fas fa-user-shield mr-1"></i> Isi Admin
             </button>
             <button @click="fillQuickLogin('guru')" class="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg font-bold hover:bg-purple-100 transition">
               <i class="fas fa-chalkboard-teacher mr-1"></i> Isi Guru Pertama
             </button>
-          </div>-->
+          </div>
 
           <div class="mt-4 text-center text-[11px] text-slate-400 font-medium">
-            2026 • oleh Ally R.
+            Version 5.5 • Auto Cloud Synchronization System
           </div>
         </div>
       </div>
@@ -151,7 +134,7 @@
         <!-- DESKTOP SIDEBAR -->
         <aside class="desktop-sidebar fixed top-0 left-0 h-screen w-64 glass-nav border-r border-slate-200 flex-col justify-between p-4 z-30 overflow-y-auto">
           <div>
-            <div class="flex items-center space-x-3 p-3 mb-6 bg-indigo-50 rounded-2xl">
+            <div class="flex items-center space-x-3 p-3 mb-4 bg-indigo-50 rounded-2xl">
               <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold">
                 <i class="fas fa-school"></i>
               </div>
@@ -161,10 +144,22 @@
               </div>
             </div>
 
+            <!-- CLOUD STATUS BADGE IN SIDEBAR -->
+            <button @click="showCloudSettingsModal = true" class="w-full mb-4 p-2.5 rounded-xl border flex items-center justify-between text-left transition"
+                    :class="firebaseStatus === 'connected' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-amber-50 border-amber-200 text-amber-900'">
+              <div class="flex items-center space-x-2 overflow-hidden">
+                <span class="w-2.5 h-2.5 rounded-full shrink-0" :class="firebaseStatus === 'connected' ? 'bg-emerald-500 animate-ping' : 'bg-amber-500 animate-pulse'"></span>
+                <span class="text-[11px] font-bold truncate">
+                  {{ firebaseStatus === 'connected' ? 'Cloud Terhubung' : 'Cloud Perlu Setting' }}
+                </span>
+              </div>
+              <i class="fas fa-cog text-xs opacity-70"></i>
+            </button>
+
             <!-- NAVIGATION LINKS -->
             <nav class="space-y-1 text-xs font-semibold">
               <button @click="currentTab = 'dashboard'" :class="['w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition', currentTab === 'dashboard' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100']">
-                <i class="fas fa-chart-pie w-5 text-base"></i><span>Dashboard</span>
+                <i class="fas fa-chart-pie w-5 text-base"></i><span>Dashboard & Analytics</span>
               </button>
 
               <button v-if="currentUser.role === 'guru'" @click="currentTab = 'teacherProfile'" :class="['w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition', currentTab === 'teacherProfile' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100']">
@@ -175,6 +170,9 @@
               <template v-if="currentUser.role === 'admin'">
                 <button @click="currentTab = 'schoolConfig'" :class="['w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition', currentTab === 'schoolConfig' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100']">
                   <i class="fas fa-university w-5 text-base"></i><span>Identitas Sekolah</span>
+                </button>
+                <button @click="currentTab = 'cloudSettings'" :class="['w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition', currentTab === 'cloudSettings' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100']">
+                  <i class="fas fa-cloud w-5 text-base"></i><span>Pengaturan Cloud Firebase</span>
                 </button>
                 <button @click="currentTab = 'students'" :class="['w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition', currentTab === 'students' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100']">
                   <i class="fas fa-user-graduate w-5 text-base"></i><span>Master Siswa ({{ students.length }})</span>
@@ -249,7 +247,55 @@
                 <h1 class="text-2xl font-bold text-slate-800">Dashboard Analytics</h1>
                 <p class="text-xs text-slate-500">Ringkasan Sistem & Monitoring Kehadiran Siswa</p>
               </div>
-              <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold">{{ new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</span>
+              <div class="flex items-center space-x-2">
+                <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold">{{ new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</span>
+              </div>
+            </div>
+
+            <!-- FIREBASE PERMISSION DENIED BANNER -->
+            <div v-if="firebaseStatus === 'permission_denied'" class="p-4 bg-rose-50 border-2 border-rose-300 rounded-2xl space-y-3 text-xs">
+              <div class="flex items-start space-x-3">
+                <i class="fas fa-shield-exclamation text-rose-600 text-2xl shrink-0 mt-1"></i>
+                <div class="space-y-1">
+                  <div class="font-bold text-rose-900 text-sm">⚠️ Akses Firebase Ditolak (PERMISSION DENIED 401)</div>
+                  <div class="text-rose-700">
+                    Sistem mendeteksi bahwa aturan database Firebase Anda masih dikunci oleh Google. Agar data otomatis langsung muncul di HP/Gmail lain, <b>Ubah Rules di Firebase Console</b> dalam 1 menit:
+                  </div>
+                  <div class="bg-rose-100 p-2.5 rounded-xl font-mono text-[11px] text-rose-900 mt-2 select-all">
+                    Buka Firebase Console ➔ Realtime Database ➔ Tab Rules ➔ Ubah menjadi:<br>
+                    <b>{ "rules": { "guruku": { ".read": true, ".write": true } } }</b>
+                  </div>
+                </div>
+              </div>
+              <div class="flex justify-end space-x-2 pt-1 border-t border-rose-200">
+                <button @click="reconnectFirebase" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold flex items-center space-x-1 shadow transition">
+                  <i class="fas fa-sync-alt" :class="{'animate-spin': isSyncing}"></i><span>Coba Hubungkan Ulang Sekarang</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- CLOUD CONNECTED BANNER (SLIM) -->
+            <div v-else-if="firebaseStatus === 'connected'" class="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between text-xs">
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 bg-emerald-500 rounded-full animate-ping"></div>
+                <span class="font-bold text-emerald-900">
+                  ☁️ Cloud Sync Aktif: Data yang Anda input otomatis langsung tersimpan ke Cloud dan muncul di HP/Gmail lain.
+                </span>
+              </div>
+              <span class="text-[10px] text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded font-bold">Otomatis Sync</span>
+            </div>
+
+            <!-- NO FIREBASE CONFIG BANNER -->
+            <div v-else class="p-3 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between text-xs">
+              <div class="flex items-center space-x-2">
+                <i class="fas fa-exclamation-circle text-amber-600 text-base"></i>
+                <span class="font-bold text-amber-900">
+                  Aplikasi dalam Mode Penyimpanan Lokal. Masukkan `apiKey` Firebase agar terhubung ke Cloud otomatis.
+                </span>
+              </div>
+              <button @click="currentTab = 'cloudSettings'" class="px-3 py-1 bg-amber-600 text-white rounded-xl font-bold text-[11px] hover:bg-amber-700">
+                Atur Cloud Firebase
+              </button>
             </div>
 
             <!-- SUMMARY STATS -->
@@ -384,6 +430,56 @@
 
           </div>
 
+          <!-- 1B. PENGATURAN CLOUD FIREBASE (EASY SETUP) -->
+          <div v-if="currentTab === 'cloudSettings' && currentUser.role === 'admin'" class="space-y-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <h1 class="text-2xl font-bold text-slate-800">Pengaturan Cloud Firebase</h1>
+                <p class="text-xs text-slate-500">Hubungkan aplikasi ke Cloud secara otomatis tanpa edit kode HTML</p>
+              </div>
+            </div>
+
+            <div class="glass-card p-6 rounded-2xl border border-slate-200 space-y-4 max-w-2xl">
+              <h3 class="font-bold text-slate-800 text-sm border-b pb-2 flex items-center justify-between">
+                <span class="flex items-center"><i class="fas fa-cloud text-indigo-600 mr-2"></i> Konfigurasi Cloud Firebase</span>
+                <span :class="firebaseStatus === 'connected' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'" class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase">
+                  {{ firebaseStatus === 'connected' ? 'Terhubung' : 'Belum Terhubung' }}
+                </span>
+              </h3>
+
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">API Key Firebase</label>
+                  <input v-model="cloudConfigInput.apiKey" type="text" placeholder="Contoh: AIzaSyD..." class="w-full px-3 py-2 border rounded-xl text-xs font-mono">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Database URL (Realtime Database)</label>
+                  <input v-model="cloudConfigInput.databaseURL" type="text" placeholder="https://nama-proyek-default-rtdb.asia-southeast1.firebasedatabase.app" class="w-full px-3 py-2 border rounded-xl text-xs font-mono">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Project ID</label>
+                  <input v-model="cloudConfigInput.projectId" type="text" placeholder="nama-proyek" class="w-full px-3 py-2 border rounded-xl text-xs font-mono">
+                </div>
+              </div>
+
+              <div class="pt-2 flex justify-between items-center border-t">
+                <button @click="saveCloudConfig" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-md flex items-center space-x-1.5">
+                  <i class="fas fa-save"></i><span>Simpan & Terapkan Koneksi Cloud</span>
+                </button>
+                <button @click="resetToDefaultCloudConfig" class="text-xs text-slate-400 hover:text-slate-600 underline">Reset Bawaan</button>
+              </div>
+
+              <div class="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 text-[11px] text-slate-600 space-y-1">
+                <div class="font-bold text-indigo-900">💡 Cara Menemukan Kredensial Ini:</div>
+                <ol class="list-decimal pl-4 space-y-0.5">
+                  <li>Buka <b>Firebase Console</b> (console.firebase.google.com).</li>
+                  <li>Masuk ke <b>Project Settings (Gambar Roda Gigi ⚙️)</b>.</li>
+                  <li>Scroll ke bawah pada bagian <b>Your Apps</b> -> Pilih Web App -> Salin `apiKey`, `databaseURL`, dan `projectId`.</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
           <!-- 2. IDENTITAS SEKOLAH & PENGATURAN KATA SANDI ADMIN -->
           <div v-if="currentTab === 'schoolConfig' && currentUser.role === 'admin'" class="space-y-6">
             <div class="flex items-center justify-between">
@@ -476,7 +572,6 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- PROFIL & TANDA TANGAN DIGITAL GURU -->
               <div class="glass-card p-6 rounded-2xl border border-slate-200 space-y-4">
                 <h3 class="font-bold text-slate-800 text-sm border-b pb-2 flex items-center">
                   <i class="fas fa-signature text-indigo-600 mr-2"></i> Tanda Tangan Digital Guru
@@ -500,7 +595,6 @@
                 <button @click="saveTeacherSignature" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-md">Simpan Tanda Tangan Digital</button>
               </div>
 
-              <!-- UBAH PASSWORD GURU MAPEL -->
               <div class="glass-card p-6 rounded-2xl border border-purple-100 bg-purple-50/20 space-y-4">
                 <h3 class="font-bold text-slate-800 text-sm border-b pb-2 flex items-center">
                   <i class="fas fa-key text-purple-600 mr-2"></i> Ubah Kata Sandi Akun
@@ -554,7 +648,6 @@
                   <option v-for="c in classes" :key="c.id" :value="c.namaKelas">{{ c.namaKelas }}</option>
                 </select>
               </div>
-              <!-- KONTROL PAGINASI -->
               <div class="flex items-center space-x-2 text-xs font-bold">
                 <button @click="studentPage > 1 ? studentPage-- : null" :disabled="studentPage <= 1" class="px-3 py-1.5 bg-slate-100 rounded-lg disabled:opacity-50">Prev</button>
                 <span>Halaman {{ studentPage }} / {{ totalStudentPages || 1 }}</span>
@@ -814,9 +907,9 @@
                   <i class="fas fa-check"></i><span>Terapkan Ke Semua</span>
                 </button>
               </div>
-              <button @click="saveGradesExplicit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md flex items-center space-x-1.5 transition">
-                <i class="fas fa-save"></i><span>Simpan Data Nilai</span>
-              </button>
+              <span class="text-[11px] font-bold text-emerald-700 flex items-center">
+                <i class="fas fa-check-circle mr-1"></i> Auto-Save Ke Cloud Aktif
+              </span>
             </div>
 
             <div v-if="selectedClassId && selectedSubjectId" class="glass-card rounded-2xl overflow-hidden border border-slate-200">
@@ -907,9 +1000,9 @@
                   <button @click="markAllPresent(activeMeeting)" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm">
                     <i class="fas fa-check-double mr-1"></i> Hadirkan Semua ({{ activeMeeting.toUpperCase() }})
                   </button>
-                  <button @click="saveAttendanceExplicit" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm">
-                    <i class="fas fa-save mr-1"></i> Simpan Presensi
-                  </button>
+                  <span class="text-[11px] font-bold text-emerald-700 flex items-center">
+                    <i class="fas fa-cloud text-xs mr-1"></i> Auto-Sync Live
+                  </span>
                 </div>
               </div>
 
@@ -1400,21 +1493,16 @@
   </div>
 
   <script>
-    const IS_PREVIEW = false;
-    const firebaseConfig = {
-      apiKey: "AIzaSyBhNmYAwcGDUPABrEwtINfv_DdlfX7eD3Q",
-  authDomain: "guru4-5dc58.firebaseapp.com",
-  databaseURL: "https://guru4-5dc58-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "guru4-5dc58",
-  storageBucket: "guru4-5dc58.firebasestorage.app",
-  messagingSenderId: "1034333759548",
-  appId: "1:1034333759548:web:54466ac0d56095818c3b39"
+    const DEFAULT_FIREBASE_CONFIG = {
+      apiKey: "AIzaSyCXBSnDwAgprJziubfct-EpkOsy-jzKpnY",
+      authDomain: "gurujaya-e1fbf.firebaseapp.com",
+      databaseURL: "https://gurujaya-e1fbf-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "gurujaya-e1fbf",
+      storageBucket: "gurujaya-e1fbf.firebasestorage.app",
+      messagingSenderId: "604825938679",
+      appId: "1:604825938679:web:8f1375cf6a431767eec1f2"
+      
     };
-
-    const isFirebaseActive = firebaseConfig.apiKey !== "AIzaSyBhNmYAwcGDUPABrEwtINfv_DdlfX7eD3Q" && !IS_PREVIEW;
-    if (isFirebaseActive) {
-      firebase.initializeApp(firebaseConfig);
-    }
 
     const { createApp, ref, computed, onMounted, watch, nextTick } = Vue;
 
@@ -1429,6 +1517,12 @@
         
         const teacherPassForm = ref({ oldPass: '', newPass: '', confirmPass: '' });
         const teacherSignatureUrl = ref('');
+
+        const cloudConfigInput = ref({ ...DEFAULT_FIREBASE_CONFIG });
+        const savedCloudConfig = localStorage.getItem('guruku_cloud_config');
+        if (savedCloudConfig) {
+          try { cloudConfigInput.value = { ...DEFAULT_FIREBASE_CONFIG, ...JSON.parse(savedCloudConfig) }; } catch(e){}
+        }
 
         const schoolConfig = ref({ 
           kopLine1: 'YAYASAN PERSEKOLAHAN KATOLIK SANJAYA NGADA',
@@ -1450,6 +1544,11 @@
         const grades = ref({});
         const attendance = ref({});
         const journals = ref([]);
+
+        // FIREBASE DIAGNOSTIC STATUS
+        const firebaseStatus = ref('offline');
+        const isSyncing = ref(false);
+        let isRemoteUpdating = false;
 
         // PAGINASI SISWA
         const studentSearchQuery = ref('');
@@ -1476,7 +1575,6 @@
 
         let chartInstance = null;
 
-        // HELPER UTAMA: MENGUBAH OBJEK/ARRAY FIREBASE MENJADI ARRAY AMAN
         const ensureArray = (val) => {
           if (!val) return [];
           if (Array.isArray(val)) return val.filter(Boolean);
@@ -1519,12 +1617,10 @@
             mappings.value = [
               { id: 'm1', teacherId: 't1', subjectIds: ['sub1'], classIds: ['c1'] }
             ];
-            saveLocalState();
             localStorage.setItem('guruku_setup_v5_done', 'true');
           }
         };
 
-        // HANDLER LOGIN ANTI-TERKUNCI DEPLOYMENT
         const handleLogin = async () => {
           const rawId = String(loginForm.value.identifier || '').trim();
           const rawPass = String(loginForm.value.password || '').trim();
@@ -1537,7 +1633,6 @@
           const cleanId = rawId.toLowerCase().replace(/\s+/g, '');
           const storedAdminPass = (adminPassword.value || 'admin123').trim();
 
-          // 1. CEK LOGIN ADMIN (Menerima 'admin123' ATAU Password Baru)
           if ((cleanId === 'admin' || cleanId === 'admin@guruku.id') && (rawPass === storedAdminPass || rawPass === 'admin123')) {
             const adminUser = { email: 'admin@guruku.id', nama: 'Administrator', role: 'admin' };
             currentUser.value = adminUser;
@@ -1545,33 +1640,13 @@
             return;
           }
 
-          // 2. CEK FIREBASE AUTH JIKA AKTIF
-          if (isFirebaseActive && cleanId.includes('@')) {
-            try {
-              const res = await firebase.auth().signInWithEmailAndPassword(rawId, rawPass);
-              if (res && res.user) {
-                const adminUser = { email: res.user.email, nama: res.user.displayName || 'Administrator', role: 'admin' };
-                currentUser.value = adminUser;
-                try { localStorage.setItem('guruku_session', JSON.stringify(adminUser)); } catch(e){}
-                return;
-              }
-            } catch (fbErr) {
-              console.log("Firebase Auth skipped:", fbErr);
-            }
-          }
-
-          // 3. CEK LOGIN GURU MAPEL (Database Firebase / Lokal)
           const teacherList = ensureArray(teachers.value);
           const foundTeacher = teacherList.find(t => {
             if (!t) return false;
             const tEmail = String(t.email || '').trim().toLowerCase().replace(/\s+/g, '');
             const tNip = String(t.nip || '').trim().toLowerCase().replace(/\s+/g, '');
             const tPass = String(t.password || '').trim();
-
-            const matchId = (tEmail !== '' && tEmail === cleanId) || (tNip !== '' && tNip === cleanId);
-            const matchPass = tPass === rawPass;
-
-            return matchId && matchPass;
+            return ((tEmail !== '' && tEmail === cleanId) || (tNip !== '' && tNip === cleanId)) && tPass === rawPass;
           });
 
           if (foundTeacher) {
@@ -1581,48 +1656,142 @@
             return;
           }
 
-          // DIAGNOSTIK ERROR LOGIN DETAIL
-          const matchingNipOrEmail = teacherList.find(t => {
-            const tEmail = String(t.email || '').trim().toLowerCase().replace(/\s+/g, '');
-            const tNip = String(t.nip || '').trim().toLowerCase().replace(/\s+/g, '');
-            return (tEmail !== '' && tEmail === cleanId) || (tNip !== '' && tNip === cleanId);
-          });
-
-          if (matchingNipOrEmail) {
-            alert(`Guru ditemukan dengan nama "${matchingNipOrEmail.nama}", tetapi Kata Sandi yang Anda masukkan salah!`);
-          } else {
-            alert(`Login Gagal!\nPengguna "${rawId}" tidak ditemukan.\n\nDatabase membaca ${teacherList.length} data Guru dari Cloud.\n\nPetunjuk Admin Default:\nID: admin\nPassword: admin123 (atau Password Baru yang Anda tetapkan)`);
-          }
+          alert("Login Gagal! Username atau Kata Sandi salah.");
         };
 
         const handleLogout = () => {
-          if (isFirebaseActive && typeof firebase !== 'undefined') {
-            try { firebase.auth().signOut(); } catch(e) {}
-          }
           currentUser.value = null;
           try { localStorage.removeItem('guruku_session'); } catch(e){}
         };
 
-        const changeAdminPassword = () => {
-          if (adminPassForm.value.oldPass !== adminPassword.value && adminPassForm.value.oldPass !== 'admin123') {
-            alert("Password Admin lama yang Anda masukkan salah!");
-            return;
-          }
-          if (!adminPassForm.value.newPass || adminPassForm.value.newPass.length < 4) {
-            alert("Password Admin baru minimal harus 4 karakter!");
-            return;
-          }
-          if (adminPassForm.value.newPass !== adminPassForm.value.confirmPass) {
-            alert("Konfirmasi password baru tidak cocok!");
+        const setupFirebase = () => {
+          const cfg = cloudConfigInput.value;
+          if (!cfg.apiKey || cfg.apiKey === "API_KEY_ANDA") {
+            firebaseStatus.value = 'offline';
             return;
           }
 
-          adminPassword.value = adminPassForm.value.newPass;
-          try { localStorage.setItem('guruku_admin_password', adminPassForm.value.newPass); } catch(e){}
-          saveLocalState();
-          alert("Kata Sandi Admin berhasil diperbarui!");
-          adminPassForm.value = { oldPass: '', newPass: '', confirmPass: '' };
+          try {
+            if (firebase.apps.length) {
+              firebase.app().delete();
+            }
+            firebase.initializeApp(cfg);
+            firebaseStatus.value = 'connecting';
+
+            firebase.database().ref('guruku').on('value', 
+              (snapshot) => {
+                firebaseStatus.value = 'connected';
+                const data = snapshot.val();
+                
+                if (data && data.lastUpdated) {
+                  isRemoteUpdating = true;
+                  if (data.classes) classes.value = ensureArray(data.classes);
+                  if (data.students) students.value = ensureArray(data.students);
+                  if (data.teachers) teachers.value = ensureArray(data.teachers);
+                  if (data.subjects) subjects.value = ensureArray(data.subjects);
+                  if (data.mappings) mappings.value = ensureArray(data.mappings);
+                  if (data.attendance) attendance.value = data.attendance || {};
+                  if (data.grades) grades.value = data.grades || {};
+                  if (data.journals) journals.value = ensureArray(data.journals);
+                  if (data.schoolConfig) schoolConfig.value = data.schoolConfig;
+                  
+                  saveLocalStateOnly();
+                  nextTick(() => { isRemoteUpdating = false; });
+                } else if (!data && students.value.length > 0) {
+                  // If Cloud is empty but local browser has students, push local data to Cloud automatically
+                  pushDataToCloud();
+                }
+              },
+              (error) => {
+                console.error("Firebase Listener Error:", error);
+                if (error.code === 'PERMISSION_DENIED' || error.message?.includes('PERMISSION_DENIED')) {
+                  firebaseStatus.value = 'permission_denied';
+                } else {
+                  firebaseStatus.value = 'error';
+                }
+              }
+            );
+          } catch (e) {
+            console.error("Firebase initialization failed:", e);
+            firebaseStatus.value = 'error';
+          }
         };
+
+        let syncTimer = null;
+        const pushDataToCloud = () => {
+          if (isRemoteUpdating) return;
+          saveLocalStateOnly();
+
+          if (firebaseStatus.value === 'offline' || firebaseStatus.value === 'permission_denied') return;
+
+          clearTimeout(syncTimer);
+          syncTimer = setTimeout(() => {
+            isSyncing.value = true;
+            const payload = {
+              classes: classes.value,
+              students: students.value,
+              teachers: teachers.value,
+              subjects: subjects.value,
+              mappings: mappings.value,
+              attendance: attendance.value,
+              grades: grades.value,
+              journals: journals.value,
+              schoolConfig: schoolConfig.value,
+              lastUpdated: new Date().toISOString()
+            };
+
+            try {
+              firebase.database().ref('guruku').set(payload)
+                .then(() => {
+                  firebaseStatus.value = 'connected';
+                  isSyncing.value = false;
+                })
+                .catch(err => {
+                  isSyncing.value = false;
+                  if (err.code === 'PERMISSION_DENIED') {
+                    firebaseStatus.value = 'permission_denied';
+                  }
+                });
+            } catch(e) {
+              isSyncing.value = false;
+            }
+          }, 300);
+        };
+
+        const saveLocalStateOnly = () => {
+          try {
+            localStorage.setItem('guruku_classes', JSON.stringify(classes.value));
+            localStorage.setItem('guruku_students', JSON.stringify(students.value));
+            localStorage.setItem('guruku_teachers', JSON.stringify(teachers.value));
+            localStorage.setItem('guruku_subjects', JSON.stringify(subjects.value));
+            localStorage.setItem('guruku_mappings', JSON.stringify(mappings.value));
+            localStorage.setItem('guruku_attendance', JSON.stringify(attendance.value));
+            localStorage.setItem('guruku_grades', JSON.stringify(grades.value));
+            localStorage.setItem('guruku_journals', JSON.stringify(journals.value));
+            localStorage.setItem('guruku_schoolConfig', JSON.stringify(schoolConfig.value));
+          } catch(e){}
+        };
+
+        const saveCloudConfig = () => {
+          localStorage.setItem('guruku_cloud_config', JSON.stringify(cloudConfigInput.value));
+          setupFirebase();
+          alert("Konfirmasi Cloud Firebase berhasil disimpan & diterapkan!");
+        };
+
+        const resetToDefaultCloudConfig = () => {
+          cloudConfigInput.value = { ...DEFAULT_FIREBASE_CONFIG };
+          localStorage.removeItem('guruku_cloud_config');
+          setupFirebase();
+        };
+
+        const reconnectFirebase = () => {
+          setupFirebase();
+        };
+
+        // Automatic Watcher to Sync every mutation live
+        watch([students, teachers, subjects, classes, mappings, attendance, grades, journals, schoolConfig], () => {
+          pushDataToCloud();
+        }, { deep: true });
 
         const availableClasses = computed(() => {
           if (currentUser.value?.role === 'admin') return classes.value;
@@ -1649,7 +1818,6 @@
           });
         });
 
-        // COMPUTED PAGINASI SISWA RINGAN
         const totalStudentPages = computed(() => {
           return Math.ceil(filteredStudents.value.length / studentPerPage.value) || 1;
         });
@@ -1699,7 +1867,6 @@
           } else {
             grades.value[key][col] = Number(val);
           }
-          saveLocalState();
         };
 
         const getStudentGrade = (studentId, col) => {
@@ -1716,16 +1883,6 @@
             updateGrade(s.id, batchGradeCol.value, batchGradeVal.value);
           });
           alert(`Berhasil menerapkan nilai ${batchGradeVal.value} pada kolom ${batchGradeCol.value.toUpperCase()} untuk seluruh siswa kelas ini!`);
-        };
-
-        const saveGradesExplicit = () => {
-          saveLocalState();
-          alert("Data Nilai berhasil disimpan ke sistem!");
-        };
-
-        const saveAttendanceExplicit = () => {
-          saveLocalState();
-          alert("Data Presensi berhasil disimpan ke sistem!");
         };
 
         const calculateGradeSummary = (studentId) => {
@@ -1767,7 +1924,6 @@
           const cur = attendance.value[key][meetingKey] || '';
           const next = cur === '' ? 'H' : cur === 'H' ? 'I' : cur === 'I' ? 'S' : cur === 'S' ? 'A' : '';
           attendance.value[key][meetingKey] = next;
-          saveLocalState();
         };
 
         const getAttendanceStatus = (studentId, meetingKey) => {
@@ -1786,7 +1942,6 @@
             if (!attendance.value[key]) attendance.value[key] = {};
             attendance.value[key][meetingKey] = 'H';
           });
-          saveLocalState();
         };
 
         const getMeetingDate = (mKey) => {
@@ -1798,7 +1953,6 @@
           if (!dateStr) return;
           const key = `date_${selectedClassId.value}_${selectedSubjectId.value}_${mKey}`;
           attendance.value[key] = dateStr;
-          saveLocalState();
         };
 
         const formatShortDate = (dateStr) => {
@@ -1842,7 +1996,6 @@
           XLSX.writeFile(wb, filename);
         };
 
-        // IMPOR EXCEL DIOPTIMALKAN (PAKSA FORMAT NIP DAN PASSWORD SEBAGAI TEKS)
         const importExcel = (type, event) => {
           const file = event.target.files[0];
           if (!file) return;
@@ -1887,8 +2040,7 @@
             } else if (type === 'classes') {
               data.forEach(r => { if (r.NamaKelas) classes.value.push({ id: 'c_' + Date.now() + Math.random(), namaKelas: String(r.NamaKelas).trim(), tingkat: String(r.Tingkat || 'X').trim() }); });
             }
-            saveLocalState();
-            alert(`Berhasil mengimpor ${data.length} data ${type}!`);
+            alert(`Berhasil mengimpor ${data.length} data ${type}! Data otomatis tersimpan.`);
           };
           reader.readAsBinaryString(file);
         };
@@ -1967,7 +2119,6 @@
               classes.value.push({ id: 'c_' + Date.now(), namaKelas: modalForm.value.namaKelas, tingkat: modalForm.value.tingkat || 'X' });
             }
           }
-          saveLocalState();
           modal.value.show = false;
         };
 
@@ -1979,7 +2130,6 @@
             else if (type === 'classes') classes.value = classes.value.filter(x => x.id !== id);
             else if (type === 'mappings') mappings.value = mappings.value.filter(x => x.id !== id);
             else if (type === 'journals') journals.value = journals.value.filter(x => x.id !== id);
-            saveLocalState();
           }
         };
 
@@ -1989,13 +2139,11 @@
             else if (type === 'teachers') teachers.value = [];
             else if (type === 'subjects') subjects.value = [];
             else if (type === 'classes') classes.value = [];
-            saveLocalState();
           }
         };
 
         const saveSchoolConfig = () => {
-          saveLocalState();
-          alert("Identitas sekolah berhasil disimpan!");
+          alert("Identitas sekolah berhasil diperbarui!");
         };
 
         const saveTeacherSignature = () => {
@@ -2005,10 +2153,29 @@
             if (idx !== -1) {
               teachers.value[idx].signatureUrl = teacherSignatureUrl.value;
             }
-            saveLocalState();
             try { localStorage.setItem('guruku_session', JSON.stringify(currentUser.value)); } catch(e){}
             alert("Tanda Tangan Digital Guru berhasil disimpan!");
           }
+        };
+
+        const changeAdminPassword = () => {
+          if (adminPassForm.value.oldPass !== adminPassword.value && adminPassForm.value.oldPass !== 'admin123') {
+            alert("Password Admin lama yang Anda masukkan salah!");
+            return;
+          }
+          if (!adminPassForm.value.newPass || adminPassForm.value.newPass.length < 4) {
+            alert("Password Admin baru minimal harus 4 karakter!");
+            return;
+          }
+          if (adminPassForm.value.newPass !== adminPassForm.value.confirmPass) {
+            alert("Konfirmasi password baru tidak cocok!");
+            return;
+          }
+
+          adminPassword.value = adminPassForm.value.newPass;
+          try { localStorage.setItem('guruku_admin_password', adminPassForm.value.newPass); } catch(e){}
+          alert("Kata Sandi Admin berhasil diperbarui!");
+          adminPassForm.value = { oldPass: '', newPass: '', confirmPass: '' };
         };
 
         const changeTeacherPassword = () => {
@@ -2031,7 +2198,6 @@
           if (idx !== -1) {
             teachers.value[idx].password = teacherPassForm.value.newPass;
           }
-          saveLocalState();
           try { localStorage.setItem('guruku_session', JSON.stringify(currentUser.value)); } catch(e){}
           alert("Kata Sandi Guru berhasil diperbarui!");
           teacherPassForm.value = { oldPass: '', newPass: '', confirmPass: '' };
@@ -2083,40 +2249,7 @@
           XLSX.writeFile(wb, "Rekap_Laporan.xlsx");
         };
 
-        // PENYIMPANAN AMAN TERPROTEKSI QUOTA EXCEEDED
-        const saveLocalState = () => {
-          try {
-            localStorage.setItem('guruku_classes', JSON.stringify(classes.value));
-            localStorage.setItem('guruku_students', JSON.stringify(students.value));
-            localStorage.setItem('guruku_teachers', JSON.stringify(teachers.value));
-            localStorage.setItem('guruku_subjects', JSON.stringify(subjects.value));
-            localStorage.setItem('guruku_mappings', JSON.stringify(mappings.value));
-            localStorage.setItem('guruku_attendance', JSON.stringify(attendance.value));
-            localStorage.setItem('guruku_grades', JSON.stringify(grades.value));
-            localStorage.setItem('guruku_journals', JSON.stringify(journals.value));
-            localStorage.setItem('guruku_schoolConfig', JSON.stringify(schoolConfig.value));
-          } catch(e) {
-            console.warn("Quota LocalStorage terlampaui. Data disimpan secara langsung ke Cloud Firebase.", e);
-          }
-
-          if (isFirebaseActive && typeof firebase !== 'undefined') {
-            try {
-              firebase.database().ref('guruku').set({
-                classes: classes.value,
-                students: students.value,
-                teachers: teachers.value,
-                subjects: subjects.value,
-                mappings: mappings.value,
-                attendance: attendance.value,
-                grades: grades.value,
-                journals: journals.value,
-                schoolConfig: schoolConfig.value
-              });
-            } catch(e) { console.log('Firebase sync error:', e); }
-          }
-        };
-
-        const loadLocalState = () => {
+        const loadInitialLocalState = () => {
           const savedSession = localStorage.getItem('guruku_session');
           if (savedSession) {
             try { currentUser.value = JSON.parse(savedSession); } catch(e) {}
@@ -2131,23 +2264,6 @@
           if (localStorage.getItem('guruku_grades')) grades.value = JSON.parse(localStorage.getItem('guruku_grades')) || {};
           if (localStorage.getItem('guruku_journals')) journals.value = ensureArray(JSON.parse(localStorage.getItem('guruku_journals')));
           if (localStorage.getItem('guruku_schoolConfig')) schoolConfig.value = JSON.parse(localStorage.getItem('guruku_schoolConfig'));
-
-          if (isFirebaseActive && typeof firebase !== 'undefined') {
-            firebase.database().ref('guruku').on('value', (snapshot) => {
-              const data = snapshot.val();
-              if (data) {
-                if (data.classes) classes.value = ensureArray(data.classes);
-                if (data.students) students.value = ensureArray(data.students);
-                if (data.teachers) teachers.value = ensureArray(data.teachers);
-                if (data.subjects) subjects.value = ensureArray(data.subjects);
-                if (data.mappings) mappings.value = ensureArray(data.mappings);
-                if (data.attendance) attendance.value = data.attendance || {};
-                if (data.grades) grades.value = data.grades || {};
-                if (data.journals) journals.value = ensureArray(data.journals);
-                if (data.schoolConfig) schoolConfig.value = data.schoolConfig;
-              }
-            });
-          }
         };
 
         watch(currentTab, (newTab) => {
@@ -2156,9 +2272,10 @@
 
         onMounted(() => {
           autoSetupDatabase();
-          loadLocalState();
+          loadInitialLocalState();
           if (classes.value.length) selectedClassId.value = classes.value[0].id;
           if (subjects.value.length) selectedSubjectId.value = subjects.value[0].id;
+          setupFirebase();
           renderChart();
         });
 
@@ -2169,14 +2286,15 @@
           schoolConfig, saveSchoolConfig, students, teachers, subjects, classes, mappings, journals,
           studentSearchQuery, studentClassFilter, studentPage, totalStudentPages, paginatedStudents, currentClassStudents,
           selectedClassId, selectedSubjectId, activeMeeting, reportCategory,
-          batchGradeCol, batchGradeVal, applyBatchGrade, saveGradesExplicit, saveAttendanceExplicit,
+          batchGradeCol, batchGradeVal, applyBatchGrade,
           attendancePeriodType, weeklyStartDate, weeklyEndDate, selectedMonth, selectedSemester,
           downloadTemplate, importExcel, openModal, openMappingModal, selectClassesByGrade, selectAllClasses, modal, modalForm, saveModal, deleteData, deleteAllData,
           getStudentGrade, updateGrade, calculateGradeSummary, getStudentRank,
           toggleAttendance, getAttendanceStatus, getAttendanceBadgeClass, markAllPresent, getMeetingDate, setMeetingDate, formatShortDate, calculateAttendanceStats,
           todayBirthdays, top20Absent, bestPerformingClass, availableClasses, availableSubjects,
           getClassName, getSubjectName, getTeacherName, getSubjectNames,
-          renderChart, triggerPrint, exportPDF, exportExcelReport
+          renderChart, triggerPrint, exportPDF, exportExcelReport,
+          cloudConfigInput, saveCloudConfig, resetToDefaultCloudConfig, firebaseStatus, isSyncing, reconnectFirebase
         };
       }
     }).mount('#app');
