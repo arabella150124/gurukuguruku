@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>GuruKu PWA - Sistem Informasi Presensi, Nilai & Jurnal Guru</title>
+  <title>Aplikasi - Guru Mata Pelajaran</title>
   
   <!-- Tailwind CSS & FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -113,13 +113,13 @@
             <div class="w-20 h-20 mx-auto bg-indigo-600 rounded-2xl flex items-center justify-center text-white text-3xl font-bold shadow-lg mb-3">
               <i class="fas fa-graduation-cap"></i>
             </div>
-            <h1 class="text-2xl font-bold text-slate-800">GuruKu PWA</h1>
-            <p class="text-xs text-slate-500 font-medium mt-1">Sistem Presensi, Nilai & Analytics Guru</p>
+            <h1 class="text-2xl font-bold text-slate-800">Aplikasi Guru Mapel</h1>
+            <p class="text-xs text-slate-500 font-medium mt-1">Sistem Presensi, Nilai & Jurnal KBM</p>
           </div>
 
           <form @submit.prevent="handleLogin" class="space-y-4">
             <div>
-              <label class="block text-xs font-bold text-slate-600 mb-1 uppercase">Email / NIP / Username</label>
+              <label class="block text-xs font-bold text-slate-600 mb-1 uppercase">Email</label>
               <input v-model="loginForm.identifier" type="text" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm" placeholder="Contoh: admin atau guru@guruku.id / NIP">
             </div>
             <div>
@@ -127,21 +127,21 @@
               <input v-model="loginForm.password" type="password" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm" placeholder="••••••••">
             </div>
             <button type="submit" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 transition text-sm flex items-center justify-center space-x-2">
-              <i class="fas fa-sign-in-alt"></i><span>Masuk Aplikasi</span>
+              <i class="fas fa-sign-in-alt"></i><span>Login Aplikasi</span>
             </button>
           </form>
 
-          <div class="mt-4 pt-4 border-t border-slate-100 flex justify-center space-x-2 text-[11px]">
+          <!--<div class="mt-4 pt-4 border-t border-slate-100 flex justify-center space-x-2 text-[11px]">
             <button @click="fillQuickLogin('admin')" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg font-bold hover:bg-indigo-100 transition">
               <i class="fas fa-user-shield mr-1"></i> Isi Admin
             </button>
             <button @click="fillQuickLogin('guru')" class="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg font-bold hover:bg-purple-100 transition">
               <i class="fas fa-chalkboard-teacher mr-1"></i> Isi Guru Pertama
             </button>
-          </div>
+          </div>-->
 
           <div class="mt-4 text-center text-[11px] text-slate-400 font-medium">
-            Version 5.2 • Terhubung ke Firebase Cloud Realtime
+            2026 • oleh Ally R.
           </div>
         </div>
       </div>
@@ -164,7 +164,7 @@
             <!-- NAVIGATION LINKS -->
             <nav class="space-y-1 text-xs font-semibold">
               <button @click="currentTab = 'dashboard'" :class="['w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition', currentTab === 'dashboard' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100']">
-                <i class="fas fa-chart-pie w-5 text-base"></i><span>Dashboard & Analytics</span>
+                <i class="fas fa-chart-pie w-5 text-base"></i><span>Dashboard</span>
               </button>
 
               <button v-if="currentUser.role === 'guru'" @click="currentTab = 'teacherProfile'" :class="['w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition', currentTab === 'teacherProfile' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100']">
