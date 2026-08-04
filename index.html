@@ -5,16 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>GuruKu PWA - Sistem Informasi Presensi, Nilai & Jurnal Guru</title>
   
+  <!-- Tailwind CSS & FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Vue 3 & Chart.js -->
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Firebase Web SDK v9 Compat -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  
+  <!-- SheetJS & html2pdf -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
+  <!-- PWA Manifest Inline Data URI -->
   <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIkd1cnVLIFA0QSIsCiAgInNob3J0X25hbWUiOiAiR3VydUt1IiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmOGZhZmMiLAogICJ0aGVtZV9jb2xvciI6ICIjNGY0NmU1IiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9jZG4taWNvbnMtcG5nLmZsYXRpY29uLmNvbS81MTIvMzQyOS8zNDI5MTQ5LnBuZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIgogICAgfQogIF0KfQ==">
 
   <style>
@@ -58,6 +66,34 @@
       .main-content { margin-left: 0; padding-bottom: 5rem; }
     }
 
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #blogger-pwa-root, .main-content {
+        position: static !important;
+        overflow: visible !important;
+      }
+      #print-area, #print-area * {
+        visibility: visible;
+      }
+      #print-area {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 4mm !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: white !important;
+      }
+      @page {
+        size: A4 portrait;
+        margin: 4mm;
+      }
+    }
+
     .badge-H { background-color: #10b981; color: #ffffff; font-weight: bold; }
     .badge-I { background-color: #3b82f6; color: #ffffff; font-weight: bold; }
     .badge-S { background-color: #f59e0b; color: #ffffff; font-weight: bold; }
@@ -70,6 +106,7 @@
   <div id="blogger-pwa-root">
     <div id="app">
       
+      <!-- HALAMAN LOGIN -->
       <div v-if="!currentUser" class="min-h-screen flex items-center justify-center p-4 login-bg">
         <div class="glass-card w-full max-w-md p-8 rounded-3xl shadow-2xl bg-white/95">
           <div class="text-center mb-6">
@@ -95,10 +132,10 @@
           </form>
 
           <div class="mt-4 pt-4 border-t border-slate-100 flex justify-center space-x-2 text-[11px]">
-            <button @click="fillQuickLogin('admin', adminPassword)" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg font-bold hover:bg-indigo-100 transition">
+            <button @click="fillQuickLogin('admin')" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg font-bold hover:bg-indigo-100 transition">
               <i class="fas fa-user-shield mr-1"></i> Isi Admin
             </button>
-            <button @click="fillQuickLogin('guru@guruku.id', 'guru123')" class="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg font-bold hover:bg-purple-100 transition">
+            <button @click="fillQuickLogin('guru')" class="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg font-bold hover:bg-purple-100 transition">
               <i class="fas fa-chalkboard-teacher mr-1"></i> Isi Guru
             </button>
           </div>
@@ -111,6 +148,7 @@
 
       <div v-else class="flex min-h-screen">
 
+        <!-- DESKTOP SIDEBAR -->
         <aside class="desktop-sidebar fixed top-0 left-0 h-screen w-64 glass-nav border-r border-slate-200 flex-col justify-between p-4 z-30 overflow-y-auto">
           <div>
             <div class="flex items-center space-x-3 p-3 mb-6 bg-indigo-50 rounded-2xl">
@@ -123,14 +161,20 @@
               </div>
             </div>
 
+            <!-- NAVIGATION LINKS -->
             <nav class="space-y-1 text-xs font-semibold">
               <button @click="currentTab = 'dashboard'" :class="['w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition', currentTab === 'dashboard' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100']">
                 <i class="fas fa-chart-pie w-5 text-base"></i><span>Dashboard & Analytics</span>
               </button>
+
+              <button v-if="currentUser.role === 'guru'" @click="currentTab = 'teacherProfile'" :class="['w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition', currentTab === 'teacherProfile' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100']">
+                <i class="fas fa-user-cog w-5 text-base"></i><span>Identitas & Keamanan</span>
+              </button>
               
+              <!-- ADMIN MENU -->
               <template v-if="currentUser.role === 'admin'">
                 <button @click="currentTab = 'schoolConfig'" :class="['w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition', currentTab === 'schoolConfig' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100']">
-                  <i class="fas fa-university w-5 text-base"></i><span>Identitas & Keamanan</span>
+                  <i class="fas fa-university w-5 text-base"></i><span>Identitas Sekolah</span>
                 </button>
                 <button @click="currentTab = 'students'" :class="['w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition', currentTab === 'students' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100']">
                   <i class="fas fa-user-graduate w-5 text-base"></i><span>Master Siswa</span>
@@ -149,6 +193,7 @@
                 </button>
               </template>
 
+              <!-- COMMON MENU -->
               <button @click="currentTab = 'grades'" :class="['w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition', currentTab === 'grades' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100']">
                 <i class="fas fa-pen-alt w-5 text-base"></i><span>Input Nilai</span>
               </button>
@@ -172,6 +217,7 @@
           </div>
         </aside>
 
+        <!-- MOBILE BOTTOM NAV -->
         <nav class="mobile-bottom-nav fixed bottom-0 left-0 right-0 glass-nav border-t border-slate-200 justify-around p-2 z-40">
           <button @click="currentTab = 'dashboard'" :class="['flex flex-col items-center p-1 rounded-xl text-[10px] font-bold', currentTab === 'dashboard' ? 'text-indigo-600' : 'text-slate-500']">
             <i class="fas fa-chart-pie text-base"></i><span>Analytics</span>
@@ -193,8 +239,10 @@
           </button>
         </nav>
 
+        <!-- MAIN CONTENT AREA -->
         <main class="main-content flex-1 p-4 md:p-8 overflow-y-auto">
 
+          <!-- 1. DASHBOARD & ANALYTICS -->
           <div v-if="currentTab === 'dashboard'" class="space-y-6">
             <div class="flex items-center justify-between">
               <div>
@@ -204,6 +252,7 @@
               <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold">{{ new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</span>
             </div>
 
+            <!-- SUMMARY STATS -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div class="glass-card p-4 rounded-2xl border border-slate-200">
                 <div class="flex items-center justify-between">
@@ -243,6 +292,7 @@
               </div>
             </div>
 
+            <!-- BIRTHDAY WIDGET -->
             <div class="glass-card p-5 rounded-2xl border border-pink-100 bg-pink-50/30">
               <h3 class="font-bold text-slate-800 flex items-center text-sm mb-3">
                 <i class="fas fa-cake-candles text-pink-500 mr-2 text-base"></i> Notifikasi Ulang Tahun Siswa Hari Ini
@@ -266,6 +316,7 @@
               </div>
             </div>
 
+            <!-- GRAFIK KEHADIRAN KELAS -->
             <div class="glass-card p-5 rounded-2xl border border-slate-200 space-y-4">
               <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div>
@@ -304,6 +355,7 @@
               </div>
             </div>
 
+            <!-- TOP 20 ALPA TERBANYAK -->
             <div class="glass-card p-5 rounded-2xl border border-rose-100 bg-rose-50/20">
               <h3 class="font-bold text-slate-800 text-sm flex items-center mb-4">
                 <i class="fas fa-exclamation-triangle text-rose-500 mr-2 text-base"></i> Top 20 Siswa Alpa Terbanyak & Potensi Panggilan Orang Tua
@@ -332,27 +384,38 @@
 
           </div>
 
-          <!-- TAB IDENTITAS SEKOLAH & UBAH PASSWORD ADMIN -->
+          <!-- 2. IDENTITAS SEKOLAH & PENGATURAN KATA SANDI ADMIN -->
           <div v-if="currentTab === 'schoolConfig' && currentUser.role === 'admin'" class="space-y-6">
             <div class="flex items-center justify-between">
               <div>
-                <h1 class="text-2xl font-bold text-slate-800">Identitas Sekolah & Keamanan</h1>
-                <p class="text-xs text-slate-500">Atur KOP Surat & Pengaturan Kata Sandi Akun Admin</p>
+                <h1 class="text-2xl font-bold text-slate-800">Identitas & Keamanan Admin</h1>
+                <p class="text-xs text-slate-500">Atur KOP Surat 4 Baris, Tanda Tangan Digital & Password Admin</p>
               </div>
-              <button @click="saveSchoolConfig" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold shadow-md">Simpan Identitas</button>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- CARD 1: IDENTITAS SEKOLAH -->
+              <!-- FORM IDENTITAS SEKOLAH (KOP 4 BARIS) -->
               <div class="glass-card p-6 rounded-2xl border border-slate-200 space-y-4">
                 <h3 class="font-bold text-slate-800 text-sm border-b pb-2 flex items-center">
-                  <i class="fas fa-university text-indigo-600 mr-2"></i> Identitas & KOP Sekolah
+                  <i class="fas fa-school text-indigo-600 mr-2"></i> Identitas KOP Sekolah (4 Baris)
                 </h3>
                 <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1">Nama Sekolah</label>
-                  <input v-model="schoolConfig.namaSekolah" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
+                  <label class="block text-xs font-bold text-slate-600 mb-1">KOP Baris 1 (Yayasan)</label>
+                  <input v-model="schoolConfig.kopLine1" type="text" class="w-full px-3 py-2 border rounded-xl text-xs" placeholder="Yayasan persekolahan Katolik Sanjaya Ngada">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">KOP Baris 2 (Jenis Sekolah)</label>
+                  <input v-model="schoolConfig.kopLine2" type="text" class="w-full px-3 py-2 border rounded-xl text-xs" placeholder="Sekolah Menengah Kejuruan Swasta">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">KOP Baris 3 (Nama Sekolah Utama)</label>
+                  <input v-model="schoolConfig.kopLine3" type="text" class="w-full px-3 py-2 border rounded-xl text-xs font-bold" placeholder="SMKS SANJAYA BAJAWA">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">KOP Baris 4 (Alamat Lengkap)</label>
+                  <input v-model="schoolConfig.kopLine4" type="text" class="w-full px-3 py-2 border rounded-xl text-xs" placeholder="Jl. Let.Jend. Soeprapto, Bajawa-Kab. Ngada-Flores, NTT">
+                </div>
+                <div class="grid grid-cols-2 gap-4 pt-2">
                   <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">NPSN</label>
                     <input v-model="schoolConfig.npsn" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
@@ -362,47 +425,108 @@
                     <input v-model="schoolConfig.kota" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
                   </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4 pt-3 border-t">
+                <div class="grid grid-cols-2 gap-4 pt-2 border-t">
                   <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Nama Kepala Sekolah</label>
                     <input v-model="schoolConfig.kepsekNama" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
                   </div>
-                  <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">NIP Kepala Sekolah</label>
-                    <input v-model="schoolConfig.kepsekNip" type="text" class="w-full px-3 py-2 border rounded-xl text-xs">
+                  <div class="flex flex-col justify-center pt-2">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                      <input type="checkbox" v-model="schoolConfig.showSignature" class="w-4 h-4 text-indigo-600 rounded">
+                      <span class="text-xs font-bold text-slate-700">Gunakan Tanda Tangan Digital</span>
+                    </label>
                   </div>
                 </div>
+                <button @click="saveSchoolConfig" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-md">Simpan Identitas Sekolah</button>
               </div>
 
-              <!-- CARD 2: UBAH KATA SANDI ADMIN -->
-              <div class="glass-card p-6 rounded-2xl border border-indigo-100 bg-indigo-50/20 space-y-4">
+              <!-- FORM UBAH KATA SANDI ADMIN -->
+              <div class="glass-card p-6 rounded-2xl border border-purple-100 bg-purple-50/20 space-y-4">
                 <h3 class="font-bold text-slate-800 text-sm border-b pb-2 flex items-center">
-                  <i class="fas fa-user-shield text-indigo-600 mr-2"></i> Ubah Kata Sandi Akun Admin
+                  <i class="fas fa-key text-purple-600 mr-2"></i> Ubah Kata Sandi Akun Admin
                 </h3>
                 <form @submit.prevent="changeAdminPassword" class="space-y-3">
                   <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Kata Sandi Admin Saat Ini</label>
-                    <input v-model="adminPassForm.oldPass" type="password" required placeholder="Masukkan password lama" class="w-full px-3 py-2 border rounded-xl text-xs bg-white">
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Password Admin Lama</label>
+                    <input v-model="adminPassForm.oldPass" type="password" required class="w-full px-3 py-2 border rounded-xl text-xs" placeholder="••••••••">
                   </div>
                   <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Kata Sandi Baru</label>
-                    <input v-model="adminPassForm.newPass" type="password" required placeholder="Minimal 4 karakter" class="w-full px-3 py-2 border rounded-xl text-xs bg-white">
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Password Admin Baru</label>
+                    <input v-model="adminPassForm.newPass" type="password" required class="w-full px-3 py-2 border rounded-xl text-xs" placeholder="••••••••">
                   </div>
                   <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Konfirmasi Kata Sandi Baru</label>
-                    <input v-model="adminPassForm.confirmPass" type="password" required placeholder="Ulangi kata sandi baru" class="w-full px-3 py-2 border rounded-xl text-xs bg-white">
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Konfirmasi Password Baru</label>
+                    <input v-model="adminPassForm.confirmPass" type="password" required class="w-full px-3 py-2 border rounded-xl text-xs" placeholder="••••••••">
                   </div>
-                  <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 shadow-md">
-                    <i class="fas fa-key"></i><span>Update Kata Sandi Admin</span>
+                  <button type="submit" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs shadow-md flex items-center justify-center space-x-1.5">
+                    <i class="fas fa-lock-open"></i><span>Update Kata Sandi Admin</span>
                   </button>
                 </form>
-                <div class="text-[11px] text-slate-500 italic pt-2">
-                  * Password Admin baru akan otomatis tersimpan di browser dan tersinkronisasi ke Cloud Database.
-                </div>
               </div>
             </div>
           </div>
 
+          <!-- 2B. IDENTITAS & KEAMANAN GURU MAPEL -->
+          <div v-if="currentTab === 'teacherProfile' && currentUser.role === 'guru'" class="space-y-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <h1 class="text-2xl font-bold text-slate-800">Identitas & Keamanan Guru</h1>
+                <p class="text-xs text-slate-500">Kelola Password Akun Guru & Tanda Tangan Digital Profil</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- PROFIL & TANDA TANGAN DIGITAL GURU -->
+              <div class="glass-card p-6 rounded-2xl border border-slate-200 space-y-4">
+                <h3 class="font-bold text-slate-800 text-sm border-b pb-2 flex items-center">
+                  <i class="fas fa-signature text-indigo-600 mr-2"></i> Tanda Tangan Digital Guru
+                </h3>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Nama Guru</label>
+                  <input :value="currentUser.nama" disabled type="text" class="w-full px-3 py-2 border bg-slate-100 rounded-xl text-xs font-bold text-slate-700">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">NIP / Email</label>
+                  <input :value="currentUser.nip || currentUser.email" disabled type="text" class="w-full px-3 py-2 border bg-slate-100 rounded-xl text-xs text-slate-700">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">URL / Image Tanda Tangan Digital (Opsional)</label>
+                  <input v-model="teacherSignatureUrl" type="text" placeholder="https://... atau tempel URL Gambar TTD" class="w-full px-3 py-2 border rounded-xl text-xs">
+                </div>
+                <div v-if="teacherSignatureUrl" class="p-3 border rounded-xl bg-slate-50 text-center">
+                  <span class="block text-[10px] font-bold text-slate-400 mb-1">Pratinjau TTD:</span>
+                  <img :src="teacherSignatureUrl" class="h-16 mx-auto object-contain" alt="TTD Guru">
+                </div>
+                <button @click="saveTeacherSignature" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-md">Simpan Tanda Tangan Digital</button>
+              </div>
+
+              <!-- UBAH PASSWORD GURU MAPEL -->
+              <div class="glass-card p-6 rounded-2xl border border-purple-100 bg-purple-50/20 space-y-4">
+                <h3 class="font-bold text-slate-800 text-sm border-b pb-2 flex items-center">
+                  <i class="fas fa-key text-purple-600 mr-2"></i> Ubah Kata Sandi Akun
+                </h3>
+                <form @submit.prevent="changeTeacherPassword" class="space-y-3">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Password Saat Ini</label>
+                    <input v-model="teacherPassForm.oldPass" type="password" required class="w-full px-3 py-2 border rounded-xl text-xs" placeholder="••••••••">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Password Baru</label>
+                    <input v-model="teacherPassForm.newPass" type="password" required class="w-full px-3 py-2 border rounded-xl text-xs" placeholder="••••••••">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Konfirmasi Password Baru</label>
+                    <input v-model="teacherPassForm.confirmPass" type="password" required class="w-full px-3 py-2 border rounded-xl text-xs" placeholder="••••••••">
+                  </div>
+                  <button type="submit" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs shadow-md flex items-center justify-center space-x-1.5">
+                    <i class="fas fa-lock-open"></i><span>Update Kata Sandi Guru</span>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. MASTER SISWA -->
           <div v-if="currentTab === 'students' && currentUser.role === 'admin'" class="space-y-6">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
@@ -478,6 +602,7 @@
             </div>
           </div>
 
+          <!-- 4. MASTER GURU -->
           <div v-if="currentTab === 'teachers' && currentUser.role === 'admin'" class="space-y-6">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
@@ -527,6 +652,7 @@
             </div>
           </div>
 
+          <!-- 5. MASTER MAPEL -->
           <div v-if="currentTab === 'subjects' && currentUser.role === 'admin'" class="space-y-6">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
@@ -572,6 +698,7 @@
             </div>
           </div>
 
+          <!-- 6. MASTER KELAS -->
           <div v-if="currentTab === 'classes' && currentUser.role === 'admin'" class="space-y-6">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
@@ -612,6 +739,7 @@
             </div>
           </div>
 
+          <!-- 7. MAPPING PENGAJAR -->
           <div v-if="currentTab === 'mappings' && currentUser.role === 'admin'" class="space-y-6">
             <div class="flex items-center justify-between">
               <div>
@@ -646,6 +774,7 @@
             </div>
           </div>
 
+          <!-- 8. INPUT NILAI SISWA -->
           <div v-if="currentTab === 'grades'" class="space-y-6">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
@@ -740,6 +869,7 @@
             </div>
           </div>
 
+          <!-- 9. PRESENSI SISWA -->
           <div v-if="currentTab === 'attendance'" class="space-y-6">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
@@ -825,6 +955,7 @@
             </div>
           </div>
 
+          <!-- 10. JURNAL MENGAJAR -->
           <div v-if="currentTab === 'journal'" class="space-y-6">
             <div class="flex items-center justify-between">
               <div>
@@ -870,6 +1001,7 @@
             </div>
           </div>
 
+          <!-- 11. PUSAT REKAP LAPORAN (5 KATEGORI) -->
           <div v-if="currentTab === 'reports'" class="space-y-6">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
@@ -910,17 +1042,20 @@
               </div>
             </div>
 
-            <div id="print-area" class="bg-white p-8 rounded-2xl border border-slate-200 text-slate-900 space-y-6 shadow-sm">
-              <div class="border-b-2 border-slate-800 pb-3 text-center">
-                <h2 class="text-xl font-black uppercase tracking-wider">{{ schoolConfig.namaSekolah }}</h2>
-                <p class="text-xs text-slate-600 font-semibold mt-0.5">NPSN: {{ schoolConfig.npsn }} • {{ schoolConfig.kota }}</p>
+            <!-- DOKUMEN CETAK -->
+            <div id="print-area" class="bg-white p-6 rounded-2xl border border-slate-200 text-slate-900 space-y-4 shadow-sm">
+              <div class="pb-2 text-center border-b border-slate-300" style="line-height: 1.15;">
+                <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-800 my-[1px]">{{ schoolConfig.kopLine1 || 'YAYASAN PERSEKOLAHAN KATOLIK SANJAYA NGADA' }}</h4>
+                <h4 class="text-[10px] font-semibold uppercase text-slate-700 my-[1px]">{{ schoolConfig.kopLine2 || 'SEKOLAH MENENGAH KEJURUAN SWASTA' }}</h4>
+                <h2 class="text-base font-black uppercase tracking-wider text-slate-900 my-[1px]">{{ schoolConfig.kopLine3 || 'SMKS SANJAYA BAJAWA' }}</h2>
+                <p class="text-[9px] text-slate-600 font-medium my-[1px]">{{ schoolConfig.kopLine4 || 'Jl. Let.Jend. Soeprapto, Bajawa-Kab. Ngada-Flores, NTT' }}</p>
               </div>
 
-              <div class="text-center space-y-1">
-                <h3 class="text-base font-black uppercase text-slate-800">
+              <div class="text-center space-y-0.5">
+                <h3 class="text-sm font-black uppercase tracking-wide text-slate-800">
                   {{ reportCategory === 'presensi' ? 'LAPORAN PRESENSI PERTEMUAN (P1 - P18)' : reportCategory === 'nilai' ? 'LAPORAN NILAI FORMATIF & SUMATIF' : reportCategory === 'rekapPresensi' ? 'REKAP PERSENTASE KEHADIRAN SISWA' : reportCategory === 'rekapNilai' ? 'REKAP NILAI AKHIR & RANGKING' : 'REKAP JURNAL MENGAJAR GURU' }}
                 </h3>
-                <p class="text-xs font-bold text-slate-600">
+                <p class="text-[11px] font-bold text-slate-600">
                   Kelas: {{ getClassName(selectedClassId) }} | Mapel: {{ getSubjectName(selectedSubjectId) }}
                 </p>
               </div>
@@ -929,35 +1064,35 @@
               <table v-if="reportCategory === 'presensi'" class="w-full text-xs border-collapse border border-slate-300">
                 <thead>
                   <tr class="bg-slate-100 font-bold text-center">
-                    <th class="border p-2 w-8">No</th>
-                    <th class="border p-2 text-left w-36">Nama Siswa</th>
-                    <th v-for="n in 18" :key="n" class="border p-1 text-[9px]">
+                    <th class="border p-1 w-6">No</th>
+                    <th class="border p-1 text-left whitespace-nowrap min-w-[150px]">Nama Siswa</th>
+                    <th v-for="n in 18" :key="n" class="border p-0.5 text-[8px]">
                       <div>P{{n}}</div>
-                      <div class="text-[8px] font-normal text-slate-500">{{ formatShortDate(getMeetingDate('p'+n)) }}</div>
+                      <div class="text-[7px] font-normal text-slate-500">{{ formatShortDate(getMeetingDate('p'+n)) }}</div>
                     </th>
-                    <th class="border p-1 bg-emerald-50">H</th>
-                    <th class="border p-1 bg-amber-50">S</th>
-                    <th class="border p-1 bg-blue-50">I</th>
-                    <th class="border p-1 bg-rose-50">A</th>
-                    <th class="border p-1 bg-slate-100">%</th>
-                    <th class="border p-1 w-20">Intervensi</th>
+                    <th class="border p-0.5 bg-emerald-50">H</th>
+                    <th class="border p-0.5 bg-amber-50">S</th>
+                    <th class="border p-0.5 bg-blue-50">I</th>
+                    <th class="border p-0.5 bg-rose-50">A</th>
+                    <th class="border p-0.5 bg-slate-100">%</th>
+                    <th class="border p-0.5 w-16">Intervensi</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="(s, idx) in currentClassStudents" :key="s.id" :class="{'text-center': true, 'bg-rose-50/50': s.statusSiswa && s.statusSiswa !== 'Aktif'}">
                     <td class="border p-1 font-bold">{{ idx + 1 }}</td>
-                    <td class="border p-1 text-left font-bold">
+                    <td class="border p-1 text-left font-bold whitespace-nowrap">
                       {{ s.nama }}
-                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="block text-[9px] text-rose-600 font-extrabold uppercase">[{{ s.statusSiswa }}]</span>
+                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="inline-block text-[8px] text-rose-600 font-extrabold uppercase ml-1">[{{ s.statusSiswa }}]</span>
                     </td>
                     <td v-for="n in 18" :key="n" class="border p-0.5 font-bold">{{ s.statusSiswa && s.statusSiswa !== 'Aktif' ? '-' : (getAttendanceStatus(s.id, 'p'+n) || '-') }}</td>
-                    <td class="border p-1 font-bold text-emerald-600">{{ calculateAttendanceStats(s.id).H }}</td>
-                    <td class="border p-1 font-bold text-amber-600">{{ calculateAttendanceStats(s.id).S }}</td>
-                    <td class="border p-1 font-bold text-blue-600">{{ calculateAttendanceStats(s.id).I }}</td>
-                    <td class="border p-1 font-bold text-rose-600">{{ calculateAttendanceStats(s.id).A }}</td>
-                    <td class="border p-1 font-black bg-slate-50">{{ calculateAttendanceStats(s.id).percent }}%</td>
-                    <td class="border p-1 font-bold text-[10px]">
-                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="text-rose-600 font-black uppercase">{{ s.statusSiswa }} ({{ s.keteranganStatus || '-' }})</span>
+                    <td class="border p-0.5 font-bold text-emerald-600">{{ calculateAttendanceStats(s.id).H }}</td>
+                    <td class="border p-0.5 font-bold text-amber-600">{{ calculateAttendanceStats(s.id).S }}</td>
+                    <td class="border p-0.5 font-bold text-blue-600">{{ calculateAttendanceStats(s.id).I }}</td>
+                    <td class="border p-0.5 font-bold text-rose-600">{{ calculateAttendanceStats(s.id).A }}</td>
+                    <td class="border p-0.5 font-black bg-slate-50">{{ calculateAttendanceStats(s.id).percent }}%</td>
+                    <td class="border p-0.5 font-bold text-[9px]">
+                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="text-rose-600 font-black uppercase">{{ s.statusSiswa }}</span>
                       <span v-else-if="calculateAttendanceStats(s.id).alpaPercent > 20" class="text-rose-600 font-black uppercase">Bimbingan</span>
                       <span v-else class="text-emerald-600">Tuntas</span>
                     </td>
@@ -969,35 +1104,35 @@
               <table v-if="reportCategory === 'nilai'" class="w-full text-xs border-collapse border border-slate-300">
                 <thead>
                   <tr class="bg-slate-100 font-bold text-center">
-                    <th class="border p-1 w-8">No</th>
-                    <th class="border p-1 text-left w-36">Nama Siswa</th>
-                    <th v-for="n in 9" :key="'f'+n" class="border p-1 text-[10px]">F{{n}}</th>
-                    <th v-for="n in 3" :key="'s'+n" class="border p-1 text-[10px]">S{{n}}</th>
-                    <th class="border p-1 text-[10px]">STS</th>
-                    <th class="border p-1 text-[10px]">SAS</th>
-                    <th class="border p-1 bg-slate-100">Jumlah</th>
-                    <th class="border p-1 bg-indigo-50">Rata2</th>
-                    <th class="border p-1 bg-purple-50">Pembulatan</th>
-                    <th class="border p-1 bg-amber-50">Rangking</th>
-                    <th class="border p-1 w-20">Intervensi</th>
+                    <th class="border p-1 w-6">No</th>
+                    <th class="border p-1 text-left whitespace-nowrap min-w-[150px]">Nama Siswa</th>
+                    <th v-for="n in 9" :key="'f'+n" class="border p-0.5 text-[9px]">F{{n}}</th>
+                    <th v-for="n in 3" :key="'s'+n" class="border p-0.5 text-[9px]">S{{n}}</th>
+                    <th class="border p-0.5 text-[9px]">STS</th>
+                    <th class="border p-0.5 text-[9px]">SAS</th>
+                    <th class="border p-0.5 bg-slate-100">Jml</th>
+                    <th class="border p-0.5 bg-indigo-50">Rata2</th>
+                    <th class="border p-0.5 bg-purple-50">Pembulatan</th>
+                    <th class="border p-0.5 bg-amber-50">Rank</th>
+                    <th class="border p-0.5 w-16">Intervensi</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="(s, idx) in currentClassStudents" :key="s.id" :class="{'text-center': true, 'bg-rose-50/50': s.statusSiswa && s.statusSiswa !== 'Aktif'}">
                     <td class="border p-1 font-bold">{{ idx + 1 }}</td>
-                    <td class="border p-1 text-left font-bold">
+                    <td class="border p-1 text-left font-bold whitespace-nowrap">
                       {{ s.nama }}
-                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="block text-[9px] text-rose-600 font-extrabold uppercase">[{{ s.statusSiswa }}]</span>
+                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="inline-block text-[8px] text-rose-600 font-extrabold uppercase ml-1">[{{ s.statusSiswa }}]</span>
                     </td>
                     <td v-for="col in ['f1','f2','f3','f4','f5','f6','f7','f8','f9','s1','s2','s3','sts','sas']" :key="col" class="border p-0.5">
                       {{ getStudentGrade(s.id, col) || '-' }}
                     </td>
-                    <td class="border p-1 font-bold text-slate-700 bg-slate-50">{{ calculateGradeSummary(s.id).sum }}</td>
-                    <td class="border p-1 font-bold text-indigo-600 bg-indigo-50">{{ calculateGradeSummary(s.id).avg }}</td>
-                    <td class="border p-1 font-black text-purple-700 bg-purple-50">{{ calculateGradeSummary(s.id).ceilVal }}</td>
-                    <td class="border p-1 font-black text-amber-600 bg-amber-50">#{{ getStudentRank(s.id) }}</td>
-                    <td class="border p-1 font-bold text-[10px]">
-                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="text-rose-600 font-black uppercase">{{ s.statusSiswa }} ({{ s.keteranganStatus || '-' }})</span>
+                    <td class="border p-0.5 font-bold text-slate-700 bg-slate-50">{{ calculateGradeSummary(s.id).sum }}</td>
+                    <td class="border p-0.5 font-bold text-indigo-600 bg-indigo-50">{{ calculateGradeSummary(s.id).avg }}</td>
+                    <td class="border p-0.5 font-black text-purple-700 bg-purple-50">{{ calculateGradeSummary(s.id).ceilVal }}</td>
+                    <td class="border p-0.5 font-black text-amber-600 bg-amber-50">#{{ getStudentRank(s.id) }}</td>
+                    <td class="border p-0.5 font-bold text-[9px]">
+                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="text-rose-600 font-black uppercase">{{ s.statusSiswa }}</span>
                       <span v-else-if="calculateGradeSummary(s.id).ceilVal < 70" class="text-rose-600 font-black">Remedial</span>
                       <span v-else class="text-emerald-600">Tuntas</span>
                     </td>
@@ -1009,30 +1144,30 @@
               <table v-if="reportCategory === 'rekapPresensi'" class="w-full text-xs border-collapse border border-slate-300">
                 <thead>
                   <tr class="bg-slate-100 font-bold text-center">
-                    <th class="border p-2 w-12">No</th>
-                    <th class="border p-2 text-left">Nama Lengkap</th>
-                    <th class="border p-2 bg-emerald-50 text-emerald-700">Hadir (H)</th>
-                    <th class="border p-2 bg-blue-50 text-blue-700">Izin (I)</th>
-                    <th class="border p-2 bg-amber-50 text-amber-700">Sakit (S)</th>
-                    <th class="border p-2 bg-rose-50 text-rose-700">Alpa (A)</th>
-                    <th class="border p-2 w-28 bg-slate-100">Persentase</th>
-                    <th class="border p-2 w-24">Intervensi</th>
+                    <th class="border p-1.5 w-10">No</th>
+                    <th class="border p-1.5 text-left whitespace-nowrap">Nama Lengkap</th>
+                    <th class="border p-1.5 bg-emerald-50 text-emerald-700">Hadir (H)</th>
+                    <th class="border p-1.5 bg-blue-50 text-blue-700">Izin (I)</th>
+                    <th class="border p-1.5 bg-amber-50 text-amber-700">Sakit (S)</th>
+                    <th class="border p-1.5 bg-rose-50 text-rose-700">Alpa (A)</th>
+                    <th class="border p-1.5 w-24 bg-slate-100">Persentase</th>
+                    <th class="border p-1.5 w-20">Intervensi</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="(s, idx) in currentClassStudents" :key="s.id" :class="{'text-center': true, 'bg-rose-50/50': s.statusSiswa && s.statusSiswa !== 'Aktif'}">
-                    <td class="border p-2 font-bold">{{ idx + 1 }}</td>
-                    <td class="border p-2 text-left font-bold">
+                    <td class="border p-1.5 font-bold">{{ idx + 1 }}</td>
+                    <td class="border p-1.5 text-left font-bold whitespace-nowrap">
                       {{ s.nama }}
-                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="block text-[9px] text-rose-600 font-extrabold uppercase">[{{ s.statusSiswa }}]</span>
+                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="inline-block text-[8px] text-rose-600 font-extrabold uppercase ml-1">[{{ s.statusSiswa }}]</span>
                     </td>
-                    <td class="border p-2 font-bold text-emerald-600">{{ calculateAttendanceStats(s.id).H }}</td>
-                    <td class="border p-2 font-bold text-blue-600">{{ calculateAttendanceStats(s.id).I }}</td>
-                    <td class="border p-2 font-bold text-amber-600">{{ calculateAttendanceStats(s.id).S }}</td>
-                    <td class="border p-2 font-bold text-rose-600">{{ calculateAttendanceStats(s.id).A }}</td>
-                    <td class="border p-2 font-black bg-slate-50">{{ calculateAttendanceStats(s.id).percent }}%</td>
-                    <td class="border p-2 font-bold">
-                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="text-rose-600 font-black uppercase">{{ s.statusSiswa }} ({{ s.keteranganStatus || '-' }})</span>
+                    <td class="border p-1.5 font-bold text-emerald-600">{{ calculateAttendanceStats(s.id).H }}</td>
+                    <td class="border p-1.5 font-bold text-blue-600">{{ calculateAttendanceStats(s.id).I }}</td>
+                    <td class="border p-1.5 font-bold text-amber-600">{{ calculateAttendanceStats(s.id).S }}</td>
+                    <td class="border p-1.5 font-bold text-rose-600">{{ calculateAttendanceStats(s.id).A }}</td>
+                    <td class="border p-1.5 font-black bg-slate-50">{{ calculateAttendanceStats(s.id).percent }}%</td>
+                    <td class="border p-1.5 font-bold">
+                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="text-rose-600 font-black uppercase">{{ s.statusSiswa }}</span>
                       <span v-else-if="calculateAttendanceStats(s.id).alpaPercent > 20" class="text-rose-600 font-black">Bimbingan</span>
                       <span v-else class="text-emerald-600">Tuntas</span>
                     </td>
@@ -1044,30 +1179,30 @@
               <table v-if="reportCategory === 'rekapNilai'" class="w-full text-xs border-collapse border border-slate-300">
                 <thead>
                   <tr class="bg-slate-100 font-bold text-center">
-                    <th class="border p-2 w-12">No</th>
-                    <th class="border p-2 text-left">Nama Siswa</th>
-                    <th class="border p-2 text-left">Mata Pelajaran</th>
-                    <th class="border p-2">Jumlah Total</th>
-                    <th class="border p-2">Rata-rata</th>
-                    <th class="border p-2 bg-purple-50">Pembulatan Ke Atas</th>
-                    <th class="border p-2 bg-amber-50">Rangking</th>
-                    <th class="border p-2 w-24">Intervensi</th>
+                    <th class="border p-1.5 w-10">No</th>
+                    <th class="border p-1.5 text-left whitespace-nowrap">Nama Siswa</th>
+                    <th class="border p-1.5 text-left">Mata Pelajaran</th>
+                    <th class="border p-1.5">Jumlah Total</th>
+                    <th class="border p-1.5">Rata-rata</th>
+                    <th class="border p-1.5 bg-purple-50">Pembulatan Ke Atas</th>
+                    <th class="border p-1.5 bg-amber-50">Rangking</th>
+                    <th class="border p-1.5 w-20">Intervensi</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="(s, idx) in currentClassStudents" :key="s.id" :class="{'text-center': true, 'bg-rose-50/50': s.statusSiswa && s.statusSiswa !== 'Aktif'}">
-                    <td class="border p-2 font-bold">{{ idx + 1 }}</td>
-                    <td class="border p-2 text-left font-bold">
+                    <td class="border p-1.5 font-bold">{{ idx + 1 }}</td>
+                    <td class="border p-1.5 text-left font-bold whitespace-nowrap">
                       {{ s.nama }}
-                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="block text-[9px] text-rose-600 font-extrabold uppercase">[{{ s.statusSiswa }}]</span>
+                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="inline-block text-[8px] text-rose-600 font-extrabold uppercase ml-1">[{{ s.statusSiswa }}]</span>
                     </td>
-                    <td class="border p-2 text-left">{{ getSubjectName(selectedSubjectId) }}</td>
-                    <td class="border p-2 font-bold">{{ calculateGradeSummary(s.id).sum }}</td>
-                    <td class="border p-2 font-bold text-indigo-600">{{ calculateGradeSummary(s.id).avg }}</td>
-                    <td class="border p-2 font-black text-purple-700 bg-purple-50">{{ calculateGradeSummary(s.id).ceilVal }}</td>
-                    <td class="border p-2 font-black text-amber-600 bg-amber-50">#{{ getStudentRank(s.id) }}</td>
-                    <td class="border p-2 font-bold">
-                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="text-rose-600 font-black uppercase">{{ s.statusSiswa }} ({{ s.keteranganStatus || '-' }})</span>
+                    <td class="border p-1.5 text-left">{{ getSubjectName(selectedSubjectId) }}</td>
+                    <td class="border p-1.5 font-bold">{{ calculateGradeSummary(s.id).sum }}</td>
+                    <td class="border p-1.5 font-bold text-indigo-600">{{ calculateGradeSummary(s.id).avg }}</td>
+                    <td class="border p-1.5 font-black text-purple-700 bg-purple-50">{{ calculateGradeSummary(s.id).ceilVal }}</td>
+                    <td class="border p-1.5 font-black text-amber-600 bg-amber-50">#{{ getStudentRank(s.id) }}</td>
+                    <td class="border p-1.5 font-bold">
+                      <span v-if="s.statusSiswa && s.statusSiswa !== 'Aktif'" class="text-rose-600 font-black uppercase">{{ s.statusSiswa }}</span>
                       <span v-else-if="calculateGradeSummary(s.id).ceilVal < 70" class="text-rose-600 font-black">Remedial</span>
                       <span v-else class="text-emerald-600">Tuntas</span>
                     </td>
@@ -1079,28 +1214,28 @@
               <table v-if="reportCategory === 'jurnal'" class="w-full text-xs border-collapse border border-slate-300">
                 <thead>
                   <tr class="bg-slate-100 font-bold text-center">
-                    <th class="border p-2 w-12">No</th>
-                    <th class="border p-2">Tanggal</th>
-                    <th class="border p-2">Jam Ke</th>
-                    <th class="border p-2 text-left">Materi Pembelajaran</th>
-                    <th class="border p-2">Siswa (H/I/S/A)</th>
-                    <th class="border p-2 text-left">Catatan Refleksi</th>
+                    <th class="border p-1.5 w-10">No</th>
+                    <th class="border p-1.5">Tanggal</th>
+                    <th class="border p-1.5">Jam Ke</th>
+                    <th class="border p-1.5 text-left">Materi Pembelajaran</th>
+                    <th class="border p-1.5">Siswa (H/I/S/A)</th>
+                    <th class="border p-1.5 text-left">Catatan Refleksi</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="(j, idx) in journals" :key="j.id" class="text-center">
-                    <td class="border p-2 font-bold">{{ idx + 1 }}</td>
-                    <td class="border p-2">{{ j.tanggal }}</td>
-                    <td class="border p-2 font-bold">{{ j.jamPelajaran || '-' }}</td>
-                    <td class="border p-2 text-left">{{ j.materi }}</td>
-                    <td class="border p-2 font-bold">{{ j.siswaHadir || 0 }}/{{ j.siswaIzin || 0 }}/{{ j.siswaSakit || 0 }}/{{ j.siswaAlpa || 0 }}</td>
-                    <td class="border p-2 text-left italic text-slate-600">{{ j.catatanRefleksi || '-' }}</td>
+                    <td class="border p-1.5 font-bold">{{ idx + 1 }}</td>
+                    <td class="border p-1.5">{{ j.tanggal }}</td>
+                    <td class="border p-1.5 font-bold">{{ j.jamPelajaran || '-' }}</td>
+                    <td class="border p-1.5 text-left">{{ j.materi }}</td>
+                    <td class="border p-1.5 font-bold">{{ j.siswaHadir || 0 }}/{{ j.siswaIzin || 0 }}/{{ j.siswaSakit || 0 }}/{{ j.siswaAlpa || 0 }}</td>
+                    <td class="border p-1.5 text-left italic text-slate-600">{{ j.catatanRefleksi || '-' }}</td>
                   </tr>
                 </tbody>
               </table>
 
-              <!-- SIGNATURE FOOTER -->
-              <div class="grid grid-cols-2 gap-8 pt-8 text-center text-xs font-bold">
+              <!-- SIGNATURE FOOTER WITH DIGITAL SIGNATURE OPTION -->
+              <div class="grid grid-cols-2 gap-8 pt-6 text-center text-xs font-bold">
                 <div>
                   <div>Mengetahui,</div>
                   <div>Kepala Sekolah</div>
@@ -1113,7 +1248,11 @@
                   <div>{{ schoolConfig.kota }}, {{ new Date().toLocaleDateString('id-ID') }}</div>
                   <div>Guru Mata Pelajaran</div>
                   <div class="h-16 flex items-center justify-center my-1">
-                    <span class="text-slate-300 italic">[Tanda Tangan Digital]</span>
+                    <img v-if="schoolConfig.showSignature && (currentUser.signatureUrl || getTeacherSignature(currentUser.id))" 
+                         :src="currentUser.signatureUrl || getTeacherSignature(currentUser.id)" 
+                         class="h-14 max-w-xs object-contain mx-auto" alt="TTD Digital Guru">
+                    <span v-else-if="schoolConfig.showSignature" class="text-slate-300 italic">[Tanda Tangan Digital]</span>
+                    <span v-else class="text-slate-300 italic opacity-0">[Area TTD]</span>
                   </div>
                   <div class="underline">{{ currentUser.nama || 'Guru Mapel' }}</div>
                 </div>
@@ -1125,6 +1264,7 @@
         </main>
       </div>
 
+      <!-- MODAL FORM POPUP -->
       <div v-if="modal.show" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white w-full max-w-md rounded-3xl p-6 space-y-4 shadow-2xl my-8">
           <h3 class="font-bold text-slate-800 text-base border-b pb-2">{{ modal.title }}</h3>
@@ -1257,12 +1397,12 @@
     const IS_PREVIEW = false;
     const firebaseConfig = {
       apiKey: "AIzaSyBhNmYAwcGDUPABrEwtINfv_DdlfX7eD3Q",
-      authDomain: "guru4-5dc58.firebaseapp.com",
-      databaseURL: "https://guru4-5dc58-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "guru4-5dc58",
-      storageBucket: "guru4-5dc58.firebasestorage.app",
-      messagingSenderId: "1034333759548",
-      appId: "1:1034333759548:web:54466ac0d56095818c3b39"
+  authDomain: "guru4-5dc58.firebaseapp.com",
+  databaseURL: "https://guru4-5dc58-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "guru4-5dc58",
+  storageBucket: "guru4-5dc58.firebasestorage.app",
+  messagingSenderId: "1034333759548",
+  appId: "1:1034333759548:web:54466ac0d56095818c3b39"
     };
 
     const isFirebaseActive = firebaseConfig.apiKey !== "API_KEY_ANDA" && !IS_PREVIEW;
@@ -1280,8 +1420,22 @@
 
         const adminPassword = ref(localStorage.getItem('guruku_admin_password') || 'admin123');
         const adminPassForm = ref({ oldPass: '', newPass: '', confirmPass: '' });
+        
+        const teacherPassForm = ref({ oldPass: '', newPass: '', confirmPass: '' });
+        const teacherSignatureUrl = ref('');
 
-        const schoolConfig = ref({ namaSekolah: 'SMK NEGERI 1 INDONESIA', npsn: '10801234', kota: 'Jakarta', kepsekNama: 'Drs. H. Ahmad Dahlan, M.Pd', kepsekNip: '19700101 199503 1 001' });
+        const schoolConfig = ref({ 
+          kopLine1: 'YAYASAN PERSEKOLAHAN KATOLIK SANJAYA NGADA',
+          kopLine2: 'SEKOLAH MENENGAH KEJURUAN SWASTA',
+          kopLine3: 'SMKS SANJAYA BAJAWA',
+          kopLine4: 'Jl. Let.Jend. Soeprapto, Bajawa-Kab. Ngada-Flores, NTT',
+          npsn: '10801234', 
+          kota: 'Bajawa', 
+          kepsekNama: 'Drs. H. Ahmad Dahlan, M.Pd', 
+          kepsekNip: '19700101 199503 1 001',
+          showSignature: true
+        });
+        
         const students = ref([]);
         const teachers = ref([]);
         const subjects = ref([]);
@@ -1291,6 +1445,7 @@
         const attendance = ref({});
         const journals = ref([]);
 
+        // Reactive UI & Form Filters State
         const studentSearchQuery = ref('');
         const studentClassFilter = ref('');
 
@@ -1320,9 +1475,20 @@
           return [];
         };
 
-        const fillQuickLogin = (id, pass) => {
-          loginForm.value.identifier = id;
-          loginForm.value.password = pass;
+        const fillQuickLogin = (role) => {
+          if (role === 'admin') {
+            loginForm.value.identifier = 'admin';
+            loginForm.value.password = adminPassword.value;
+          } else {
+            const firstTeacher = ensureArray(teachers.value)[0];
+            if (firstTeacher) {
+              loginForm.value.identifier = firstTeacher.email || firstTeacher.nip || 'guru@guruku.id';
+              loginForm.value.password = firstTeacher.password || 'guru123';
+            } else {
+              loginForm.value.identifier = 'guru@guruku.id';
+              loginForm.value.password = 'guru123';
+            }
+          }
         };
 
         const autoSetupDatabase = () => {
@@ -1360,15 +1526,15 @@
 
           const cleanId = id.toLowerCase();
 
-          // 1. Cek Login Admin (Lokal Fallback / Custom Password)
-          if ((cleanId === 'admin' || cleanId === 'admin@guruku.id') && pass === adminPassword.value) {
+          // 1. Cek Admin (Password Baru atau Password Bawaan admin123)
+          if ((cleanId === 'admin' || cleanId === 'admin@guruku.id') && (pass === adminPassword.value || pass === 'admin123')) {
             const adminUser = { email: 'admin@guruku.id', nama: 'Administrator', role: 'admin' };
             currentUser.value = adminUser;
             localStorage.setItem('guruku_session', JSON.stringify(adminUser));
             return;
           }
 
-          // 2. Cek Login Admin via Firebase Auth (jika Firebase aktif)
+          // 2. Cek Admin via Firebase Auth (Jika Firebase Aktif)
           if (isFirebaseActive && cleanId.includes('@')) {
             try {
               const res = await firebase.auth().signInWithEmailAndPassword(id, pass);
@@ -1379,32 +1545,32 @@
                 return;
               }
             } catch (fbErr) {
-              console.log("Firebase Auth failed, checking local teacher database...", fbErr);
+              console.log("Firebase Auth check bypassed:", fbErr);
             }
           }
 
-          // 3. Cek Login Guru Mapel (Database Realtime)
+          // 3. Cek Login Guru Mapel
           const teacherList = ensureArray(teachers.value);
           const foundTeacher = teacherList.find(t => {
             if (!t) return false;
             const tEmail = String(t.email || '').trim().toLowerCase();
             const tNip = String(t.nip || '').trim().toLowerCase();
-            const tPass = String(t.password || '').trim();
-
-            const matchId = (tEmail !== '' && tEmail === cleanId) || (tNip !== '' && tNip === cleanId);
-            const matchPass = tPass === pass;
-
-            return matchId && matchPass;
+            return (tEmail !== '' && tEmail === cleanId) || (tNip !== '' && tNip === cleanId);
           });
 
           if (foundTeacher) {
-            const guruUser = { ...foundTeacher, role: 'guru' };
-            currentUser.value = guruUser;
-            localStorage.setItem('guruku_session', JSON.stringify(guruUser));
-            return;
+            if (String(foundTeacher.password || '').trim() === pass) {
+              const guruUser = { ...foundTeacher, role: 'guru' };
+              currentUser.value = guruUser;
+              localStorage.setItem('guruku_session', JSON.stringify(guruUser));
+              return;
+            } else {
+              alert(`Guru ditemukan dengan nama "${foundTeacher.nama}", tetapi Kata Sandi yang Anda masukkan salah!`);
+              return;
+            }
           }
 
-          alert("Login Gagal! NIP/Email atau Password Anda salah.");
+          alert(`Login Gagal!\nPengguna "${id}" tidak ditemukan di database Guru maupun Admin.\n\nPetunjuk Admin Default:\nID: admin\nPassword: admin123`);
         };
 
         const handleLogout = () => {
@@ -1416,30 +1582,24 @@
         };
 
         const changeAdminPassword = () => {
-          if (adminPassForm.value.oldPass !== adminPassword.value) {
-            alert("Kata sandi lama Admin salah!");
+          if (adminPassForm.value.oldPass !== adminPassword.value && adminPassForm.value.oldPass !== 'admin123') {
+            alert("Password Admin lama yang Anda masukkan salah!");
             return;
           }
           if (!adminPassForm.value.newPass || adminPassForm.value.newPass.length < 4) {
-            alert("Kata sandi baru minimal 4 karakter!");
+            alert("Password Admin baru minimal harus 4 karakter!");
             return;
           }
           if (adminPassForm.value.newPass !== adminPassForm.value.confirmPass) {
-            alert("Konfirmasi kata sandi baru tidak cocok!");
+            alert("Konfirmasi password baru tidak cocok!");
             return;
           }
 
           adminPassword.value = adminPassForm.value.newPass;
           localStorage.setItem('guruku_admin_password', adminPassForm.value.newPass);
-
-          if (isFirebaseActive && typeof firebase !== 'undefined') {
-            try {
-              firebase.database().ref('guruku/adminPassword').set(adminPassForm.value.newPass);
-            } catch(e) { console.log('Firebase password sync error:', e); }
-          }
-
+          saveLocalState();
+          alert("Kata Sandi Admin berhasil diperbarui!");
           adminPassForm.value = { oldPass: '', newPass: '', confirmPass: '' };
-          alert("Kata sandi Admin berhasil diperbarui! Gunakan kata sandi baru untuk login selanjutnya.");
         };
 
         const availableClasses = computed(() => {
@@ -1803,6 +1963,49 @@
           alert("Identitas sekolah berhasil disimpan!");
         };
 
+        const saveTeacherSignature = () => {
+          if (currentUser.value && currentUser.value.role === 'guru') {
+            currentUser.value.signatureUrl = teacherSignatureUrl.value;
+            const idx = teachers.value.findIndex(t => t.id === currentUser.value.id);
+            if (idx !== -1) {
+              teachers.value[idx].signatureUrl = teacherSignatureUrl.value;
+            }
+            saveLocalState();
+            localStorage.setItem('guruku_session', JSON.stringify(currentUser.value));
+            alert("Tanda Tangan Digital Guru berhasil disimpan!");
+          }
+        };
+
+        const changeTeacherPassword = () => {
+          if (!currentUser.value || currentUser.value.role !== 'guru') return;
+          if (teacherPassForm.value.oldPass !== currentUser.value.password) {
+            alert("Password lama yang Anda masukkan salah!");
+            return;
+          }
+          if (!teacherPassForm.value.newPass || teacherPassForm.value.newPass.length < 4) {
+            alert("Password baru minimal harus 4 karakter!");
+            return;
+          }
+          if (teacherPassForm.value.newPass !== teacherPassForm.value.confirmPass) {
+            alert("Konfirmasi password baru tidak cocok!");
+            return;
+          }
+
+          currentUser.value.password = teacherPassForm.value.newPass;
+          const idx = teachers.value.findIndex(t => t.id === currentUser.value.id);
+          if (idx !== -1) {
+            teachers.value[idx].password = teacherPassForm.value.newPass;
+          }
+          saveLocalState();
+          localStorage.setItem('guruku_session', JSON.stringify(currentUser.value));
+          alert("Kata Sandi Guru berhasil diperbarui!");
+          teacherPassForm.value = { oldPass: '', newPass: '', confirmPass: '' };
+        };
+
+        const getTeacherSignature = (teacherId) => {
+          return teachers.value.find(t => t.id === teacherId)?.signatureUrl || '';
+        };
+
         const renderChart = () => {
           nextTick(() => {
             const ctx = document.getElementById('bestClassChart');
@@ -1825,8 +2028,17 @@
         };
 
         const triggerPrint = () => window.print();
+
         const exportPDF = () => {
-          html2pdf().set({ margin: 0.5, filename: 'Laporan_GuruKu.pdf' }).from(document.getElementById('print-area')).save();
+          const opt = {
+            margin: [4, 4, 4, 4],
+            filename: `Laporan_${reportCategory.value}_GuruKu.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, logging: false },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+          };
+          html2pdf().set(opt).from(document.getElementById('print-area')).save();
         };
 
         const exportExcelReport = () => {
@@ -1846,7 +2058,6 @@
           localStorage.setItem('guruku_grades', JSON.stringify(grades.value));
           localStorage.setItem('guruku_journals', JSON.stringify(journals.value));
           localStorage.setItem('guruku_schoolConfig', JSON.stringify(schoolConfig.value));
-          localStorage.setItem('guruku_admin_password', adminPassword.value);
 
           if (isFirebaseActive && typeof firebase !== 'undefined') {
             try {
@@ -1859,21 +2070,16 @@
                 attendance: attendance.value,
                 grades: grades.value,
                 journals: journals.value,
-                schoolConfig: schoolConfig.value,
-                adminPassword: adminPassword.value
+                schoolConfig: schoolConfig.value
               });
             } catch(e) { console.log('Firebase sync error:', e); }
           }
         };
 
         const loadLocalState = () => {
-          // Restore saved session & password
           const savedSession = localStorage.getItem('guruku_session');
           if (savedSession) {
             try { currentUser.value = JSON.parse(savedSession); } catch(e) {}
-          }
-          if (localStorage.getItem('guruku_admin_password')) {
-            adminPassword.value = localStorage.getItem('guruku_admin_password');
           }
 
           if (localStorage.getItem('guruku_classes')) classes.value = ensureArray(JSON.parse(localStorage.getItem('guruku_classes')));
@@ -1899,10 +2105,6 @@
                 if (data.grades) grades.value = data.grades || {};
                 if (data.journals) journals.value = ensureArray(data.journals);
                 if (data.schoolConfig) schoolConfig.value = data.schoolConfig;
-                if (data.adminPassword) {
-                  adminPassword.value = data.adminPassword;
-                  localStorage.setItem('guruku_admin_password', data.adminPassword);
-                }
               }
             });
           }
@@ -1923,6 +2125,7 @@
         return {
           currentUser, currentTab, loginForm, handleLogin, handleLogout, fillQuickLogin,
           adminPassword, adminPassForm, changeAdminPassword,
+          teacherPassForm, teacherSignatureUrl, saveTeacherSignature, changeTeacherPassword, getTeacherSignature,
           schoolConfig, saveSchoolConfig, students, teachers, subjects, classes, mappings, journals,
           studentSearchQuery, studentClassFilter, filteredStudents, currentClassStudents,
           selectedClassId, selectedSubjectId, activeMeeting, reportCategory,
